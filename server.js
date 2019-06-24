@@ -34,6 +34,8 @@ function startServer() {
   const listener = app.listen(process.env.PORT, function() {
     logger.info('Your app is listening on port ' + listener.address().port);
   });
+  
+  return listener;
 }
 
 startServer();

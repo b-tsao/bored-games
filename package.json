@@ -2,9 +2,9 @@
   "//1": "describes your app and its dependencies",
   "//2": "https://docs.npmjs.com/files/package.json",
   "//3": "updating this file will download and update your packages",
-  "name": "hello-express",
+  "name": "board-games",
   "version": "0.0.1",
-  "description": "A simple Node app built on Express, instantly up and running.",
+  "description": "Board games that friends can play together via without physical pieces.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -12,7 +12,12 @@
   "dependencies": {
     "express": "^4.16.4",
     "express-http-to-https": "^1.1.4",
-    "log4js": "^4.3.2"
+    "log4js": "^4.3.2",
+    "jsx-loader": "^0.13.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0"
   },
   "engines": {
     "node": "8.x"

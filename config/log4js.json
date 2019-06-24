@@ -1,0 +1,14 @@
+{
+  "appenders": {
+    "out": {
+      "type": "stdout",
+      "layout": {
+        "type": "pattern",
+        "pattern": "%[[%d] [%p] [%c] %m]"
+      }
+    }
+  },
+  "categories": {
+    "default": {"appenders": ["out"], "level": "all"}
+  }
+}

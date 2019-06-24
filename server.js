@@ -19,7 +19,6 @@ log4js.configure('config/log4js.json');
 function startServer() {
   const app = express();
   const logger = log4js.getLogger("server");
-  const deflogger = log4js.getLogger();
 
   // Redirect HTTP to HTTPS,
   app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
@@ -33,7 +32,7 @@ function startServer() {
 
   // Start the server
   const listener = app.listen(process.env.PORT, function() {
-    console.log('Your app is listening on port ' + listener.address().port);
+    logger.info('Your app is listening on port ' + listener.address().port);
   });
 }
 

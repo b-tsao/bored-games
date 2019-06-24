@@ -1,5 +1,6 @@
 const path = require('path');
 
+
 module.exports = {
   mode: 'development',
   context: path.join(__dirname, './'),
@@ -15,10 +16,20 @@ module.exports = {
     rules: [
       {
         test: /\.jsx?$/,
-        loader: 'jsx-loader',
         exclude: /node_modules/,
-        include: path.join(__dirname, 'src'),
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react']
+          }
+        }
       },
+      // Tell Webpack how to transform files other than JS files - in this case we tell it what to do with .css files.
+      {
+        test: /.css$/,
+        loader: 'style-loader!css-loader',
+        include: path.join(__dirname, 'src')
+      }
     ],
   },
 };

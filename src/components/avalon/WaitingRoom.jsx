@@ -1,27 +1,40 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Link} from 'react-router-dom';
+import {PlayerContext} from '../../contexts/PlayerContext';
+import {
+  Button,
+} from '@material-ui/core';
 
 const names = ["Brian", "Ryan", "Curtis", "Wei", "Raymond", "Tony", "Casey"];
 
-export default class WaitingRoom extends React.Component {
-  render() {
-    return (
-      <div>
-        <h1>Waiting Room</h1>
+export default function WaitingRoom() {
+  return (
+    <div>
+      <h1>The Resistance: Avalon</h1>
 
-        <p>This is the ghetto waiting room for Avalon while you wait for your friends to join!</p>
+      <p>This is the ghetto waiting room for Avalon while you wait for your friends to join!</p>
 
-        <ul>
-          {names.map(function(name, i) {
-            return <li key={i}>{name}</li>;
-          })}
-        </ul>
+      <ul>
+        {names.map(function(name, i) {
+          return <li key={i}>{name}</li>;
+        })}
+      </ul>
 
-        <button type="join" id="join">Join</button>
-        <Link to='/'>
-          <button type="exit" id="exit" style={{marginLeft: '10px'}}>Exit</button>
-        </Link>
-      </div>
-    );
-  }
+      <Button
+        id="join"
+        variant="contained"
+        color="primary">
+        Join
+      </Button>
+      <Link to='/' style={{textDecoration: 'none'}}>
+        <Button
+        id="exit"
+        variant="contained"
+        color="primary"
+        style={{marginLeft: '10px'}}>
+        Exit
+      </Button>
+      </Link>
+    </div>
+  );
 }

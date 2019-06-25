@@ -1,23 +1,19 @@
-import React from 'react';
-import {Link} from 'react-router-dom';
+import React, {useContext} from 'react';
+import {PlayerContext} from '../../contexts/PlayerContext';
 
-export default class HelloWorld extends React.Component {
-  render() {
-    return (
-      <div>
-        <h1>Hello World!</h1>
+import Games from './Games';
 
-        <p>This is a ghetto landing page for Avalon! A quick project written and hosted on <a href="http://glitch.com">Glitch</a> to help friends play together without the need for physical board pieces or setup.</p>
+export default function HelloWorld() {
+  const playerName = useContext(PlayerContext);
+    
+  return (
+    <div>
+      <h1>Hello, {playerName ? playerName : "World"}!</h1>
 
-        <p>Enter your name here:</p>
+      <p>This is the ghetto landing page for <del>bored</del> <ins>board</ins> games! A quick project written and hosted on <a href="http://glitch.com">Glitch</a> to help friends play board games together without the need for physical board pieces or setup.</p>
 
-        <form>
-          <input name="username" type="text" maxLength="100" placeholder="Noob" aria-labelledby="submit" />
-          <Link to="/waiting" >
-            <button type="submit" id="submit">Submit</button>
-          </Link>
-        </form>
-      </div>
-    );
-  }
+      <p>Select a game:</p>
+      <Games />
+    </div>
+  );
 }

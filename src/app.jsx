@@ -1,20 +1,38 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import {Route, BrowserRouter, hashHistory} from 'react-router-dom';
+import React, {useState} from 'react';
+import {
+  Route,
+  BrowserRouter as Router
+} from 'react-router-dom';
+
+/* Import Contexts */
+import {PlayerContext} from './contexts/PlayerContext';
 
 /* Import Components */
-import Header from './components/headers/Header';
+import NameRequestModal from './components/landing/NameRequestModal';
 import HelloWorld from './components/landing/HelloWorld';
 import WaitingRoom from './components/avalon/WaitingRoom';
 
 const isMobile = window.innerWidth < 450;
 
-ReactDOM.render(
-  <div>
-    <Header />
-    <BrowserRouter>
-      <Route exact path="/" component={HelloWorld}/>
-      <Route path="/waiting" component={WaitingRoom}/>
-    </BrowserRouter>
-  </div>, document.getElementById('main')
-);
+export default function App() {
+  const [playerName, setPlayerName] = useState('');
+  
+  const setPlayerNameWrapper = (name) => {
+    if (name.length === 0) {
+      return "P13@$3 3nt3r y0ur n&m3 y0u i1l!t3r@t3 f*#%";
+    } else {
+      setPlayerName(name);
+      return false;
+    }
+  };
+  
+  return (
+    <PlayerContext.Provider value={playerName}>
+      <NameRequestModal setName={setPlayerNameWrapper} />
+      <Router>
+        <Route exact path="/" component={HelloWorld}/>
+        <Route path="/avalon/waiting" component={WaitingRoom}/>
+      </Router>
+    </PlayerContext.Provider>
+  );
+}

@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
   mode: 'development',
   context: path.join(__dirname, './'),
-  entry: './src/app.jsx',
+  entry: './src/index.jsx',
   output: {
     path: path.join(__dirname, 'public'),
     filename: 'bundle.js',
@@ -29,6 +29,10 @@ module.exports = {
         test: /.css$/,
         loader: 'style-loader!css-loader',
         include: path.join(__dirname, 'src')
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/,
+        loader: 'file-loader'
       }
     ],
   },

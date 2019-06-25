@@ -6,10 +6,11 @@
 // init project
 const express = require('express');
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
+const router = require('./router');
 
 // resources
 const log4js = require('log4js');
-log4js.configure('config/log4js.json');
+log4js.configure('log4js.config.json');
 
 /**
  * Starts the Express server.
@@ -22,10 +23,12 @@ function startServer() {
 
   // Redirect HTTP to HTTPS,
   app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
+  
+  // Logging for each request
   app.use(log4js.connectLogger(log4js.getLogger("http"), {level: 'info'}));
-
-  // Handle requests for the data
-  // app.get('/example', getExample);
+  
+  // Router setup
+  app.use(router);
 
   // Handle requests for static files
   app.use(express.static('public'));

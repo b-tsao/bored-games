@@ -8,7 +8,9 @@ import {
 
 const names = ["Brian", "Ryan", "Curtis", "Wei", "Raymond", "Tony", "Casey"];
 
-export default function WaitingRoom() {
+export default function WaitingRoom(props) {
+  const id = props.location.id;
+  
   const [socket, setSocket] = useState(null);
   
   const setPlayerName = (name, callback) => {

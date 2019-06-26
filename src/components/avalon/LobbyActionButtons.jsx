@@ -34,7 +34,12 @@ export default function LobbyActionButtons(props) {
   };
 
   const gameActionButton = props.id ?
-    <Link to='/avalon/waiting' style={{textDecoration: 'none'}}>
+    <Link
+      to={{
+        pathname: '/avalon/waiting',
+        id: props.id
+      }}
+      style={{textDecoration: 'none'}}>
       <Button
         id="join"
         variant="contained"

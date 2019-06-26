@@ -3,7 +3,7 @@ import LobbyActionButtons from './LobbyActionButtons';
 
 export default function Lobby() {
   const [games, setGames] = useState([]);
-  const [gameId, setGameId] = useState(null);
+  const [gameId, setGameId] = useState("0");
   return (
     <div>
       <h1>The Resistance: Avalon</h1>

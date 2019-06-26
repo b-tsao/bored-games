@@ -9,6 +9,7 @@ import {
 const names = ["Brian", "Ryan", "Curtis", "Wei", "Raymond", "Tony", "Casey"];
 
 export default function WaitingRoom(props) {
+  console.log(props);
   const id = props.location.id;
   
   const [socket, setSocket] = useState(null);
@@ -23,10 +24,10 @@ export default function WaitingRoom(props) {
   };
   
   const handleExit = () => {
-    socket.disconnect();
+    if (socket) {
+      socket.disconnect();
+    }
   };
-  
-  history.replaceState(null, null, '/');
   
   window.onpopstate = (e) => {
     handleExit();

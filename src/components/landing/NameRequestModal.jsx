@@ -13,8 +13,18 @@ import {
 
 export default function NameRequestModal(props) {
   const [open, setOpen] = useState(true);
+  const [disable, setDisable] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  
+  const handleOpen = () => {
+    setDisable(false);
+  }
+
+  const handleClose = () => {
+    setName('');
+    setError('');
+  }
   
   const handleChange = (event) => {
     if (error) {
@@ -23,13 +33,19 @@ export default function NameRequestModal(props) {
     setName(event.target.value);
   };
   
+  const handleCancel = () => {
+    history.go(-1);
+  }
+  
   const handleSubmit = () => {
-    const err = props.setName(name);
-    if (err) {
-      setError(err);
-    } else {
-      setOpen(false);
-    }
+    setDisable(true);
+    props.setName(name, (err) => {
+      if (err) {
+        handleOpen();
+      } else {
+        setOpen(false);
+      }
+    });
   };
   
   const errorContent = error ? <DialogContentText>{error}</DialogContentText> : null;
@@ -37,6 +53,8 @@ export default function NameRequestModal(props) {
   return (
     <Dialog
       open={open}
+      onEnter={handleOpen}
+      onClose={handleClose}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
       aria-labelledby="form-dialog-title">
@@ -60,9 +78,17 @@ export default function NameRequestModal(props) {
       </DialogContent>
       <DialogActions>
         <Button
+          id="cancel"
+          variant="contained"
+          color="primary"
+          onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button
           id="submit"
           variant="contained"
           color="primary"
+          disabled={disable}
           onClick={handleSubmit}>
           Submit
         </Button>

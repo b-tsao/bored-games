@@ -1,6 +1,7 @@
-import React, {useContext} from 'react';
+import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
-import {PlayerContext} from '../../contexts/PlayerContext';
+import socketIOClient from 'socket.io-client';
+import NameRequestModal from '../../components/landing/NameRequestModal';
 import {
   Button,
 } from '@material-ui/core';
@@ -8,8 +9,30 @@ import {
 const names = ["Brian", "Ryan", "Curtis", "Wei", "Raymond", "Tony", "Casey"];
 
 export default function WaitingRoom() {
+  const [socket, setSocket] = useState(null);
+  
+  const setPlayerName = (name, callback) => {
+    if (name.length === 0) {
+      return callback("P13@$3 3nt3r y0ur n&m3 y0u i1l!t3r@t3 f*#%");
+    } else {
+      setSocket(socketIOClient('/'));
+      return callback();
+    }
+  };
+  
+  const handleExit = () => {
+    socket.disconnect();
+  };
+  
+  history.replaceState(null, null, '/');
+  
+  window.onpopstate = (e) => {
+    handleExit();
+  };
+  
   return (
     <div>
+      <NameRequestModal setName={setPlayerName} />
       <h1>The Resistance: Avalon</h1>
 
       <p>This is the ghetto waiting room for Avalon while you wait for your friends to join!</p>
@@ -20,13 +43,16 @@ export default function WaitingRoom() {
         })}
       </ul>
 
-      <Link to='/avalon' style={{textDecoration: 'none'}}>
+      <Link
+        to='/avalon'
+        onClick={handleExit}
+        style={{textDecoration: 'none'}}>
         <Button
-        id="exit"
-        variant="contained"
-        color="primary">
-        Exit
-      </Button>
+          id="exit"
+          variant="contained"
+          color="primary">
+          Exit
+        </Button>
       </Link>
       <Button
         id="join"

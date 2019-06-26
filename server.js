@@ -7,7 +7,10 @@
 const express = require('express');
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
 const bodyParser = require("body-parser");
-const router = require('./router');
+const router = require('./routes/index');
+
+const http = require('http');
+const io = require('socket.io');
 
 // resources
 const log4js = require('log4js');
@@ -21,6 +24,7 @@ log4js.configure('log4js.config.json');
 function startServer() {
   const app = express();
   const logger = log4js.getLogger("server");
+  const ioLogger = log4js.getLogger('io');
 
   // Redirect HTTP to HTTPS,
   app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
@@ -47,13 +51,36 @@ function startServer() {
 
   // Handle requests for static files
   app.use(express.static('public'));
+  
+  const server = http.createServer(app);
+  const sio = io(server);
+  
+  // Create a socket.io instance using our express server
+  // var sio = io.listen(server);
+  ioLogger.info('Socket IO is listening on the server');
+  
+  // Setting up a socket with the namespace "connection" for new sockets
+  sio.on("connection", socket => {
+    ioLogger.info("New client connected");
 
-  // Start the server
-  const listener = app.listen(process.env.PORT, function() {
-    logger.info('Your app is listening on port ' + listener.address().port);
+    // Here we listen on a new namespace called "incoming data"
+    socket.on("incoming data", (data) => {
+        // Here we broadcast it out to all other sockets EXCLUDING the socket which sent us the data
+       socket.broadcast.emit("outgoing data", {num: data});
+    });
+
+    // A special namespace "disconnect" for when a client disconnects
+    socket.on("disconnect", () => {
+      ioLogger.warn("Client disconnected");
+    });
   });
   
-  return listener;
+  // Start the server
+  server.listen(process.env.PORT, function () {
+    logger.info('Your app is listening on port ' + server.address().port);
+  });
+  
+  return server;
 }
 
 startServer();

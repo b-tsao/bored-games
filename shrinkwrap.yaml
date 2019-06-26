@@ -1,5 +1,6 @@
 dependencies:
   '@material-ui/core': 4.1.2
+  body-parser: 1.19.0
   express: 4.17.1
   express-http-to-https: 1.1.4
   log4js: 4.3.2
@@ -5207,6 +5208,7 @@ specifiers:
   '@babel/preset-react': ^7.0.0
   '@material-ui/core': ^4.1.2
   babel-loader: ^8.0.6
+  body-parser: ^1.19.0
   css-loader: ^0.27.3
   express: ^4.16.4
   express-http-to-https: ^1.1.4

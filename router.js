@@ -1,11 +1,10 @@
 'use strict';
 
 const express = require('express');
-const profile = require('./client/profile');
+const avalon = require('./client/avalon');
 
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
-router.get('/getPlayerName', profile.getPlayerName);
-router.put('/setPlayerName', profile.setPlayerName);
+router.post('/avalon/spectate', avalon.spectate);
 
 module.exports = router;

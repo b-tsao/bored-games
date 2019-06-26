@@ -6,6 +6,7 @@
 // init project
 const express = require('express');
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
+const bodyParser = require("body-parser");
 const router = require('./router');
 
 // resources
@@ -26,6 +27,10 @@ function startServer() {
   
   // Logging for each request
   app.use(log4js.connectLogger(log4js.getLogger("http"), {level: 'info'}));
+  
+  // Enable router to parse json and url-encoded payloads
+  app.use(bodyParser.json({limit: "2mb"}));
+	app.use(bodyParser.urlencoded({ limit: "2mb", extended: false }));
   
   // Router setup
   app.use(router);

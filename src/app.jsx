@@ -10,6 +10,7 @@ import {PlayerContext} from './contexts/PlayerContext';
 /* Import Components */
 import NameRequestModal from './components/landing/NameRequestModal';
 import HelloWorld from './components/landing/HelloWorld';
+import Lobby from './components/avalon/Lobby';
 import WaitingRoom from './components/avalon/WaitingRoom';
 
 const isMobile = window.innerWidth < 450;
@@ -31,6 +32,7 @@ export default function App() {
       <NameRequestModal setName={setPlayerNameWrapper} />
       <Router>
         <Route exact path="/" component={HelloWorld}/>
+        <Route exact path="/avalon" component={Lobby} />
         <Route path="/avalon/waiting" component={WaitingRoom}/>
       </Router>
     </PlayerContext.Provider>

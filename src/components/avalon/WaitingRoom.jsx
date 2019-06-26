@@ -20,21 +20,21 @@ export default function WaitingRoom() {
         })}
       </ul>
 
-      <Button
-        id="join"
-        variant="contained"
-        color="primary">
-        Join
-      </Button>
-      <Link to='/' style={{textDecoration: 'none'}}>
+      <Link to='/avalon' style={{textDecoration: 'none'}}>
         <Button
         id="exit"
         variant="contained"
-        color="primary"
-        style={{marginLeft: '10px'}}>
+        color="primary">
         Exit
       </Button>
       </Link>
+      <Button
+        id="join"
+        variant="contained"
+        color="primary"
+        style={{marginLeft: '10px'}}>
+        Join
+      </Button>
     </div>
   );
 }

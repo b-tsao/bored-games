@@ -11,9 +11,9 @@ import {
   Typography
 } from '@material-ui/core';
 
-export default function NameRequestModal(props) {
-  const [open, setOpen] = useState(true);
+export default function CreateGameModal(props) {
   const [name, setName] = useState('');
+  const [disableClose, setDisableClose] = useState(false);
   const [error, setError] = useState('');
   
   const handleChange = (event) => {
@@ -23,29 +23,44 @@ export default function NameRequestModal(props) {
     setName(event.target.value);
   };
   
-  const handleSubmit = () => {
-    const err = props.setName(name);
-    if (err) {
-      setError(err);
-    } else {
-      setOpen(false);
-    }
+  const handleOpen = () => {
+    setDisableClose(false);
+  }
+  
+  const handleClose = () => {
+    setName('');
+    setError('');
+    props.setOpen(false);
+  };
+  
+  const handleCreate = () => {
+    setDisableClose(true);
+    props.createGame(name, (err) => {
+      if (err) {
+        setError(err);
+        handleOpen();
+      } else {
+        handleClose();
+      }
+    });
   };
   
   const errorContent = error ? <DialogContentText>{error}</DialogContentText> : null;
   
   return (
     <Dialog
-      open={open}
-      disableBackdropClick={true}
-      disableEscapeKeyDown={true}
+      open={props.open}
+      disableBackdropClick={disableClose}
+      disableEscapeKeyDown={disableClose}
+      onEnter={handleOpen}
+      onClose={handleClose}
       aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">
-        Welcome Newbie!
+        Create Game
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          To play with your friends, please enter your name here. It is recommended that you enter your real name.
+          Enter a room name
         </DialogContentText>
         <TextField
           id="name"
@@ -60,17 +75,26 @@ export default function NameRequestModal(props) {
       </DialogContent>
       <DialogActions>
         <Button
-          id="submit"
+          id="cancel"
           variant="contained"
           color="primary"
-          onClick={handleSubmit}>
-          Submit
+          onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button
+          id="create"
+          variant="contained"
+          color="primary"
+          disabled={disableClose}
+          onClick={handleCreate}>
+          Create
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-NameRequestModal.propTypes = {
-  setName: PropTypes.func.isRequired
+CreateGameModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  createGame: PropTypes.func.isRequired
 }

@@ -13,17 +13,7 @@ const useStyles = makeStyles(theme => ({
 function spectate(playerName) {
   const data = {
     playerName
-  }
-  
-  fetch('/avalon/spectate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data)
-  }).then((response) => {
-      
-  });
+  };
 }
 
 export default function Games() {
@@ -32,7 +22,7 @@ export default function Games() {
     
   return (
     <div>
-      <Link to='/avalon/waiting' onClick={() => {spectate(playerName)}}>
+      <Link to='/avalon' onClick={() => {spectate(playerName)}}>
         <img id="avalon" className={classes.games} src={window.location.origin + "/images/games/avalon.jpg"} alt="The Resistance: Avalon" />
       </Link>
     </div>

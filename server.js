@@ -33,8 +33,8 @@ function startServer() {
   app.use((req, res, next) => {
     const path = `"${req.method} ${req.path}"`;
     const body = req.body.constructor === Object && Object.entries(req.body).length === 0 ? false : JSON.stringify(req.body);
-    const bodyLog = body ? ` ${body.length} ${body}` : '';
-    const log = `${req.ip} - ${path}${bodyLog}`;
+    const payload = body ? ` ${body.length} ${body}` : '';
+    const log = `${req.ip} - ${path}${payload}`;
     log4js.getLogger("receive").info(log);
     next();
   });

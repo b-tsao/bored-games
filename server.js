@@ -25,12 +25,22 @@ function startServer() {
   // Redirect HTTP to HTTPS,
   app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 301));
   
-  // Logging for each request
-  app.use(log4js.connectLogger(log4js.getLogger("http"), {level: 'info'}));
-  
   // Enable router to parse json and url-encoded payloads
   app.use(bodyParser.json({limit: "2mb"}));
 	app.use(bodyParser.urlencoded({ limit: "2mb", extended: false }));
+  
+  // Logging for each received request
+  app.use((req, res, next) => {
+    const path = `"${req.method} ${req.path}"`;
+    const body = req.body.constructor === Object && Object.entries(req.body).length === 0 ? false : JSON.stringify(req.body);
+    const bodyLog = body ? ` ${body.length} ${body}` : '';
+    const log = `${req.ip} - ${path}${bodyLog}`;
+    log4js.getLogger("receive").info(log);
+    next();
+  });
+  
+  // Logging for each returned request
+  app.use(log4js.connectLogger(log4js.getLogger("return"), {level: 'info'}));
   
   // Router setup
   app.use(router);

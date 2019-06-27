@@ -4,7 +4,6 @@ import {makeStyles} from '@material-ui/core/styles';
 
 import {CssBaseline} from '@material-ui/core';
 import {Fab} from '@material-ui/core';
-import {CastConnected as GameIcon} from '@material-ui/icons';
 import NavBar from './NavBar';
 import SideBar from './SideBar';
 
@@ -79,7 +78,7 @@ export default function Main() {
   
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [mainDisplay, setMainDisplay] = React.useState('home');
-  const [renders, setRenders] = React.useState([]);
+  const [gameName, setGameName] = React.useState(null);
   
   const toggleDrawer = (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -120,7 +119,7 @@ export default function Main() {
           }}
           open={drawerOpen}
           setDisplay={setMainDisplay}
-          renders={renders} />
+          gameName={gameName} />
         <Fab
           color="primary"
           aria-label="Join"

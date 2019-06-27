@@ -14,6 +14,7 @@ import {
 } from '@material-ui/core';
 
 import {
+  CastConnected as GameIcon,
   Games as GamesIcon,
   Home as HomeIcon,
   Shop as ShopIcon
@@ -58,6 +59,9 @@ export default function SideBar(props) {
           </ListItemIcon>
           <ListItemText primary='Library' />
         </ListItem>
+      </List>
+      <Divider />
+      <List>
         <ListItem
           button
           onClick={e => props.setDisplay('Shop')}
@@ -67,22 +71,18 @@ export default function SideBar(props) {
           </ListItemIcon>
           <ListItemText primary='Shop' />
         </ListItem>
-      </List>
-      <Divider />
-      <List>
-        {props.renders ? props.renders.map((render, idx) =>
+        {props.gameName ?
           <ListItem
             button
-            onClick={e => props.setDisplay(render.name)}
-            key={idx}>
+            onClick={e => props.setDisplay(props.gameName)}
+            key={props.gameName}>
             <ListItemIcon>
               <Badge badgeContent={0} color="secondary">
-                {render.icon}
+                <GameIcon />
               </Badge>
             </ListItemIcon>
-            <ListItemText primary={render.name} />
-          </ListItem>
-        ) : null}
+            <ListItemText primary={props.gameName} />
+          </ListItem> : null}
         </List>
     </Drawer>
   );
@@ -90,8 +90,5 @@ export default function SideBar(props) {
 
 SideBar.propTypes = {
   setDisplay: PropTypes.func.isRequired,
-  renders: PropTypes.arrayOf(PropTypes.objectOf({
-    name: PropTypes.string,
-    icon: PropTypes.object
-  }))
+  gameName: PropTypes.string
 }

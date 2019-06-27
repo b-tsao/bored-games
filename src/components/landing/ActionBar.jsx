@@ -2,6 +2,7 @@ import React, {useState, useContext} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {
+  Badge,
   IconButton,
   Menu,
   MenuItem
@@ -9,7 +10,8 @@ import {
 import {
   AccountCircle,
   Menu as MenuIcon,
-  MoreVert as MoreIcon
+  MoreVert as MoreIcon,
+  Notifications as NotificationsIcon
 } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
@@ -88,12 +90,29 @@ export default function ActionBar() {
         </IconButton>
         <p>Sign In</p>
       </MenuItem>
+      <MenuItem onClick={null}>
+        <IconButton
+          aria-label="Show notifications"
+          color="inherit">
+          <Badge badgeContent={11} color="secondary">
+            <NotificationsIcon />
+          </Badge>
+        </IconButton>
+        <p>Notifications</p>
+      </MenuItem>
     </Menu>
   );
   
   return (
     <div>
       <div className={classes.desktop}>
+        <IconButton
+          aria-label="Show notifications"
+          color="inherit">
+          <Badge badgeContent={17} color="secondary">
+            <NotificationsIcon />
+          </Badge>
+        </IconButton>
         <IconButton
           edge="end"
           aria-label="Account of current user"

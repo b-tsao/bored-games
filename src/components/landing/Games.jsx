@@ -14,12 +14,20 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const games = [{title: 'The Resistance: Avalon', subtitle: 'Social Deduction, Deception, Teamwork, Co-op', image: '/images/games/avalon.jpg'}];
+
 export default function Games() {
   const classes = useStyles();
     
   return (
     <div className={classes.games}>
-      <GameCard />
+      {games.map((game, idx) =>
+        <GameCard
+          id={idx}
+          title={game.title}
+          subtitle={game.subtitle}
+          image={game.image} />
+      )}
     </div>
   );
 }

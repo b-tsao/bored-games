@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -44,33 +45,40 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function GameCard() {
+export default function GameCard(props) {
   const classes = useStyles();
-  
-  const handleSelect = () => {
-    console.log("Hello World!");
-  };
 
   return (
-    <Card className={classes.card}>
+    <Card key={props.id} className={classes.card}>
       <CardActionArea
-        onClick={handleSelect}
+        onClick={props.handleSelect}
         className={classes.action}>
         <CardHeader
-          subheader="The Resistance: Avalon"
+          subheader={props.title}
         />
         <div className={classes.imageHolder}>
           <img
-            src={window.location.origin + "/images/games/avalon.jpg"}
-            alt="The Resistance: Avalon"
+            src={window.location.origin + props.image}
+            alt={props.title}
             className={classes.image} />
         </div>
         <CardContent className={classes.content}>
           <Typography variant="body2" color="textSecondary" component="p">
-            Social Deduction, Deception, Teamwork, Co-op
+            {props.subtitle}
           </Typography>
         </CardContent>
       </CardActionArea>
     </Card>
   );
+}
+
+GameCard.propTypes = {
+  id: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]),
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+  image: PropTypes.string,
+  handleSelect: PropTypes.func
 }

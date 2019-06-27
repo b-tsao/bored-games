@@ -44,7 +44,7 @@ export default function NavBar(props) {
           <MenuIcon />
         </IconButton>
         <Typography className={classes.title} variant="h6" noWrap>
-          Board Games
+          Bored Games
         </Typography>
         <SearchBar />
         <div className={classes.grow} />

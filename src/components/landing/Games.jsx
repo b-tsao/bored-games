@@ -23,7 +23,7 @@ export default function Games() {
     <div className={classes.games}>
       {games.map((game, idx) =>
         <GameCard
-          id={idx}
+          key={idx}
           title={game.title}
           subtitle={game.subtitle}
           image={game.image} />

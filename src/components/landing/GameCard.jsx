@@ -1,13 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import CardActionArea from '@material-ui/core/CardActionArea';
+import PropTypes from 'prop-types';
+import {
+  Card,
+  CardActions,
+  CardActionArea,
+  CardContent,
+  CardHeader,
+  Typography
+} from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -49,7 +50,7 @@ export default function GameCard(props) {
   const classes = useStyles();
 
   return (
-    <Card key={props.id} className={classes.card}>
+    <Card className={classes.card}>
       <CardActionArea
         onClick={props.handleSelect}
         className={classes.action}>
@@ -63,7 +64,10 @@ export default function GameCard(props) {
             className={classes.image} />
         </div>
         <CardContent className={classes.content}>
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p">
             {props.subtitle}
           </Typography>
         </CardContent>
@@ -73,10 +77,6 @@ export default function GameCard(props) {
 }
 
 GameCard.propTypes = {
-  id: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]),
   title: PropTypes.string,
   subtitle: PropTypes.string,
   image: PropTypes.string,

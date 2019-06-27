@@ -1,22 +1,34 @@
 import React, {useState, useContext} from 'react';
-
-import {ThemeContext} from '../../Contexts';
+import {makeStyles} from '@material-ui/core/styles';
 
 import {
-  Badge,
   IconButton,
   Menu,
-  MenuItem,
+  MenuItem
 } from '@material-ui/core';
 import {
   AccountCircle,
   Menu as MenuIcon,
-  MoreVert as MoreIcon,
-  Notifications as NotificationsIcon
+  MoreVert as MoreIcon
 } from '@material-ui/icons';
 
+const useStyles = makeStyles(theme => ({
+  desktop: {
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
+    },
+  },
+  mobile: {
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
+      display: 'none',
+    }
+  }
+}));
+
 export default function ActionBar() {
-  const theme = useContext(ThemeContext);
+  const classes = useStyles();
   
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -53,8 +65,7 @@ export default function ActionBar() {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMenuOpen}
       onClose={handleProfileMenuClose}>
-      <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleProfileMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleProfileMenuClose}>Sign In</MenuItem>
     </Menu>
   );
   
@@ -67,7 +78,7 @@ export default function ActionBar() {
       transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}>
-      <MenuItem onClick={handleProfileMenuOpen}>
+      <MenuItem onClick={null}>
         <IconButton
           aria-label="Account of current user"
           aria-controls="primary-search-account-menu"
@@ -75,27 +86,14 @@ export default function ActionBar() {
           color="inherit">
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="Show notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
+        <p>Sign In</p>
       </MenuItem>
     </Menu>
   );
   
   return (
     <div>
-      <div className={theme.desktop}>
-        <IconButton aria-label="Show notifications" color="inherit">
-          <Badge badgeContent={17} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+      <div className={classes.desktop}>
         <IconButton
           edge="end"
           aria-label="Account of current user"
@@ -106,7 +104,7 @@ export default function ActionBar() {
           <AccountCircle />
         </IconButton>
       </div>
-      <div className={theme.mobile}>
+      <div className={classes.mobile}>
         <IconButton
           aria-label="Show more"
           aria-controls={mobileMenuId}

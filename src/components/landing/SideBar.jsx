@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {
+  Badge,
   Button,
   Divider,
   Drawer,
@@ -39,32 +40,58 @@ export default function SideBar(props) {
       open={props.open}>
       <div className={classes.toolbar} />
       <List>
-        <ListItem button onClick={e => props.setDisplay('Home')} key={'Home'}>
+        <ListItem
+          button
+          onClick={e => props.setDisplay('Home')}
+          key='Home'>
           <ListItemIcon>
             <HomeIcon />
           </ListItemIcon>
-          <ListItemText primary={'Home'} />
+          <ListItemText primary='Home' />
         </ListItem>
-        <ListItem button onClick={e => props.setDisplay('Games')} key={'Games'}>
+        <ListItem
+          button
+          onClick={e => props.setDisplay('Games')}
+          key='Games'>
           <ListItemIcon>
             <GamesIcon />
           </ListItemIcon>
-          <ListItemText primary={'Library'} />
+          <ListItemText primary='Library' />
+        </ListItem>
+        <ListItem
+          button
+          onClick={e => props.setDisplay('Shop')}
+          key='Shop'>
+          <ListItemIcon>
+            <ShopIcon />
+          </ListItemIcon>
+          <ListItemText primary='Shop' />
         </ListItem>
       </List>
       <Divider />
       <List>
-        <ListItem button onClick={e => props.setDisplay('Shop')} key={'Shop'}>
-          <ListItemIcon>
-            <ShopIcon />
-          </ListItemIcon>
-          <ListItemText primary={'Shop'} />
-        </ListItem>
-      </List>
+        {props.renders ? props.renders.map((render, idx) =>
+          <ListItem
+            button
+            onClick={e => props.setDisplay(render.name)}
+            key={idx}>
+            <ListItemIcon>
+              <Badge badgeContent={0} color="secondary">
+                {render.icon}
+              </Badge>
+            </ListItemIcon>
+            <ListItemText primary={render.name} />
+          </ListItem>
+        ) : null}
+        </List>
     </Drawer>
   );
 }
 
 SideBar.propTypes = {
-  setDisplay: PropTypes.func.isRequired
+  setDisplay: PropTypes.func.isRequired,
+  renders: PropTypes.arrayOf(PropTypes.objectOf({
+    name: PropTypes.string,
+    icon: PropTypes.object
+  }))
 }

@@ -3,14 +3,19 @@ import clsx from 'clsx';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {CssBaseline} from '@material-ui/core';
+import {Fab} from '@material-ui/core';
+import {CastConnected as GameIcon} from '@material-ui/icons';
 import NavBar from './NavBar';
 import SideBar from './SideBar';
 
 import HelloWorld from './HelloWorld';
 import Games from './Games';
+import Maintenance from './Maintenance';
+
+import {MainDisplayContext} from '../../Contexts';
 
 const mobileDrawerWidth = 150;
-const drawerWidth = 240;
+const drawerWidth = 225;
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
@@ -61,6 +66,11 @@ const useStyles = makeStyles(theme => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+  },
+  fab: {
+    position: 'absolute',
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
   }
 }));
 
@@ -69,6 +79,7 @@ export default function Main() {
   
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [mainDisplay, setMainDisplay] = React.useState('home');
+  const [renders, setRenders] = React.useState([]);
   
   const toggleDrawer = (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -84,33 +95,44 @@ export default function Main() {
       case 'games':
         return <Games />
       default:
-        return <HelloWorld />
+        return <Maintenance />
     }
   })(mainDisplay);
   
   return (
     <div className={classes.root}>
-      <CssBaseline />
-      <NavBar
-        className={classes.appBar}
-        toggleDrawer={toggleDrawer} />
-      <SideBar
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: drawerOpen,
-          [classes.drawerClose]: !drawerOpen,
-        })}
-        classes={{
-          paper: clsx({
+      <MainDisplayContext.Provider
+    value={setMainDisplay}>
+        <CssBaseline />
+        <NavBar
+          className={classes.appBar}
+          toggleDrawer={toggleDrawer} />
+        <SideBar
+          className={clsx(classes.drawer, {
             [classes.drawerOpen]: drawerOpen,
             [classes.drawerClose]: !drawerOpen,
-          }),
-        }}
-        open={drawerOpen}
-        setDisplay={setMainDisplay} />
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        {display}
-      </main>
+          })}
+          classes={{
+            paper: clsx({
+              [classes.drawerOpen]: drawerOpen,
+              [classes.drawerClose]: !drawerOpen,
+            }),
+          }}
+          open={drawerOpen}
+          setDisplay={setMainDisplay}
+          renders={renders} />
+        <Fab
+          color="primary"
+          aria-label="Join"
+          variant="extended"
+          className={classes.fab}>
+          Join Game
+        </Fab>
+        <main className={classes.content}>
+          <div className={classes.toolbar} />
+          {display}
+        </main>
+      </MainDisplayContext.Provider>
     </div>
   );
 }

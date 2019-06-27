@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
 import {makeStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -7,6 +6,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import CardActionArea from '@material-ui/core/CardActionArea';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -38,15 +38,24 @@ const useStyles = makeStyles(theme => ({
     left: 0,
     right: 0,
     background: 'rgba(255, 255, 255, 0.6)'
+  },
+  action: {
+    position: 'static'
   }
 }));
 
 export default function GameCard() {
   const classes = useStyles();
+  
+  const handleSelect = () => {
+    console.log("Hello World!");
+  };
 
   return (
-    <Link to='/avalon' style={{textDecoration: 'none'}}>
-      <Card className={classes.card}>
+    <Card className={classes.card}>
+      <CardActionArea
+        onClick={handleSelect}
+        className={classes.action}>
         <CardHeader
           subheader="The Resistance: Avalon"
         />
@@ -61,7 +70,7 @@ export default function GameCard() {
             Social Deduction, Deception, Teamwork, Co-op
           </Typography>
         </CardContent>
-      </Card>
-    </Link>
+      </CardActionArea>
+    </Card>
   );
 }

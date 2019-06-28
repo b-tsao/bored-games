@@ -48,11 +48,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function GameCard(props) {
   const classes = useStyles();
-
-  return (
+  
+  const gameCard = (
     <Card className={classes.card}>
       <CardActionArea
-        onClick={props.handleSelect}
+        onClick={() => {props.handleSelect({title: props.title, gameCard})}}
         className={classes.action}>
         <CardHeader
           subheader={props.title}
@@ -74,6 +74,8 @@ export default function GameCard(props) {
       </CardActionArea>
     </Card>
   );
+  
+  return gameCard;
 }
 
 GameCard.propTypes = {

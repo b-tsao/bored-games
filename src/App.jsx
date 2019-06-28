@@ -1,23 +1,24 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Route,
   BrowserRouter as Router
 } from 'react-router-dom';
 
 /* Import Components */
-import NameRequestModal from './components/landing/NameRequestModal';
 import Main from './components/landing/Main';
 import Lobby from './components/avalon/Lobby';
-import WaitingRoom from './components/avalon/WaitingRoom';
+
+import {SocketContext} from './Contexts';
 
 export default function App() {
+  const [socket, setSocket] = useState(null);
+  
   return (
-    <div>
+    <SocketContext.Provider value={[socket, setSocket]}>
       <Router>
         <Route exact path="/" component={Main} />
-        <Route exact path="/avalon" component={Lobby} />
-        <Route path="/avalon/waiting" component={WaitingRoom} />
+        <Route path="/avalon" component={Lobby} />
       </Router>
-    </div>
+    </SocketContext.Provider>
   );
 }

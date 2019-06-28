@@ -8,7 +8,7 @@ import NavBar from './NavBar';
 import SideBar from './SideBar';
 
 import HelloWorld from './HelloWorld';
-import Games from './Games';
+import Games from './games/Games';
 import Maintenance from './Maintenance';
 
 import {MainDisplayContext} from '../../Contexts';
@@ -23,8 +23,8 @@ const useStyles = makeStyles(theme => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
+      duration: theme.transitions.duration.leavingScreen
+    })
   },
   drawer: {
     width: mobileDrawerWidth,
@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
       width: drawerWidth
     },
     flexShrink: 0,
-    whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap'
   },
   drawerOpen: {
     width: mobileDrawerWidth,
@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
     },
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: theme.transitions.duration.enteringScreen
     }),
   },
   drawerClose: {
@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
     },
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+      duration: theme.transitions.duration.leavingScreen
     })
   },
   toolbar: {
@@ -60,16 +60,18 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: '0 8px',
-    ...theme.mixins.toolbar,
+    ...theme.mixins.toolbar
   },
   content: {
+    zIndex: 0,
     flexGrow: 1,
-    padding: theme.spacing(3),
+    padding: theme.spacing(3)
   },
   fab: {
+    zIndex: theme.zIndex.drawer + 1,
     position: 'absolute',
     bottom: theme.spacing(2),
-    right: theme.spacing(2),
+    right: theme.spacing(2)
   }
 }));
 

@@ -15,7 +15,7 @@ import {
 
 import {
   CastConnected as GameIcon,
-  Games as GamesIcon,
+  Widgets as GamesIcon,
   Home as HomeIcon,
   Shop as ShopIcon
 } from '@material-ui/icons';

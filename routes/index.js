@@ -1,10 +1,10 @@
 'use strict';
 
 const express = require('express');
-const avalon = require('./clients/avalon');
+const HelloWorld = require('./requests/HelloWorld');
 
 const router = express.Router();
 
-router.put('/avalon/create', avalon.create);
+router.get('/HelloWorld', HelloWorld.test);
 
 module.exports = router;

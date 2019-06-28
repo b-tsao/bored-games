@@ -46,7 +46,7 @@ export default function NavBar(props) {
         <Typography className={classes.title} variant="h6" noWrap>
           Bored Games
         </Typography>
-        <SearchBar />
+        {<SearchBar />}
         <div className={classes.grow} />
         <ActionBar />
       </Toolbar>

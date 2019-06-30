@@ -8,22 +8,19 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  IconButton,
   Tooltip,
   Typography
 } from '@material-ui/core';
 import {
   Send as CreateIcon
 } from '@material-ui/icons';
+import LoadingModal from './LoadingModal';
 
-import {SocketContext} from '../../../Contexts';
+import {ClientContext} from '../../../Contexts';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    maginTop: theme.spacing(1),
-    [theme.breakpoints.up('sm')]: {
-      marginTop: theme.spacing(2) + 2
-    }
+    marginTop: theme.spacing(2) + 2
   },
   button: {
     margin: theme.spacing(1)
@@ -34,9 +31,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function GameActionModal(props) {
-  const [socket, setSocket] = useContext(SocketContext);
+  const [client, setClient] = useContext(ClientContext);
   
   const [disableClose, setDisableClose] = useState(false);
+  const [loading, setLoading] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState('');
   
   const classes = useStyles();
   
@@ -49,45 +48,64 @@ export default function GameActionModal(props) {
   };
   
   const handleCreate = () => {
-    setDisableClose(true);
-    handleClose();
+    setLoading(true);
+    setLoadingMessage("Hello World");
     
-    const newClient = socketIOClient('/');
+    const client = socketIOClient('/room');
+    client.emit('create', {game: props.game.title}, (err, resp) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(resp);
+      }
+    });
     
-    setSocket(newClient);
-    newClient.on('notification', data => {console.log(data)});
-    
-    console.log(props.game.title);
+    setClient(client);
   };
   
+  const handleCreateClose = () => {
+    setLoading(false);
+    console.log('create closed');
+  }
+  
+  let loadingModal = loading ?
+      <LoadingModal
+        open={loading}
+        title="Creating Game"
+        message={loadingMessage}
+        handleClose={handleCreateClose} /> : null;
+  
   return (
-    <Dialog
-      open={!!props.game}
-      disableBackdropClick={disableClose}
-      disableEscapeKeyDown={disableClose}
-      onEnter={handleOpen}
-      onClose={handleClose}
-      aria-labelledby="form-dialog-title">
-      <DialogContent>
-        <div className={classes.card}>
-          {props.game ? props.game.gameCard : null}
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Tooltip title="Create Game" placement="top">
-          <Button
-            id="create"
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            disabled={disableClose}
-            onClick={handleCreate}>
-            Create
-            <CreateIcon className={classes.buttonIcon} />
-          </Button>
-        </Tooltip>
-      </DialogActions>
-    </Dialog>
+    <div>
+      {loadingModal}
+      <Dialog
+        open={!!props.game}
+        disableBackdropClick={disableClose}
+        disableEscapeKeyDown={disableClose}
+        onEnter={handleOpen}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title">
+        <DialogContent>
+          <div className={classes.card}>
+            {props.game ? props.game.gameCard : null}
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Tooltip title="Create Game" placement="top">
+            <Button
+              id="create"
+              variant="contained"
+              color="primary"
+              className={classes.button}
+              disabled={disableClose}
+              onClick={handleCreate}>
+              Create
+              <CreateIcon className={classes.buttonIcon} />
+            </Button>
+          </Tooltip>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 }
 

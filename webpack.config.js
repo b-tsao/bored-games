@@ -2,7 +2,7 @@ const path = require('path');
 
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   context: path.join(__dirname, './'),
   entry: './src/index.jsx',
   output: {

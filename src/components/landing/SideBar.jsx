@@ -43,15 +43,6 @@ export default function SideBar(props) {
       <List>
         <ListItem
           button
-          onClick={e => props.setDisplay('Home')}
-          key='Home'>
-          <ListItemIcon>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary='Home' />
-        </ListItem>
-        <ListItem
-          button
           onClick={e => props.setDisplay('Games')}
           key='Games'>
           <ListItemIcon>
@@ -62,6 +53,15 @@ export default function SideBar(props) {
       </List>
       <Divider />
       <List>
+        <ListItem
+          button
+          onClick={e => props.setDisplay('Home')}
+          key='Home'>
+          <ListItemIcon>
+            <HomeIcon />
+          </ListItemIcon>
+          <ListItemText primary='Home' />
+        </ListItem>
         <ListItem
           button
           onClick={e => props.setDisplay('Shop')}

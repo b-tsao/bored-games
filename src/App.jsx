@@ -6,19 +6,19 @@ import {
 
 /* Import Components */
 import Main from './components/landing/Main';
-import Lobby from './components/avalon/Lobby';
+import Room from './components/avalon/Room';
 
-import {SocketContext} from './Contexts';
+import {ClientContext} from './Contexts';
 
 export default function App() {
-  const [socket, setSocket] = useState(null);
+  const [client, setClient] = useState(null);
   
   return (
-    <SocketContext.Provider value={[socket, setSocket]}>
+    <ClientContext.Provider value={[client, setClient]}>
       <Router>
         <Route exact path="/" component={Main} />
-        <Route path="/avalon" component={Lobby} />
+        <Route path="/avalon" component={Room} />
       </Router>
-    </SocketContext.Provider>
+    </ClientContext.Provider>
   );
 }

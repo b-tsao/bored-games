@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 const router = require('./routes/index');
 
 const http = require('http');
-const IOHandler = require('./clients/IOHandler');
+const IOManager = require('./clients/IOManager');
 
 // resources
 const log4js = require('log4js');
@@ -30,7 +30,7 @@ function startServer() {
   
   // Enable router to parse json and url-encoded payloads
   app.use(bodyParser.json({limit: "2mb"}));
-	app.use(bodyParser.urlencoded({ limit: "2mb", extended: false }));
+	app.use(bodyParser.urlencoded({limit: "2mb", extended: false}));
   
   // Logging for each received request
   app.use((req, res, next) => {
@@ -53,10 +53,10 @@ function startServer() {
   
   const server = http.createServer(app);
   
-  const sio = new IOHandler(server);
+  const sio = new IOManager(server);
   
   // Start the server
-  server.listen(process.env.PORT, function () {
+  server.listen(process.env.PORT, () => {
     logger.info('Your app is listening on port ' + server.address().port);
   });
   

@@ -26,7 +26,14 @@ module.exports = {
                 "node": "current"
                 }
               }],
-              '@babel/preset-react']
+              '@babel/preset-react'],
+            plugins: [
+              ['babel-plugin-import', {
+                libraryName: '@material-ui/icons',
+                libraryDirectory: 'esm', // or '' if your bundler does not support ES modules
+                camel2DashComponentName: false,
+              }]
+            ]
           }
         }
       },

@@ -59,7 +59,6 @@ export default function GameActionModal(props) {
     setProgressMessage("Establishing connection");
     
     const client = socketIOClient('/room');
-    setClient(client);
     
     client.emit('create', {game: props.game.title});
     
@@ -69,6 +68,7 @@ export default function GameActionModal(props) {
         setShowProgress(false);
         setProgressMessage(data.message);
       } else if (data.status === 'complete') {
+        setClient(client);
         setMainDisplay('gameroom');
       } else {
         setProgressMessage(data.message);

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {Link} from 'react-router-dom';
 import socketIOClient from 'socket.io-client';
 import PropTypes from 'prop-types';
@@ -8,9 +8,17 @@ import {
 } from '@material-ui/core';
 import NameModal from '../../components/landing/games/NameModal';
 
+import {
+  ClientContext,
+  MainDisplayContext
+} from '../../Contexts';
+
 const names = ["Brian", "Ryan", "Curtis", "Wei", "Raymond", "Tony", "Casey"];
 
 export default function Room(props) {
+  const [client, setClient] = useContext(ClientContext);
+  const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
+  
   const [settings, setSettings] = useState(props.settings);
   const [openNameModal, setOpenNameModal] = useState(false);
   
@@ -29,6 +37,12 @@ export default function Room(props) {
   const handleNameModalClose = () => {
     setOpenNameModal(false);
   };
+  
+  const handleExit = () => {
+    client.disconnect();
+    setClient(null);
+    setMainDisplay('home');
+  }
   
   return (
     <div>
@@ -49,15 +63,16 @@ export default function Room(props) {
       <Button
         id="exit"
         variant="contained"
-        color="primary">
+        color="primary"
+        onClick={handleExit}>
         Exit
       </Button>
       <Button
         id="join"
         variant="contained"
         color="primary"
-        onClick={handleJoin}
-        style={{marginLeft: '10px'}}>
+        style={{marginLeft: '10px'}}
+        onClick={handleJoin}>
         Join
       </Button>
     </div>

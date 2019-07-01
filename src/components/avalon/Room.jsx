@@ -8,10 +8,7 @@ import {
 
 const names = ["Brian", "Ryan", "Curtis", "Wei", "Raymond", "Tony", "Casey"];
 
-export default function WaitingRoom(props) {
-  console.log(props);
-  const id = props.location.id;
-  
+export default function Room(props) {
   const [socket, setSocket] = useState(null);
   
   const setPlayerName = (name, callback) => {
@@ -46,17 +43,12 @@ export default function WaitingRoom(props) {
         })}
       </ul>
 
-      <Link
-        to='/avalon'
-        onClick={handleExit}
-        style={{textDecoration: 'none'}}>
-        <Button
-          id="exit"
-          variant="contained"
-          color="primary">
-          Exit
-        </Button>
-      </Link>
+      <Button
+        id="exit"
+        variant="contained"
+        color="primary">
+        Exit
+      </Button>
       <Button
         id="join"
         variant="contained"

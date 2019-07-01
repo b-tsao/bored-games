@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import clsx from 'clsx';
 import {makeStyles} from '@material-ui/core/styles';
 
@@ -9,9 +9,13 @@ import SideBar from './SideBar';
 
 import HelloWorld from './HelloWorld';
 import Games from './games/Games';
+import GameRoom from './games/GameRoom';
 import Maintenance from './Maintenance';
 
-import {MainDisplayContext} from '../../Contexts';
+import {
+  ClientContext,
+  MainDisplayContext
+} from '../../Contexts';
 
 const mobileDrawerWidth = 150;
 const drawerWidth = 225;
@@ -76,6 +80,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Main() {
+  const [client, setClient] = useContext(ClientContext);
+  
   const classes = useStyles();
   
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -88,22 +94,33 @@ export default function Main() {
     }
     setDrawerOpen(!drawerOpen);
   };
+  
+  const fab = client ? null :
+    <Fab
+      color="primary"
+      aria-label="Join"
+      variant="extended"
+      className={classes.fab}>
+      Join Game
+    </Fab>;
 
   const display = (() => {
     switch (mainDisplay.toLowerCase()) {
       case 'home':
-        return <HelloWorld />
+        return <HelloWorld />;
       case 'games':
-        return <Games />
+        return <Games />;
+      case 'gameroom':
+        return <GameRoom />;
       default:
-        return <Maintenance />
+        return <Maintenance />;
     }
-  })(mainDisplay);
+  })();
   
   return (
     <div className={classes.root}>
       <MainDisplayContext.Provider
-    value={setMainDisplay}>
+    value={[mainDisplay, setMainDisplay]}>
         <CssBaseline />
         <NavBar
           className={classes.appBar}
@@ -122,13 +139,7 @@ export default function Main() {
           open={drawerOpen}
           setDisplay={setMainDisplay}
           gameName={gameName} />
-        <Fab
-          color="primary"
-          aria-label="Join"
-          variant="extended"
-          className={classes.fab}>
-          Join Game
-        </Fab>
+        {fab}
         <main className={classes.content}>
           <div className={classes.toolbar} />
           {display}

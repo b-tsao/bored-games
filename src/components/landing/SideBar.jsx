@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 
@@ -20,6 +20,8 @@ import {
   Shop as ShopIcon
 } from '@material-ui/icons';
 
+import {ClientContext} from '../../Contexts';
+
 const useStyles = makeStyles(theme => ({
   toolbar: {
     display: 'flex',
@@ -31,7 +33,22 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function SideBar(props) {
+  const [client, setClient] = useContext(ClientContext);
+  
   const classes = useStyles();
+  
+  const gameTab = client ?
+    <ListItem
+      button
+      onClick={e => props.setDisplay('gameroom')}
+      key="Game">
+      <ListItemIcon>
+        <Badge badgeContent={0} color="secondary">
+          <GameIcon />
+        </Badge>
+      </ListItemIcon>
+      <ListItemText primary='Game' />
+    </ListItem> : null;
   
   return (
     <Drawer
@@ -71,24 +88,12 @@ export default function SideBar(props) {
           </ListItemIcon>
           <ListItemText primary='Shop' />
         </ListItem>
-        {props.gameName ?
-          <ListItem
-            button
-            onClick={e => props.setDisplay(props.gameName)}
-            key={props.gameName}>
-            <ListItemIcon>
-              <Badge badgeContent={0} color="secondary">
-                <GameIcon />
-              </Badge>
-            </ListItemIcon>
-            <ListItemText primary={props.gameName} />
-          </ListItem> : null}
+        {gameTab}
         </List>
     </Drawer>
   );
 }
 
 SideBar.propTypes = {
-  setDisplay: PropTypes.func.isRequired,
-  gameName: PropTypes.string
+  setDisplay: PropTypes.func.isRequired
 }

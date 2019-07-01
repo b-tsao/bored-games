@@ -1,8 +1,13 @@
 const path = require('path');
-
+const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
+  devtool: 'cheap-module-source-map',
+  plugins: [
+    /* new BundleAnalyzerPlugin() */
+  ],
   context: path.join(__dirname, './'),
   entry: './src/index.jsx',
   output: {
@@ -26,7 +31,8 @@ module.exports = {
                 "node": "current"
                 }
               }],
-              '@babel/preset-react'],
+              '@babel/preset-react'
+            ],
             plugins: [
               ['babel-plugin-import', {
                 libraryName: '@material-ui/icons',

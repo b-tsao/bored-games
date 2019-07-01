@@ -25,7 +25,7 @@ class GameRoomManager {
         gameSettings = AvalonSettings.initialSettings();
         break;
       default:
-        const err = new RangeError("game not supported");
+        const err = new ReferenceError("Game not supported");
         logger.error(`Failed to create game (${game}) room: ${err.message}`);
         throw err;
     }
@@ -34,8 +34,8 @@ class GameRoomManager {
     room.data = {
       game,
       settings: gameSettings,
-      spectators: {},
-      players: {}
+      spectators: [],
+      players: []
     }
     logger.info(`Game (${game}) room (${room.key}) created`);
     return room.key;
@@ -50,18 +50,23 @@ class GameRoomManager {
     logger.trace(`Removing client (${client.id}) from room (${key})`);
     const room = this.roomManager.getRoom(key);
     
-    if (client.id in room.data.spectators) {
-      delete room.data.spectators[client.id];
-    } else if (client.id in room.data.players) {
-      delete room.data.players[client.id];
+    // TODO make more efficient
+    let idx = room.data.spectators.indexOf(client.id);
+    if (idx >= 0) {
+      room.data.spectators.splice(idx, 1);
     } else {
-      logger.error(`Failed to remove client (${client.id}) from room (${key}): client not in room`);
-      return false;
+      idx = room.data.players.indexOf(client.id);
+      if (idx >= 0) {
+        room.data.players.splice(idx, 1);
+      } else {
+        logger.error(`Failed to remove client (${client.id}) from room (${key}): client not in room`);
+        return false;
+      }
     }
     
     logger.info(`Removed client (${client.id}) from room (${key})`);
     
-    const occupants = Object.keys(room.data.spectators).length + Object.keys(room.data.players).length;
+    const occupants = room.data.spectators.length + room.data.players.length;
     
     if (occupants === 0) {
       logger.trace(`Deleting room (${key}): room empty`);
@@ -82,9 +87,22 @@ class GameRoomManager {
       logger.error(`Client (${client.id}) failed to join room (${key}): room does not exist`);
       return false;
     }
-    room.data.spectators[client.id] = client;
+    room.data.spectators.push(client.id);
     logger.info(`Client (${client.id}) joined room (${key})`);
     return true;
+  }
+  
+  /**
+   * Get the room associated with the key.
+   *
+   * @return room data if successful, throws an error otherwise.
+   */
+  getRoom(key) {
+    const room = this.roomManager.getRoom(key);
+    if (room == null) {
+      throw new ReferenceError("Room does not exist");
+    }
+    return room.data;
   }
   
   /**

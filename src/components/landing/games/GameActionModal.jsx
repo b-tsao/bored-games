@@ -14,9 +14,12 @@ import {
 import {
   Send as CreateIcon
 } from '@material-ui/icons';
-import LoadingModal from './LoadingModal';
+import ProgressModal from './ProgressModal';
 
-import {ClientContext} from '../../../Contexts';
+import {
+  ClientContext,
+  MainDisplayContext
+} from '../../../Contexts';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -32,10 +35,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function GameActionModal(props) {
   const [client, setClient] = useContext(ClientContext);
+  const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
   const [disableClose, setDisableClose] = useState(false);
-  const [loading, setLoading] = useState(null);
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [progress, setProgress] = useState(false);
+  const [showProgress, setShowProgress] = useState(true);
+  const [progressStatus, setProgressStatus] = useState('');
+  const [progressMessage, setProgressMessage] = useState('');
   
   const classes = useStyles();
   
@@ -48,36 +54,47 @@ export default function GameActionModal(props) {
   };
   
   const handleCreate = () => {
-    setLoading(true);
-    setLoadingMessage("Hello World");
+    setProgress(true);
+    setProgressStatus('');
+    setShowProgress(true);
+    setProgressMessage("Establishing connection");
     
     const client = socketIOClient('/room');
-    client.emit('create', {game: props.game.title}, (err, resp) => {
-      if (err) {
-        console.error(err);
+    setClient(client);
+    
+    client.emit('create', {game: props.game.title});
+    
+    client.on('create', (data) => {
+      setProgressStatus(data.status);
+      if (data.status === 'error') {
+        setShowProgress(false);
+        setProgressMessage(data.message);
+      } else if (data.status === 'complete') {
+        setMainDisplay('gameroom');
       } else {
-        console.log(resp);
+        setProgressMessage(data.message);
       }
     });
-    
-    setClient(client);
   };
   
   const handleCreateClose = () => {
-    setLoading(false);
-    console.log('create closed');
+    if (progressStatus === 'error') {
+      setProgress(false);
+    }
   }
   
-  let loadingModal = loading ?
-      <LoadingModal
-        open={loading}
-        title="Creating Game"
-        message={loadingMessage}
+  let progressModal = progress ?
+      <ProgressModal
+        title="Create Game"
+        open={progress}
+        status={progressStatus}
+        message={progressMessage}
+        showProgress={showProgress}
         handleClose={handleCreateClose} /> : null;
   
   return (
     <div>
-      {loadingModal}
+      {progressModal}
       <Dialog
         open={!!props.game}
         disableBackdropClick={disableClose}
@@ -97,7 +114,7 @@ export default function GameActionModal(props) {
               variant="contained"
               color="primary"
               className={classes.button}
-              disabled={disableClose}
+              disabled={!!client}
               onClick={handleCreate}>
               Create
               <CreateIcon className={classes.buttonIcon} />

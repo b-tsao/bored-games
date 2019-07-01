@@ -36,6 +36,7 @@
     "jsx-loader": "^0.13.2",
     "file-loader": "^4.0.0",
     "webpack": "^4.30.0",
+    "webpack-bundle-analyzer": "^3.3.2",
     "style-loader": "^0.16.1"
   },
   "engines": {

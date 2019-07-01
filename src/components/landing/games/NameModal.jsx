@@ -13,16 +13,10 @@ import {
 } from '@material-ui/core';
 
 export default function NameRequestModal(props) {
-  const [open, setOpen] = useState(true);
-  const [disable, setDisable] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   
   const handleOpen = () => {
-    setDisable(false);
-  }
-
-  const handleClose = () => {
     setName('');
     setError('');
   }
@@ -34,30 +28,23 @@ export default function NameRequestModal(props) {
     setName(event.target.value);
   };
   
-  const handleCancel = () => {
-    history.go(-1);
-  }
-  
   const handleSubmit = () => {
-    setDisable(true);
-    props.setName(name, (err) => {
-      if (err) {
-        handleOpen();
-      } else {
-        setOpen(false);
-      }
-    });
+    const err = props.handleSubmit(name);
+    
+    if (err) {
+      setError(err);
+    } else {
+      props.handleClose();
+    }
   };
   
   const errorContent = error ? <DialogContentText>{error}</DialogContentText> : null;
   
   return (
     <Dialog
-      open={open}
+      open={props.open}
       onEnter={handleOpen}
-      onClose={handleClose}
-      disableBackdropClick={true}
-      disableEscapeKeyDown={true}
+      onClose={props.handleClose}
       aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">
         Welcome Newbie!
@@ -82,14 +69,13 @@ export default function NameRequestModal(props) {
           id="cancel"
           variant="contained"
           color="primary"
-          onClick={handleCancel}>
+          onClick={props.handleClose}>
           Cancel
         </Button>
         <Button
           id="submit"
           variant="contained"
           color="primary"
-          disabled={disable}
           onClick={handleSubmit}>
           Submit
         </Button>
@@ -99,5 +85,7 @@ export default function NameRequestModal(props) {
 }
 
 NameRequestModal.propTypes = {
-  setName: PropTypes.func.isRequired
+  open: PropTypes.bool,
+  handleSubmit: PropTypes.func.isRequired,
+  handleClose: PropTypes.func.isRequired
 }

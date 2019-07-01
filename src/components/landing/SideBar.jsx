@@ -43,7 +43,10 @@ export default function SideBar(props) {
       onClick={e => props.setDisplay('gameroom')}
       key="Game">
       <ListItemIcon>
-        <Badge badgeContent={0} color="secondary">
+        <Badge
+          invisible={true}
+          variant="dot"
+          color="secondary">
           <GameIcon />
         </Badge>
       </ListItemIcon>

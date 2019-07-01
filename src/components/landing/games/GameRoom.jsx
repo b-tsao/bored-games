@@ -12,12 +12,11 @@ export default function GameRoom() {
   const [room, setRoom] = React.useState(null);
   
   if (!room) {
-    client.emit('get');
-    client.on('get', (data) => {
-      if (data.status === 'error') {
-        console.error(data.message);
+    client.emit('get', (err, room) => {
+      if (err) {
+        console.error(err);
       } else {
-        setRoom(data.room);
+        setRoom(room);
       }
     });
   }

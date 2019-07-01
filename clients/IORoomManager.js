@@ -47,17 +47,17 @@ class IORoomManager {
   }
   
   attachGetListener(client) {
-    client.on('get', () => {
+    client.on('get', (callback) => {
       const key = client.roomKey;
       logger.trace(`Client (${client.id}) requesting room (${key}) information`);
       
       try {
         const room = this.gameRoomManager.getRoom(key);
         logger.info(`Client (${client.id} retrieved room (${key}) information`);
-        client.emit('get', {status: 'complete', room});
+        return callback(null, room);
       } catch (err) {
         logger.error(`Client (${client.id}) failed to retrieve room (${key}) information: ${err}`)
-        client.emit('get', {status: 'error', message: err.message});
+        return callback(err.message);
       }
     });
   }

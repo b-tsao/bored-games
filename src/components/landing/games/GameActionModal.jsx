@@ -8,7 +8,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  Tooltip,
   Typography
 } from '@material-ui/core';
 import {
@@ -108,18 +107,16 @@ export default function GameActionModal(props) {
           </div>
         </DialogContent>
         <DialogActions>
-          <Tooltip title="Create Game" placement="top">
-            <Button
-              id="create"
-              variant="contained"
-              color="primary"
-              className={classes.button}
-              disabled={!!client}
-              onClick={handleCreate}>
-              Create
-              <CreateIcon className={classes.buttonIcon} />
-            </Button>
-          </Tooltip>
+          <Button
+            id="create"
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            disabled={!!client}
+            onClick={handleCreate}>
+            Create
+            <CreateIcon className={classes.buttonIcon} />
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

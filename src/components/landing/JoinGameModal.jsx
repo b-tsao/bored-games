@@ -12,12 +12,12 @@ import {
   Typography
 } from '@material-ui/core';
 
-export default function NameRequestModal(props) {
-  const [name, setName] = useState('');
+export default function JoinGameModal(props) {
+  const [key, setKey] = useState('');
   const [error, setError] = useState('');
   
   const handleOpen = () => {
-    setName('');
+    setKey('');
     setError('');
   }
   
@@ -25,11 +25,11 @@ export default function NameRequestModal(props) {
     if (error) {
       setError('');
     }
-    setName(event.target.value);
+    setKey(event.target.value);
   };
   
-  const handleSubmit = () => {
-    const err = props.handleSubmit(name);
+  const handleJoin = () => {
+    const err = props.handleJoin(key);
     
     if (err) {
       setError(err);
@@ -47,15 +47,12 @@ export default function NameRequestModal(props) {
       onClose={props.handleClose}
       aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">
-        Welcome Newbie!
+        Join Game
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          To play with your friends, please enter your name here. It is recommended that you enter your real name.
-        </DialogContentText>
         <TextField
-          id="name"
-          label="Name"
+          id="key"
+          label="Room Key"
           margin="dense"
           variant="outlined"
           autoFocus
@@ -76,16 +73,16 @@ export default function NameRequestModal(props) {
           id="submit"
           variant="contained"
           color="primary"
-          onClick={handleSubmit}>
-          Submit
+          onClick={handleJoin}>
+          Join
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-NameRequestModal.propTypes = {
+JoinGameModal.propTypes = {
   open: PropTypes.bool,
-  handleSubmit: PropTypes.func.isRequired,
+  handleJoin: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired
 }

@@ -1,4 +1,5 @@
 import React, {useState, useContext} from 'react';
+import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {
@@ -52,4 +53,9 @@ export default function NavBar(props) {
       </Toolbar>
     </AppBar>
   );
+}
+
+NavBar.propTypes = {
+  className: PropTypes.string,
+  toggleDrawer: PropTypes.func
 }

@@ -10,7 +10,8 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  Zoom
 } from '@material-ui/core';
 
 import {
@@ -36,22 +37,6 @@ export default function SideBar(props) {
   const [client, setClient] = useContext(ClientContext);
   
   const classes = useStyles();
-  
-  const gameTab = client ?
-    <ListItem
-      button
-      onClick={e => props.setDisplay('gameroom')}
-      key="Game">
-      <ListItemIcon>
-        <Badge
-          invisible={true}
-          variant="dot"
-          color="secondary">
-          <GameIcon />
-        </Badge>
-      </ListItemIcon>
-      <ListItemText primary='Game' />
-    </ListItem> : null;
   
   return (
     <Drawer
@@ -91,12 +76,30 @@ export default function SideBar(props) {
           </ListItemIcon>
           <ListItemText primary='Shop' />
         </ListItem>
-        {gameTab}
-        </List>
+        <Zoom in={!!client}>
+          <ListItem
+            button
+            onClick={e => props.setDisplay('gameroom')}
+            key="Game">
+            <ListItemIcon>
+              <Badge
+                invisible={true}
+                variant="dot"
+                color="secondary">
+                <GameIcon />
+              </Badge>
+            </ListItemIcon>
+            <ListItemText primary='Game' />
+          </ListItem> 
+        </Zoom>
+      </List>
     </Drawer>
   );
 }
 
 SideBar.propTypes = {
-  setDisplay: PropTypes.func.isRequired
+  setDisplay: PropTypes.func.isRequired,
+  open: PropTypes.bool,
+  className: PropTypes.string,
+  classes: PropTypes.object
 }

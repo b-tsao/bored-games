@@ -5,7 +5,8 @@ import {
   Badge,
   IconButton,
   Menu,
-  MenuItem
+  MenuItem,
+  Zoom
 } from '@material-ui/core';
 import {
   AccountCircle,
@@ -13,6 +14,8 @@ import {
   MoreVert as MoreIcon,
   Notifications as NotificationsIcon
 } from '@material-ui/icons';
+
+import {ClientContext} from '../../Contexts';
 
 const useStyles = makeStyles(theme => ({
   desktop: {
@@ -30,10 +33,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ActionBar() {
-  const classes = useStyles();
+  const [client, setClient] = useContext(ClientContext);
   
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  
+  const classes = useStyles();
   
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -71,6 +76,18 @@ export default function ActionBar() {
     </Menu>
   );
   
+  const mobileNotifications = client ?
+    <MenuItem onClick={null}>
+      <IconButton
+        aria-label="Show notifications"
+        color="inherit">
+        <Badge badgeContent={11} color="secondary">
+          <NotificationsIcon />
+        </Badge>
+      </IconButton>
+      <p>Notifications</p>
+    </MenuItem> : null;
+  
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -90,29 +107,22 @@ export default function ActionBar() {
         </IconButton>
         <p>Sign In</p>
       </MenuItem>
-      <MenuItem onClick={null}>
-        <IconButton
-          aria-label="Show notifications"
-          color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
+      {mobileNotifications}
     </Menu>
   );
   
   return (
     <div>
       <div className={classes.desktop}>
-        <IconButton
-          aria-label="Show notifications"
-          color="inherit">
-          <Badge badgeContent={17} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+        <Zoom in={!!client}>
+          <IconButton
+            aria-label="Show notifications"
+            color="inherit">
+            <Badge badgeContent={17} color="secondary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Zoom>
         <IconButton
           edge="end"
           aria-label="Account of current user"

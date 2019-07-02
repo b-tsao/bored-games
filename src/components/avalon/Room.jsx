@@ -26,7 +26,7 @@ export default function Room(props) {
     if (name.length === 0) {
       return "P13@$3 3nt3r y0ur n&m3 y0u i1l!t3r@t3 f*#%";
     } else {
-      return null;
+      return "Not implemented yet";
     }
   };
   

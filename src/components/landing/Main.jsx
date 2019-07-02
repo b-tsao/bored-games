@@ -1,21 +1,18 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import {makeStyles} from '@material-ui/core/styles';
 
 import {CssBaseline} from '@material-ui/core';
-import {Fab} from '@material-ui/core';
 import NavBar from './NavBar';
 import SideBar from './SideBar';
+import FloatingActions from './FloatingActions';
 
 import HelloWorld from './HelloWorld';
 import Games from './games/Games';
 import GameRoom from './games/GameRoom';
 import Maintenance from './Maintenance';
 
-import {
-  ClientContext,
-  MainDisplayContext
-} from '../../Contexts';
+import {MainDisplayContext} from '../../Contexts';
 
 const mobileDrawerWidth = 150;
 const drawerWidth = 225;
@@ -80,8 +77,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Main() {
-  const [client, setClient] = useContext(ClientContext);
-  
   const classes = useStyles();
   
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -94,15 +89,6 @@ export default function Main() {
     }
     setDrawerOpen(!drawerOpen);
   };
-  
-  const fab = client ? null :
-    <Fab
-      color="primary"
-      aria-label="Join"
-      variant="extended"
-      className={classes.fab}>
-      Join Game
-    </Fab>;
 
   const display = (() => {
     switch (mainDisplay.toLowerCase()) {
@@ -139,7 +125,8 @@ export default function Main() {
           open={drawerOpen}
           setDisplay={setMainDisplay}
           gameName={gameName} />
-        {fab}
+        <FloatingActions
+          className={classes.fab} />
         <main className={classes.content}>
           <div className={classes.toolbar} />
           {display}

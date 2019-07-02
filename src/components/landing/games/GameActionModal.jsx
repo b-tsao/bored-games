@@ -36,7 +36,6 @@ export default function GameActionModal(props) {
   const [client, setClient] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
-  const [disableClose, setDisableClose] = useState(false);
   const [progress, setProgress] = useState(false);
   const [showProgress, setShowProgress] = useState(true);
   const [progressStatus, setProgressStatus] = useState('');
@@ -44,17 +43,13 @@ export default function GameActionModal(props) {
   
   const classes = useStyles();
   
-  const handleOpen = () => {
-    setDisableClose(false);
-  }
-  
   const handleClose = () => {
     props.setGame(null);
   };
   
   const handleCreate = () => {
     setProgress(true);
-    setProgressStatus('');
+    setProgressStatus('connecting');
     setShowProgress(true);
     setProgressMessage("Establishing connection");
     
@@ -83,22 +78,18 @@ export default function GameActionModal(props) {
   }
   
   let progressModal = progress ?
-      <ProgressModal
-        title="Create Game"
-        open={progress}
-        status={progressStatus}
-        message={progressMessage}
-        showProgress={showProgress}
-        handleClose={handleCreateClose} /> : null;
+    <ProgressModal
+      open={progress}
+      status={progressStatus}
+      message={progressMessage}
+      showProgress={showProgress}
+      handleClose={handleCreateClose} /> : null;
   
   return (
     <div>
       {progressModal}
       <Dialog
         open={!!props.game}
-        disableBackdropClick={disableClose}
-        disableEscapeKeyDown={disableClose}
-        onEnter={handleOpen}
         onClose={handleClose}
         aria-labelledby="form-dialog-title">
         <DialogContent>

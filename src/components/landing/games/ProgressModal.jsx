@@ -7,7 +7,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   LinearProgress,
   Typography
 } from '@material-ui/core';
@@ -38,9 +37,6 @@ export default function ProgressModal(props) {
       disableEscapeKeyDown={disableClose}
       onClose={props.handleClose}
       aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">
-        {props.title}
-      </DialogTitle>
       <DialogContent>
         <div className={classes.loading}>
           <Typography
@@ -72,7 +68,6 @@ export default function ProgressModal(props) {
 
 ProgressModal.propTypes = {
   open: PropTypes.bool.isRequired,
-  title: PropTypes.string,
   status: PropTypes.string,
   showProgress: PropTypes.bool,
   message: PropTypes.string,

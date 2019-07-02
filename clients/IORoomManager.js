@@ -11,13 +11,13 @@ class IORoomManager {
 
     this.gameRoomManager = new GameRoomManager();
     
-    this.ioServer
-      .of('/room')
-      .on('connection', (client) => {
-        this.attachCreateListener(client);
-        this.attachGetListener(client);
-        this.attachDisconnectListener(client);
-      });
+    this.ioRoomServer = this.ioServer.of('/room');
+    this.ioRoomServer.on('connection', (client) => {
+      this.attachCreateListener(client);
+      this.attachGetListener(client);
+      this.attachJoinListener(client);
+      this.attachDisconnectListener(client);
+    });
   }
   
   attachCreateListener(client) {
@@ -38,6 +38,7 @@ class IORoomManager {
           throw new Error('Client could not join room');
         }
         client.roomKey = key;
+        client.join(key);
         return client.emit('create', {status: 'complete', key});
       } catch (err) {
         client.emit('create', {status: 'error', message: err.message});
@@ -59,6 +60,26 @@ class IORoomManager {
         logger.error(`Client (${client.id}) failed to retrieve room (${key}) information: ${err}`)
         return callback(err.message);
       }
+    });
+  }
+  
+  attachJoinListener(client) {
+    client.on('joinRoom', (key) => {
+      logger.trace(`Client (${client.id}) requesting join room (${key})`);
+      
+      if (client.roomKey) {
+        logger.error(`Client (${client.id}) join room (${key}) request denied: Already in a room (${client.roomKey})`);
+        return client.emit('joinRoom', {status: 'error', message: 'Already in a room'});
+      }
+      
+      client.emit('joinRoom', {status: 'joining', message: 'Joining room'});
+      if (!this.gameRoomManager.joinRoom(key, client)) {
+        client.emit('joinRoom', {status: 'error', message: 'Room does not exist'});
+        return client.disconnect();
+      }
+      client.roomKey = key;
+      client.join(key);
+      return client.emit('joinRoom', {status: 'complete'});
     });
   }
   

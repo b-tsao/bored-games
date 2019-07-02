@@ -22,12 +22,8 @@ export default function Room(props) {
   const [settings, setSettings] = useState(props.settings);
   const [openNameModal, setOpenNameModal] = useState(false);
   
-  const setPlayerName = (name) => {
-    if (name.length === 0) {
-      return "P13@$3 3nt3r y0ur n&m3 y0u i1l!t3r@t3 f*#%";
-    } else {
-      return "Not implemented yet";
-    }
+  const setPlayerName = (name, callback) => {
+    callback("Not implemented yet");
   };
   
   const handleJoin = () => {
@@ -48,7 +44,7 @@ export default function Room(props) {
     <div>
       <NameModal
         open={openNameModal}
-        handleSubmit={setPlayerName}
+        handleJoin={setPlayerName}
         handleClose={handleNameModalClose} />
       <h1>The Resistance: Avalon</h1>
 

@@ -28,14 +28,14 @@ export default function NameRequestModal(props) {
     setName(event.target.value);
   };
   
-  const handleSubmit = () => {
-    const err = props.handleSubmit(name);
-    
-    if (err) {
-      setError(err);
-    } else {
-      props.handleClose();
-    }
+  const handleJoin = () => {
+    props.handleJoin(name, (err) => {
+      if (err) {
+        setError(err);
+      } else {
+        props.handleClose();
+      }
+    });
   };
   
   const errorContent = error ? <DialogContentText>{error}</DialogContentText> : null;
@@ -73,11 +73,12 @@ export default function NameRequestModal(props) {
           Cancel
         </Button>
         <Button
-          id="submit"
+          id="join"
           variant="contained"
           color="primary"
-          onClick={handleSubmit}>
-          Submit
+          disabled={name.length === 0}
+          onClick={handleJoin}>
+          Join
         </Button>
       </DialogActions>
     </Dialog>
@@ -86,6 +87,6 @@ export default function NameRequestModal(props) {
 
 NameRequestModal.propTypes = {
   open: PropTypes.bool,
-  handleSubmit: PropTypes.func.isRequired,
+  handleJoin: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired
 }

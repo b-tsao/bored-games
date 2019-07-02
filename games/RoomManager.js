@@ -68,7 +68,12 @@ class RoomTree {
   }
   
   get(key) {
-    return this._getNode(key).room;
+    const node = this._getNode(key);
+    if (!node) {
+      return null;
+    } else {
+      return node.room;
+    }
   }
   
   remove(key) {
@@ -93,6 +98,11 @@ class RoomTree {
     return room;
   }
   
+  /**
+   * Gets the node associated with the key.
+   *
+   * @return node if room associated with key, null if key not being associated with any rooms. If add = true then this should never return null.
+   */
   _getNode(key, add = false) {
     const keys = key.split('');
     

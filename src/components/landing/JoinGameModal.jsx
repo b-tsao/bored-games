@@ -7,38 +7,25 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   TextField,
   Typography
 } from '@material-ui/core';
 
 export default function JoinGameModal(props) {
   const [key, setKey] = useState('');
-  const [error, setError] = useState('');
   
   const handleOpen = () => {
     setKey('');
-    setError('');
   }
   
   const handleChange = (event) => {
-    if (error) {
-      setError('');
-    }
     setKey(event.target.value);
   };
   
   const handleJoin = () => {
-    const err = props.handleJoin(key);
-    
-    if (err) {
-      setError(err);
-    } else {
-      props.handleClose();
-    }
+    props.handleClose();
+    props.handleJoin(key);
   };
-  
-  const errorContent = error ? <DialogContentText>{error}</DialogContentText> : null;
   
   return (
     <Dialog
@@ -46,9 +33,6 @@ export default function JoinGameModal(props) {
       onEnter={handleOpen}
       onClose={props.handleClose}
       aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">
-        Join Game
-      </DialogTitle>
       <DialogContent>
         <TextField
           id="key"
@@ -59,7 +43,6 @@ export default function JoinGameModal(props) {
           fullWidth
           required
           onChange={handleChange} />
-        {errorContent}
       </DialogContent>
       <DialogActions>
         <Button
@@ -73,6 +56,7 @@ export default function JoinGameModal(props) {
           id="submit"
           variant="contained"
           color="primary"
+          disabled={key.length === 0}
           onClick={handleJoin}>
           Join
         </Button>

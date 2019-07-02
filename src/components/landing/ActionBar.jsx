@@ -81,7 +81,7 @@ export default function ActionBar() {
       <IconButton
         aria-label="Show notifications"
         color="inherit">
-        <Badge badgeContent={11} color="secondary">
+        <Badge badgeContent={0} color="secondary">
           <NotificationsIcon />
         </Badge>
       </IconButton>
@@ -118,7 +118,7 @@ export default function ActionBar() {
           <IconButton
             aria-label="Show notifications"
             color="inherit">
-            <Badge badgeContent={17} color="secondary">
+            <Badge badgeContent={0} color="secondary">
               <NotificationsIcon />
             </Badge>
           </IconButton>

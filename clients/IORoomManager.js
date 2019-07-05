@@ -44,6 +44,7 @@ class IORoomManager {
         // Clean changes because we already know we just joined
         return this.gameRoomManager.cleanChanges(key);
       } catch (err) {
+        logger.error(`Client (${client.id}) create room request denied: ${err}`);
         client.emit('create', {status: 'error', message: err.message});
         return client.disconnect();
       }

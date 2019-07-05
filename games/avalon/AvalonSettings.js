@@ -7,31 +7,49 @@ class AvalonSettings {
         {
           id: '5-players',
           label: '5 Players',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F5-players.png'
+          minPlayers: 5,
+          maxPlayers: 5,
+          evils: 2,
+          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F5-players.png',
         },
         {
           id: '6-players',
           label: '6 Players',
+          minPlayers: 6,
+          maxPlayers: 6,
+          evils: 2,
           img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F6-players.png'
         },
         {
           id: '7-players',
           label: '7 Players',
+          minPlayers: 7,
+          maxPlayers: 7,
+          evils: 3,
           img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F7-players.png'
         },
         {
           id: '8-players',
           label: '8 Players',
+          minPlayers: 8,
+          maxPlayers: 8,
+          evils: 3,
           img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F8-players.png'
         },
         {
           id: '9-players',
           label: '9 Players',
+          minPlayers: 9,
+          maxPlayers: 9,
+          evils: 3,
           img: 'https://cdn.glitch.com/47971c1f-0386-433d-943f-b3ab96b26402%2F9-player.png'
         },
         {
           id: '10-players',
           label: '10 Players',
+          minPlayers: 10,
+          maxPlayers: 10,
+          evils: 4,
           img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F10-players.png'
         }
       ],
@@ -112,9 +130,9 @@ class AvalonSettings {
         ]
       }
     };
+    
     return {
       ...pieces,
-      maxPlayers: 5,
       selectedBoard: 0, // 5 player board
       selectedCards: {
         good: [
@@ -126,7 +144,9 @@ class AvalonSettings {
           1, // assassin
           2, // morgana
         ]
-      }
+      },
+      get minPlayers () {return pieces.boards[this.selectedBoard].minPlayers},
+      get maxPlayers () {return pieces.boards[this.selectedBoard].maxPlayers}
     };
   }
 }

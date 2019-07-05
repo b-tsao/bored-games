@@ -11,6 +11,7 @@ import {
   AppBar,
   Button,
   Card,
+  CardActionArea,
   Checkbox,
   Container,
   CssBaseline,
@@ -478,10 +479,12 @@ const useCardStyles = makeStyles(theme => ({
   },
   card: {
     display: 'flex',
+    maxWidth: 127.66,
+    maxHeight: 199.05
   },
   image: {
-    maxWidth: 127.66,
-    maxHeight: 199.05,
+    width: '100%',
+    height: '100%',
     opacity: 0.5,
     filter: 'alpha(opacity=50)', /* For IE8 and earlier */
     '&:hover': {
@@ -490,8 +493,8 @@ const useCardStyles = makeStyles(theme => ({
     }
   },
   selectedImage: {
-    maxWidth: 127.66,
-    maxHeight: 199.05,
+    width: '100%',
+    height: '100%',
     opacity: 1.0,
     filter: 'alpha(opacity=100)', /* For IE8 and earlier */
   }
@@ -502,52 +505,46 @@ function CardGrid({settings}) {
   
   const board = settings.selectedBoard;
   
-  const players = 5 + board;
-  let evil = 0;
-  switch (players) {
-    case 5: // 5 players, 2 minions of mordred
-    case 6: // 6 players, 2 minions of mordred
-      evil = 2;
-      break;
-    case 7: // 7 players, 3 minions of mordred
-    case 8: // 8 players, 3 minions of mordred
-    case 9: // 9 players, 3 minions of mordred
-      evil = 3;
-      break;
-    case 10: // 10 players, 4 minions of mordred
-      evil = 4;
-      break;
-  }
-  const good = players - evil;
+  const handleSelect = (card) => {
+    
+  };
   
   return (
     <Container className={classes.container} maxWidth="md">
       <Paper square elevation={0} className={classes.header}>
-        <Typography>Good ({settings.selectedCards.good.length}/{good})</Typography>
+        <Typography>Good ({settings.selectedCards.good.length}/{settings.maxPlayers - settings.boards[settings.selectedBoard].evils})</Typography>
       </Paper>
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         {settings.cards.good.map((card, idx) => (
           <Grid item key={card.id}>
             <Card className={classes.card}>
-              <img
-                src={card.img}
-                alt={card.label}
-                className={settings.selectedCards.good.indexOf(idx) < 0 ? classes.image : classes.selectedImage} />
+              <CardActionArea onClick={() => {handleSelect(card)}}>
+                <img
+                  src={card.img}
+                  alt={card.label}
+                  className={settings.selectedCards.good.indexOf(idx) < 0 ?
+                    classes.image : classes.selectedImage} />
+              </CardActionArea>
             </Card>
           </Grid>
         ))}
       </Grid>
       <Paper square elevation={0} className={classes.header}>
-        <Typography>Evil ({settings.selectedCards.evil.length}/{evil})</Typography>
+        <Typography>Evil ({settings.selectedCards.evil.length}/{settings.boards[settings.selectedBoard].evils})</Typography>
       </Paper>
-      <Grid container spacing={4}>
+      <Grid container spacing={2}>
         {settings.cards.evil.map((card, idx) => (
           <Grid item key={card.id}>
             <Card className={classes.card}>
-              <img
-                src={card.img}
-                alt={card.label}
-                className={settings.selectedCards.evil.indexOf(idx) < 0 ? classes.image : classes.selectedImage} />
+              <CardActionArea
+        onClick={() => {handleSelect(card)}}
+        className={classes.action}>
+                <img
+                  src={card.img}
+                  alt={card.label}
+                  className={settings.selectedCards.evil.indexOf(idx) < 0 ?
+                    classes.image : classes.selectedImage} />
+              </CardActionArea>
             </Card>
           </Grid>
         ))}

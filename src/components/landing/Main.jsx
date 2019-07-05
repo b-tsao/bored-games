@@ -65,8 +65,7 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     zIndex: 0,
-    flexGrow: 1,
-    padding: theme.spacing(3)
+    flexGrow: 1
   },
   fab: {
     zIndex: theme.zIndex.drawer + 1,

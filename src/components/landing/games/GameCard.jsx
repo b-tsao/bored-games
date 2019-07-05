@@ -59,7 +59,7 @@ export default function GameCard(props) {
         />
         <div className={classes.imageHolder}>
           <img
-            src={window.location.origin + props.image}
+            src={props.image}
             alt={props.title}
             className={classes.image} />
         </div>

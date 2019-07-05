@@ -10,9 +10,16 @@ import {
 import {
   AppBar,
   Button,
+  Card,
+  Checkbox,
   Container,
   CssBaseline,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
   Grid,
+  Hidden,
   IconButton,
   Menu,
   MenuItem,
@@ -41,7 +48,8 @@ import {
   MoreVert as MoreIcon,
   Person as HostIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight
+  KeyboardArrowRight,
+  StarBorder as StarIcon
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
 import ConnectModal from '../landing/ConnectModal';
@@ -55,7 +63,11 @@ const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
     marginTop: theme.spacing(3),
-    overflowX: 'auto',
+    overflowX: 'auto'
+  },
+  container: {
+    paddingLeft: 0,
+    paddingRight: 0
   },
   table: {
   },
@@ -89,7 +101,7 @@ TabContainer.propTypes = {
 };
 
 const useToolbarStyles = makeStyles(theme => ({
-  root: {
+  toolbar: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(1),
   },
@@ -101,10 +113,7 @@ const useToolbarStyles = makeStyles(theme => ({
     color: theme.palette.text.secondary,
   },
   title: {
-    display: 'none',
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-    },
+    display: 'flex',
     flex: '0 0 auto',
   },
 }));
@@ -187,11 +196,13 @@ const ActionToolbar = props => {
         open={openNameModal}
         handleJoin={setPlayerName}
         handleClose={handleNameModalClose} />
-      <Toolbar className={classes.root}>
+      <Toolbar className={classes.toolbar}>
         <div className={classes.title}>
-          <Typography variant="h6" id="tableTitle">
-            Spectators: {spectators.length}
-          </Typography>
+          <Hidden xsDown>
+            <Typography variant="h6" id="tableTitle">
+              Spectators: {spectators.length}
+            </Typography>
+          </Hidden>
         </div>
         <div className={classes.spacer} />
         <div className={classes.actions}>
@@ -336,7 +347,7 @@ function ActionMenu({disabled}) {
 }
 
 const useStepStyles = makeStyles(theme => ({
-  root: {
+  board: {
     maxWidth: 400,
     flexGrow: 1,
   },
@@ -371,7 +382,7 @@ export function BoardStepper({settings}) {
   }
 
   return (
-    <div className={classes.root}>
+    <div className={classes.board}>
       <Paper square elevation={0} className={classes.header}>
         <Typography>{settings.boards[activeStep].label}</Typography>
       </Paper>
@@ -399,6 +410,149 @@ export function BoardStepper({settings}) {
         }
       />
     </div>
+  );
+}
+
+const useExtraSettingsStyles = makeStyles(theme => ({
+  extraSettings: {
+    display: 'flex',
+  },
+  formControl: {
+    margin: theme.spacing(3),
+    [theme.breakpoints.up('md')]: {
+      padding: theme.spacing(6) + 4
+    }
+  },
+}));
+
+function ExtraSettings({settings}) {
+  const classes = useExtraSettingsStyles();
+  
+  const [state, setState] = React.useState({
+    enableHistory: true,
+    spectatorsSeeIdentity: false,
+    evilClarivoyance: false
+  });
+
+  const handleChange = name => event => {
+    setState({ ...state, [name]: event.target.checked });
+  };
+
+  const {spectatorsSeeIdentity, enableHistory, evilClarivoyance} = state;
+  return (
+    <div className={classes.extraSettings}>
+      <FormControl component="fieldset" className={classes.formControl}>
+        <FormLabel component="legend">Extra Settings</FormLabel>
+        <FormGroup>
+          <FormControlLabel
+            control={<Checkbox checked={enableHistory} onChange={handleChange('enableHistory')} value="enableHistory" />}
+            label="Enable history"
+          />
+          <FormControlLabel
+            control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
+            label="Enable spectators to see everyone’s identity"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox checked={evilClarivoyance} onChange={handleChange('evilClarivoyance')} value="evilClarivoyance" />
+            }
+            label="Enable evil to see each other’s vote"
+          />
+        </FormGroup>
+      </FormControl>
+    </div>
+  );
+}
+
+const useCardStyles = makeStyles(theme => ({
+  container: {
+    paddingLeft: 0,
+    paddingRight: 0
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    height: 50,
+    paddingLeft: theme.spacing(4),
+    backgroundColor: theme.palette.background.default,
+  },
+  card: {
+    display: 'flex',
+  },
+  image: {
+    maxWidth: 127.66,
+    maxHeight: 199.05,
+    opacity: 0.5,
+    filter: 'alpha(opacity=50)', /* For IE8 and earlier */
+    '&:hover': {
+      opacity: 1.0,
+      filter: 'alpha(opacity=100)'
+    }
+  },
+  selectedImage: {
+    maxWidth: 127.66,
+    maxHeight: 199.05,
+    opacity: 1.0,
+    filter: 'alpha(opacity=100)', /* For IE8 and earlier */
+  }
+}));
+
+function CardGrid({settings}) {
+  const classes = useCardStyles();
+  
+  const board = settings.selectedBoard;
+  
+  const players = 5 + board;
+  let evil = 0;
+  switch (players) {
+    case 5: // 5 players, 2 minions of mordred
+    case 6: // 6 players, 2 minions of mordred
+      evil = 2;
+      break;
+    case 7: // 7 players, 3 minions of mordred
+    case 8: // 8 players, 3 minions of mordred
+    case 9: // 9 players, 3 minions of mordred
+      evil = 3;
+      break;
+    case 10: // 10 players, 4 minions of mordred
+      evil = 4;
+      break;
+  }
+  const good = players - evil;
+  
+  return (
+    <Container className={classes.container} maxWidth="md">
+      <Paper square elevation={0} className={classes.header}>
+        <Typography>Good ({settings.selectedCards.good.length}/{good})</Typography>
+      </Paper>
+      <Grid container spacing={4}>
+        {settings.cards.good.map((card, idx) => (
+          <Grid item key={card.id}>
+            <Card className={classes.card}>
+              <img
+                src={card.img}
+                alt={card.label}
+                className={settings.selectedCards.good.indexOf(idx) < 0 ? classes.image : classes.selectedImage} />
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+      <Paper square elevation={0} className={classes.header}>
+        <Typography>Evil ({settings.selectedCards.evil.length}/{evil})</Typography>
+      </Paper>
+      <Grid container spacing={4}>
+        {settings.cards.evil.map((card, idx) => (
+          <Grid item key={card.id}>
+            <Card className={classes.card}>
+              <img
+                src={card.img}
+                alt={card.label}
+                className={settings.selectedCards.evil.indexOf(idx) < 0 ? classes.image : classes.selectedImage} />
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
   );
 }
 
@@ -439,7 +593,7 @@ export default function Room(props) {
     <React.Fragment>
       <CssBaseline />
       <div className={classes.heroContent}>
-        <Container maxWidth="sm">
+        <Container className={classes.container} maxWidth="sm">
           <Typography component="h1" variant="h6" align="center" color="textPrimary" gutterBottom>
             The Resistance: Avalon
           </Typography>
@@ -461,7 +615,7 @@ export default function Room(props) {
           </div>
         </Container>
       </div>
-      <Container maxWidth="md">
+      <Container className={classes.container} maxWidth="md">
         {tabValue === 0 && <TabContainer dir={theme.direction}>
           <ActionToolbar
             self={self}
@@ -476,6 +630,8 @@ export default function Room(props) {
         {tabValue === 1 && <TabContainer dir={theme.direction}>
           <Grid container spacing={4}>
             <BoardStepper settings={room.data.settings} />
+            <ExtraSettings settings={room.data.settings} />
+            <CardGrid settings={room.data.settings} />
           </Grid>
         </TabContainer>}
       </Container>

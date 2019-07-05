@@ -13,7 +13,7 @@ import {
 import {
   Send as CreateIcon
 } from '@material-ui/icons';
-import ProgressModal from './ProgressModal';
+import ConnectModal from '../ConnectModal';
 
 import {
   ClientContext,
@@ -36,10 +36,8 @@ export default function GameActionModal(props) {
   const [client, setClient] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
-  const [progress, setProgress] = useState(false);
-  const [showProgress, setShowProgress] = useState(true);
-  const [progressStatus, setProgressStatus] = useState('');
-  const [progressMessage, setProgressMessage] = useState('');
+  const [connect, setConnect] = useState(false);
+  const [data, setData] = useState(null);
   
   const classes = useStyles();
   
@@ -48,46 +46,29 @@ export default function GameActionModal(props) {
   };
   
   const handleCreate = () => {
-    setProgress(true);
-    setProgressStatus('connecting');
-    setShowProgress(true);
-    setProgressMessage("Establishing connection");
-    
-    const client = socketIOClient('/room');
-    
-    client.emit('create', {game: props.game.title});
-    
-    client.on('create', (data) => {
-      setProgressStatus(data.status);
-      if (data.status === 'error') {
-        setShowProgress(false);
-        setProgressMessage(data.message);
-      } else if (data.status === 'complete') {
-        setClient(client);
-        setMainDisplay('gameroom');
-      } else {
-        setProgressMessage(data.message);
-      }
-    });
+    setData({game: props.game.title});
+    setConnect(true);
   };
   
-  const handleCreateClose = () => {
-    if (progressStatus === 'error') {
-      setProgress(false);
-    }
-  }
+  const handleConnectClose = () => {
+    setConnect(false);
+  };
   
-  let progressModal = progress ?
-    <ProgressModal
-      open={progress}
-      status={progressStatus}
-      message={progressMessage}
-      showProgress={showProgress}
-      handleClose={handleCreateClose} /> : null;
+  const handleComplete = (client) => {
+    setClient(client);
+    setConnect(false);
+    setMainDisplay('gameroom');
+  };
   
   return (
     <div>
-      {progressModal}
+      <ConnectModal
+        connect={connect}
+        namespace='/room'
+        event='create'
+        data={data}
+        onComplete={handleComplete}
+        onClose={handleConnectClose} />
       <Dialog
         open={!!props.game}
         onClose={handleClose}

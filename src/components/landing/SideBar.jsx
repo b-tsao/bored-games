@@ -15,10 +15,10 @@ import {
 } from '@material-ui/core';
 
 import {
-  CastConnected as GameIcon,
+  Link as GameIcon,
   Widgets as GamesIcon,
   Home as HomeIcon,
-  Shop as ShopIcon
+  Shop as StoreIcon
 } from '@material-ui/icons';
 
 import {ClientContext} from '../../Contexts';
@@ -69,12 +69,12 @@ export default function SideBar(props) {
         </ListItem>
         <ListItem
           button
-          onClick={e => props.setDisplay('Shop')}
-          key='Shop'>
+          onClick={e => props.setDisplay('Store')}
+          key='Store'>
           <ListItemIcon>
-            <ShopIcon />
+            <StoreIcon />
           </ListItemIcon>
-          <ListItemText primary='Shop' />
+          <ListItemText primary='Store' />
         </ListItem>
         <Zoom in={!!client}>
           <ListItem

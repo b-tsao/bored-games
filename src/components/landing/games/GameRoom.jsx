@@ -22,9 +22,9 @@ export default function GameRoom() {
   }
 
   const display = room ? (() => {
-    switch (room.game) {
+    switch (room.data.game) {
       case 'The Resistance: Avalon':
-        return <AvalonRoom settings={room.settings} />
+        return <AvalonRoom room={room} />
       default:
         return <Maintenance />
     }

@@ -33,13 +33,16 @@ class IORoomManager {
       try {
         const key = this.gameRoomManager.createRoom(data.game);
         client.emit('create', {status: 'creating', message: 'Joining room'});
-        if (!this.gameRoomManager.joinRoom(key, client)) {
+        const err = this.gameRoomManager.joinRoom(key, client);
+        if (err) {
           this.gameRoomManager.deleteRoom(key);
           throw new Error('Client could not join room');
         }
         client.roomKey = key;
         client.join(key);
-        return client.emit('create', {status: 'complete', key});
+        client.emit('create', {status: 'complete', key});
+        // Clean changes because we already know we just joined
+        return this.gameRoomManager.cleanChanges(key);
       } catch (err) {
         client.emit('create', {status: 'error', message: err.message});
         return client.disconnect();
@@ -67,29 +70,66 @@ class IORoomManager {
     client.on('joinRoom', (key) => {
       logger.trace(`Client (${client.id}) requesting join room (${key})`);
       
-      if (client.roomKey) {
+      if (key == null) {
+        if (client.roomKey) {
+          key = client.roomKey;  
+        } else {
+          logger.error(`Client (${client.id}) join room (${key}) request denied: Invalid key`);
+          return client.emit('joinRoom', {status: 'error', message: 'Invalid key'});
+        }
+      } else {
+        key = key.toUpperCase();
+      }
+      
+      if (client.roomKey && client.roomKey !== key) {
         logger.error(`Client (${client.id}) join room (${key}) request denied: Already in a room (${client.roomKey})`);
         return client.emit('joinRoom', {status: 'error', message: 'Already in a room'});
       }
       
       client.emit('joinRoom', {status: 'joining', message: 'Joining room'});
-      if (!this.gameRoomManager.joinRoom(key, client)) {
-        client.emit('joinRoom', {status: 'error', message: 'Room does not exist'});
+      const err = this.gameRoomManager.joinRoom(key, client);
+      if (err) {
+        client.emit('joinRoom', {status: 'error', message: err});
         return client.disconnect();
       }
-      client.roomKey = key;
-      client.join(key);
-      return client.emit('joinRoom', {status: 'complete'});
+      if (!client.roomKey) {
+        client.join(key);
+        client.roomKey = key;
+      }
+      client.emit('joinRoom', {status: 'complete'});
+      return this.broadcastChanges(key);
+    });
+    
+    client.on('joinGame', (name) => {
+      const key = client.roomKey;
+      logger.trace(`Client (${client.id}) requesting to join game in room (${key}) as name (${name})`);
+      client.emit('joinGame', {status: 'joining', message: 'Joining game'});
+      const err = this.gameRoomManager.joinGame(key, client, name);
+      if (err) {
+        return client.emit('joinGame', {status: 'error', message: err});
+      }
+      client.emit('joinGame', {status: 'complete'});
+      return this.broadcastChanges(key);
     });
   }
   
   attachDisconnectListener(client) {
     client.on('disconnect', (reason) => {
-      if (client.roomKey) {
+      const key = client.roomKey;
+      if (key) {
         logger.trace(`Removing client (${client.id}) from room (${client.roomKey}): ${reason}`);
         this.gameRoomManager.removeClient(client.roomKey, client);
+        try {
+          return this.broadcastChanges(key);
+        } catch (err) {}
       }
     });
+  }
+  
+  broadcastChanges(room) {
+    const changes = this.gameRoomManager.cleanChanges(room);
+    logger.info(`Broadcasting changes to room (${room}): ${JSON.stringify(changes)}`);
+    this.ioRoomServer.to(room).emit('change', changes);
   }
 }
 

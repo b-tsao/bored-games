@@ -18,7 +18,7 @@ class RoomManager {
   createRoom() {
     let room = null;
     do {
-      let uid = uuid().split('-')[0];
+      let uid = uuid().split('-')[0].toUpperCase().substring(0, 4);
       room = this.roomTree.add(uid);
     } while (!room);
     return room;
@@ -30,7 +30,7 @@ class RoomManager {
    * @return {Object<key: String, data: null>} room associated with key, null if the key is not associated with any rooms.
    */
   getRoom(key) {
-    return this.roomTree.get(key);
+    return this.roomTree.get(key.toUpperCase());
   }
   
   /**
@@ -39,7 +39,7 @@ class RoomManager {
    * @return {Object<key: String, data: null>} room associated with key, null if operation is unsuccessful due to key not being associated with any rooms.
    */
   deleteRoom(key) {
-    return this.roomTree.remove(key);
+    return this.roomTree.remove(key.toUpperCase());
   }
 }
 

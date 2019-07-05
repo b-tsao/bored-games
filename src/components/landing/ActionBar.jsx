@@ -66,10 +66,10 @@ export default function ActionBar() {
   const renderProfileMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      anchorOrigin={{vertical: 'top', horizontal: 'right'}}
       id={menuId}
       keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      transformOrigin={{vertical: 'top', horizontal: 'right'}}
       open={isMenuOpen}
       onClose={handleProfileMenuClose}>
       <MenuItem onClick={handleProfileMenuClose}>Sign In</MenuItem>

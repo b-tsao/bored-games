@@ -7,38 +7,24 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   TextField,
   Typography
 } from '@material-ui/core';
 
 export default function NameRequestModal(props) {
   const [name, setName] = useState('');
-  const [error, setError] = useState('');
   
   const handleOpen = () => {
     setName('');
-    setError('');
   }
   
   const handleChange = (event) => {
-    if (error) {
-      setError('');
-    }
     setName(event.target.value);
   };
   
   const handleJoin = () => {
-    props.handleJoin(name, (err) => {
-      if (err) {
-        setError(err);
-      } else {
-        props.handleClose();
-      }
-    });
+    props.handleJoin(name);
   };
-  
-  const errorContent = error ? <DialogContentText>{error}</DialogContentText> : null;
   
   return (
     <Dialog
@@ -46,12 +32,9 @@ export default function NameRequestModal(props) {
       onEnter={handleOpen}
       onClose={props.handleClose}
       aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">
-        Welcome Newbie!
-      </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          To play with your friends, please enter your name here. It is recommended that you enter your real name.
+          Enter your name
         </DialogContentText>
         <TextField
           id="name"
@@ -62,7 +45,6 @@ export default function NameRequestModal(props) {
           fullWidth
           required
           onChange={handleChange} />
-        {errorContent}
       </DialogContent>
       <DialogActions>
         <Button

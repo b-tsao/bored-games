@@ -3,6 +3,7 @@ dependencies:
   '@material-ui/icons': 4.2.1
   body-parser: 1.19.0
   clsx: 1.0.4
+  deep-extend: 0.6.0
   express: 4.17.1
   express-http-to-https: 1.1.4
   log4js: 4.3.2
@@ -2018,6 +2019,12 @@ packages:
       node: '>=0.10'
     resolution:
       integrity: sha1-6zkTMzRYd1y4TNGh+uBiEGu4dUU=
+  /deep-extend/0.6.0:
+    dev: false
+    engines:
+      node: '>=4.0.0'
+    resolution:
+      integrity: sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==
   /deepmerge/3.3.0:
     dev: false
     engines:
@@ -5484,6 +5491,7 @@ specifiers:
   body-parser: ^1.19.0
   clsx: ^1.0.4
   css-loader: ^0.27.3
+  deep-extend: ^0.6.0
   express: ^4.16.4
   express-http-to-https: ^1.1.4
   file-loader: ^4.0.0

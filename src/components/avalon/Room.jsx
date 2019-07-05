@@ -16,6 +16,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  MobileStepper,
   Paper,
   Tab,
   Table,
@@ -38,7 +39,9 @@ import {
   RemoveCircleOutline as SpectateIcon,
   Sync as TransferIcon,
   MoreVert as MoreIcon,
-  Person as HostIcon
+  Person as HostIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
 import ConnectModal from '../landing/ConnectModal';
@@ -332,6 +335,73 @@ function ActionMenu({disabled}) {
   );
 }
 
+const useStepStyles = makeStyles(theme => ({
+  root: {
+    maxWidth: 400,
+    flexGrow: 1,
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    height: 50,
+    paddingLeft: theme.spacing(4),
+    backgroundColor: theme.palette.background.default,
+  },
+  img: {
+    height: 255,
+    maxWidth: 400,
+    overflow: 'hidden',
+    display: 'block',
+    width: '100%',
+  },
+}));
+
+export function BoardStepper({settings}) {
+  const classes = useStepStyles();
+  const theme = useTheme();
+  const [activeStep, setActiveStep] = React.useState(settings.selectedBoard);
+  const maxSteps = settings.boards.length;
+
+  function handleNext() {
+    setActiveStep(prevActiveStep => prevActiveStep + 1);
+  }
+
+  function handleBack() {
+    setActiveStep(prevActiveStep => prevActiveStep - 1);
+  }
+
+  return (
+    <div className={classes.root}>
+      <Paper square elevation={0} className={classes.header}>
+        <Typography>{settings.boards[activeStep].label}</Typography>
+      </Paper>
+      <img
+        className={classes.img}
+        src={settings.boards[activeStep].img}
+        alt={settings.boards[activeStep].label}
+      />
+      <MobileStepper
+        steps={maxSteps}
+        position="static"
+        variant="text"
+        activeStep={activeStep}
+        nextButton={
+          <Button size="small" onClick={handleNext} disabled={activeStep === maxSteps - 1}>
+            Next
+            {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+          </Button>
+        }
+        backButton={
+          <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+            {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+            Back
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
 export default function Room(props) {
   const [client, setClient] = useContext(ClientContext);
   
@@ -405,7 +475,7 @@ export default function Room(props) {
         </TabContainer>}
         {tabValue === 1 && <TabContainer dir={theme.direction}>
           <Grid container spacing={4}>
-            Settings
+            <BoardStepper settings={room.data.settings} />
           </Grid>
         </TabContainer>}
       </Container>

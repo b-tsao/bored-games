@@ -284,7 +284,9 @@ function PlayersTable({self, maxPlayers, players}) {
               </TableCell>
               <TableCell align="right">
                 {player.name ? 
-                  <ActionMenu disabled={!self || !self.host || player.id === self.id} /> : null}
+                  <ActionMenu
+                    disabled={!self || !self.host || player.id === self.id}
+                    player={player} /> : null}
               </TableCell>
             </TableRow>
           ))}
@@ -294,7 +296,7 @@ function PlayersTable({self, maxPlayers, players}) {
   );
 }
 
-function ActionMenu({disabled}) {
+function ActionMenu({disabled, player}) {
   const [actionMenuAnchorEl, setActionMenuAnchorEl] = React.useState(null);
   
   const isActionMenuOpen = Boolean(actionMenuAnchorEl);
@@ -592,7 +594,7 @@ export default function Room(props) {
       <div className={classes.heroContent}>
         <Container className={classes.container} maxWidth="sm">
           <Typography component="h1" variant="h6" align="center" color="textPrimary" gutterBottom>
-            The Resistance: Avalon
+            {room.data.game}
           </Typography>
           <Typography variant="overline" display="block" align="center" color="textSecondary" paragraph>
             Room Key: {room.key}
@@ -632,22 +634,24 @@ export default function Room(props) {
           </Grid>
         </TabContainer>}
       </Container>
-      {/* Footer */}
-      <footer className={classes.footer}>
-        <Typography variant="h6" align="center" gutterBottom>
-          Bored Games
-        </Typography>
-        <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-          Feeling bored? Play board games!
-        </Typography>
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          align="center">
-          Built with Boredom
-        </Typography>
-      </footer>
-      {/* End footer */}
+      <Hidden xsDown>
+        {/* Footer */}
+        <footer className={classes.footer}>
+          <Typography variant="h6" align="center" gutterBottom>
+            Bored Games
+          </Typography>
+          <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
+            Feeling bored? Play board games!
+          </Typography>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            align="center">
+            Built with Boredom
+          </Typography>
+        </footer>
+        {/* End footer */}
+      </Hidden>
     </React.Fragment>
   );
 }

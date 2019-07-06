@@ -297,7 +297,26 @@ function PlayersTable({self, maxPlayers, players}) {
 }
 
 function ActionMenu({disabled, player}) {
+  const [client, setClient] = useContext(ClientContext);
+  
   const [actionMenuAnchorEl, setActionMenuAnchorEl] = React.useState(null);
+  const [connectState, setConnectState] = useState({
+    data: null,
+    event: '',
+    connect: false
+  });
+  
+  const handleComplete = () => {
+    setConnectState(prevState => {
+      return {...prevState, connect: false};
+    });
+  };
+  
+  const handleConnectClose = () => {
+    setConnectState(prevState => {
+      return {...prevState, connect: false};
+    });
+  };
   
   const isActionMenuOpen = Boolean(actionMenuAnchorEl);
   
@@ -309,43 +328,60 @@ function ActionMenu({disabled, player}) {
     setActionMenuAnchorEl(null);
   }
   
+  const handleTransferHost = () => {
+  };
+  
+  const handleKick = () => {
+  };
+  
   return (
-    <div>
-      <IconButton
-        aria-label="Show more"
-        aria-controls="action-menu"
-        aria-haspopup="true"
-        onClick={handleActionMenuOpen}
-        disabled={disabled}
-        color="inherit">
-        <MoreIcon />
-      </IconButton>
-      <Menu
-        anchorEl={actionMenuAnchorEl}
-        anchorOrigin={{vertical: 'top', horizontal: 'right'}}
-        id="action-menu"
-        keepMounted
-        transformOrigin={{vertical: 'top', horizontal: 'right'}}
-        open={isActionMenuOpen}
-        onClose={handleActionMenuClose}>
-        <MenuItem onClick={null}>
-          <IconButton
-            aria-label="Transfer host"
-            color="inherit">
-            <TransferIcon />
-          </IconButton>
-          <p>Transfer Host</p>
-        </MenuItem>
-        <MenuItem onClick={null}>
-          <IconButton
-            aria-label="Kick player"
-            color="inherit">
-            <KickIcon />
-          </IconButton>
-          <p>Kick</p>
-        </MenuItem>
-      </Menu>
-    </div>
+    <React.Fragment>
+      <ConnectModal
+        connect={connectState.connect}
+        client={client}
+        event={connectState.event}
+        data={connectState.data}
+        onComplete={handleComplete}
+        onClose={handleConnectClose} />
+      <div>
+        <IconButton
+          aria-label="Show more"
+          aria-controls="action-menu"
+          aria-haspopup="true"
+          onClick={handleActionMenuOpen}
+          disabled={disabled}
+          color="inherit">
+          <MoreIcon />
+        </IconButton>
+        <Menu
+          anchorEl={actionMenuAnchorEl}
+          anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+          id="action-menu"
+          keepMounted
+          transformOrigin={{vertical: 'top', horizontal: 'right'}}
+          open={isActionMenuOpen}
+          onClose={handleActionMenuClose}>
+          <MenuItem onClick={null}>
+            <IconButton
+              onClick={handleTransferHost}
+              aria-label="Transfer host"
+              color="inherit">
+              <TransferIcon />
+            </IconButton>
+            <p>Transfer Host</p>
+          </MenuItem>
+          <MenuItem onClick={null}>
+            <IconButton
+              onClick={handleKick}
+              aria-label="Kick player"
+              color="inherit">
+              <KickIcon />
+            </IconButton>
+            <p>Kick</p>
+          </MenuItem>
+        </Menu>
+      </div>
+    </React.Fragment>
   );
 }
 

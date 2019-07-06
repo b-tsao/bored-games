@@ -43,13 +43,17 @@ class GameRoomManager {
   }
   
   /**
-   * Removes the client from .
+   * Removes the client from room associated with key.
    *
    * @return {Object<key: String, data: null>} room associated with key, null if the key is not associated with any rooms.
    */
   removeClient(key, client) {
     logger.trace(`Removing client (${client.id}) from room (${key})`);
     const room = this.roomManager.getRoom(key);
+    if (room == null) {
+      logger.error(`Removing client (${client.id}) from room (${key}) failed: Room does not exist`);
+      return false;
+    }
     
     let idx = room.data.spectators.indexOf(client.id);
     if (idx >= 0) {
@@ -64,7 +68,7 @@ class GameRoomManager {
         }
         this.trackChange(room, ['data', 'players']);
       } else {
-        logger.error(`Failed to remove client (${client.id}) from room (${key}): client not in room`);
+        logger.error(`Failed to remove client (${client.id}) from room (${key}): Client not in room`);
         return false;
       }
     }
@@ -158,33 +162,89 @@ class GameRoomManager {
   /**
    * Get the room associated with the key.
    *
-   * @return room data if successful, throws an error otherwise.
+   * @return room data if successful, null otherwise.
    */
   getRoom(key) {
+    return this.roomManager.getRoom(key);
+  }
+  
+  /**
+   * Does an action against another player.
+   *
+   * @return null if success, error message otherwise.
+   */
+  doHostAction(key, client, action, id) {
     const room = this.roomManager.getRoom(key);
+    let reason = null;
     if (room == null) {
-      throw new ReferenceError("Room does not exist");
+      logger.error(`Client (${client.id}) host action (${action}) against id (${id}) in room (${key}) failed: Room does not exist`);
+      reason = "Room does not exist";
+    } else {
+      const playersId = room.data.players.map((player) => {return player.id});
+      const PlayerIdx = playersId.indexOf(client.id);
+      if (PlayerIdx < 0) {
+        reason = "Host only action";
+      } else {
+        const player = room.data.players[PlayerIdx];
+        if (player.host) {
+          const targetIdx = playersId.indexOf(id);
+          if (targetIdx < 0) {
+            reason = "Target is not a player";
+          } else {
+            const target = room.data.players[targetIdx];
+            switch (action) {
+              case "transferHost":
+                player.host = false;
+                target.host = true;
+                this.trackChange(room, ['data', 'players']);
+                break;
+              case "kick":
+                room.data.spectators.push(id);
+                room.data.players.splice(targetIdx, 1)
+                this.trackChange(room, ['data', 'spectators']);
+                this.trackChange(room, ['data', 'players']);
+                break;
+              default:
+                reason = "Invalid host action";
+            }
+          }
+        } else {
+          reason = "Host only action";
+        }
+      }
     }
-    return room;
+    
+    if (reason) {
+      logger.error(`Client (${client.id}) host action (${action}) against id (${id}) in room (${key}) failed: ${reason}`);
+      return reason;
+    }
+    logger.info(`Client (${client.id}) host action (${action}) against id (${id}) in room (${key})`);
+    return null;
   }
   
   /**
    * Get the changes in the room associated with the key.
    *
-   * @return room changes if successful, throws an error otherwise.
+   * @return room changes if successful, null otherwise.
    */
   getChanges(key) {
-    const room = this.getRoom(key);
+    const room = this.roomManager.getRoom(key);
+    if (room == null) {
+      return null;
+    }
     return room.changes;
   }
   
   /**
    * Clean changes in the room associated with the key.
    *
-   * @return room changes if successful, throws an error otherwise.
+   * @return room changes if successful, null otherwise.
    */
   cleanChanges(key) {
-    const room = this.getRoom(key);
+    const room = this.roomManager.getRoom(key);
+    if (room == null) {
+      return null;
+    }
     const changes = room.changes;
     room.changes = {};
     return changes;

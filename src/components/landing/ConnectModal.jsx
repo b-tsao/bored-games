@@ -1,7 +1,6 @@
 import React, {useState, useContext} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import socketIOClient from 'socket.io-client';
 
 import {
   Button,
@@ -26,41 +25,61 @@ const useStyles = makeStyles(theme => ({
 
 export default function ConnectModal(props) {
   const [disableClose, setDisableClose] = useState(true);
-  const [progress, setProgress] = useState(true);
-  const [status, setStatus] = useState('');
-  const [message, setMessage] = useState('');
+  const [connectState, setConnectState] = useState({
+    status: '',
+    progress: false,
+    message: ''
+  });
   
   const classes = useStyles();
   
   const handleEnter = () => {
-    setStatus('connecting');
-    setProgress(true);
-    setMessage("Establishing connection");
+    if (!props.client) {
+      console.error('No client provided for connection');
+      return;
+    } else if (!props.event) {
+      console.error('No event provided for connection');
+      return;
+    }
     
-    const client = props.client ? props.client : socketIOClient(props.namespace);
-    
-    client.emit(props.event, props.data);
-    
-    client.on(props.event, (data) => {
-      setStatus(data.status);
-      if (data.status === 'error') {
-        setProgress(false);
-        setMessage(data.message);
-      } else if (data.status === 'complete') {
-        props.onComplete(client);
-      } else {
-        setMessage(data.message);
-      }
+    setConnectState({
+      status: 'connecting',
+      progress: true,
+      message: 'Establishing connection'
     });
+    
+    props.client.emit(props.event, props.data);
+    
+    const handler = (data) => {
+      if (data.status === 'error') {
+        setConnectState({
+          status: data.status,
+          progress: false,
+          message: data.message
+        });
+        props.client.off(props.event, handler);
+      } else if (data.status === 'complete') {
+        props.client.off(props.event, handler);
+        props.onComplete();
+      } else {
+        setConnectState({
+          status: data.status,
+          progress: true,
+          message: data.message
+        });
+      }
+    };
+    
+    props.client.on(props.event, handler);
   }
   
   const onCancel = () => {
-    if (status === 'error') {
+    if (connectState.status === 'error') {
       props.onClose();
     }
   };
   
-  const linearProgress = progress ? <LinearProgress /> : null;
+  const linearProgress = connectState.progress ? <LinearProgress /> : null;
   
   return (
     <Dialog
@@ -75,13 +94,13 @@ export default function ConnectModal(props) {
           <Typography
             variant="overline"
             display="block">
-            {status}
+            {connectState.status}
           </Typography>
           {linearProgress}
           <Typography
             className={classes.loadingMessage}
             variant="body2">
-            {message}
+            {connectState.message}
           </Typography>
         </div>
       </DialogContent>
@@ -102,8 +121,7 @@ export default function ConnectModal(props) {
 ConnectModal.propTypes = {
   connect: PropTypes.bool,
   client: PropTypes.object,
-  namespace: PropTypes.string,
-  event: PropTypes.string.isRequired,
+  event: PropTypes.string,
   data: PropTypes.oneOfType([PropTypes.node, PropTypes.object]),
   onComplete: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired

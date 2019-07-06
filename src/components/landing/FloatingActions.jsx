@@ -1,5 +1,6 @@
 import React, {useState, useContext} from 'react';
 import PropTypes from 'prop-types';
+import socketIOClient from 'socket.io-client';
 
 import {
   Fab,
@@ -19,6 +20,7 @@ export default function FloatingActions(props) {
   
   const [openJoinModal, setOpenJoinModal] = useState(false);
   const [connectState, setConnectState] = useState({
+    client: null,
     key: '',
     connect: false
   });
@@ -28,7 +30,9 @@ export default function FloatingActions(props) {
   };
   
   const handleJoin = (key, callback) => {
+    const newClient = socketIOClient('/room');
     setConnectState({
+      client: newClient,
       key,
       connect: true
     });
@@ -45,11 +49,9 @@ export default function FloatingActions(props) {
     setOpenJoinModal(true);
   };
   
-  const handleComplete = (client) => {
-    setClient(client);
-    setConnectState(prevState => {
-      return {...prevState, connect: false};
-    });
+  const handleComplete = () => {
+    setClient(connectState.client);
+    setConnectState({connect: false});
     setMainDisplay('gameroom');
   };
   
@@ -57,7 +59,7 @@ export default function FloatingActions(props) {
     <div>
       <ConnectModal
         connect={connectState.connect}
-        namespace='/room'
+        client={connectState.client}
         event='joinRoom'
         data={connectState.key}
         onComplete={handleComplete}

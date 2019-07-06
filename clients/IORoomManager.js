@@ -13,10 +13,15 @@ class IORoomManager {
     
     this.ioRoomServer = this.ioServer.of('/room');
     this.ioRoomServer.on('connection', (client) => {
-      this.attachCreateListener(client);
-      this.attachGetListener(client);
-      this.attachJoinListener(client);
-      this.attachDisconnectListener(client);
+      try {
+        this.attachCreateListener(client);
+        this.attachGetListener(client);
+        this.attachJoinListener(client);
+        this.attachHostActionListener(client);
+        this.attachDisconnectListener(client);
+      } catch (err) {
+        logger.fatal(`Client (${client.id}) requested action failed: ${err}`);
+      }
     });
   }
   
@@ -56,14 +61,14 @@ class IORoomManager {
       const key = client.roomKey;
       logger.trace(`Client (${client.id}) requesting room (${key}) information`);
       
-      try {
-        const room = this.gameRoomManager.getRoom(key);
-        logger.info(`Client (${client.id} retrieved room (${key}) information`);
-        return callback(null, room);
-      } catch (err) {
-        logger.error(`Client (${client.id}) failed to retrieve room (${key}) information: ${err}`)
-        return callback(err.message);
+      const room = this.gameRoomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`Client (${client.id}) failed to retrieve room (${key}) information: Room does not exist`)
+        return callback('Room does not exist');
       }
+
+      logger.info(`Client (${client.id} retrieved room (${key}) information`);
+      return callback(null, room);
     });
   }
   
@@ -114,21 +119,30 @@ class IORoomManager {
     });
   }
   
+  attachHostActionListener(client) {
+    client.on('hostAction', ({action, id}, callback) => {
+      const key = client.roomKey;
+      logger.trace(`Client (${client.id}) requesting host action (${action}) against id (${id}) in room (${key})`);
+      return callback(this.gameRoomManager.doHostAction(key, client, action, id));
+    });
+  }
+  
   attachDisconnectListener(client) {
     client.on('disconnect', (reason) => {
       const key = client.roomKey;
       if (key) {
         logger.trace(`Removing client (${client.id}) from room (${client.roomKey}): ${reason}`);
         this.gameRoomManager.removeClient(client.roomKey, client);
-        try {
-          return this.broadcastChanges(key);
-        } catch (err) {}
+        return this.broadcastChanges(key);
       }
     });
   }
   
   broadcastChanges(room) {
     const changes = this.gameRoomManager.cleanChanges(room);
+    if (changes == null) {
+      return logger.error(`Broadcasting changes to room (${room}) failed: Room does not exist`);
+    }
     logger.info(`Broadcasting changes to room (${room}): ${JSON.stringify(changes)}`);
     this.ioRoomServer.to(room).emit('change', changes);
   }

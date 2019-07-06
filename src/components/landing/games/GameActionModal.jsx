@@ -36,8 +36,11 @@ export default function GameActionModal(props) {
   const [client, setClient] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
-  const [connect, setConnect] = useState(false);
-  const [data, setData] = useState(null);
+  const [connectState, setConnectState] = useState({
+    client: null,
+    data: null,
+    connect: false
+  });
   
   const classes = useStyles();
   
@@ -46,27 +49,31 @@ export default function GameActionModal(props) {
   };
   
   const handleCreate = () => {
-    setData({game: props.game.title});
-    setConnect(true);
+    const newClient = socketIOClient('/room');
+    setConnectState({
+      client: newClient,
+      data: {game: props.game.title},
+      connect: true
+    });
   };
   
   const handleConnectClose = () => {
-    setConnect(false);
+    setConnectState({connect: false});
   };
   
-  const handleComplete = (client) => {
-    setClient(client);
-    setConnect(false);
+  const handleComplete = () => {
+    setClient(connectState.client);
+    setConnectState({connect: false});
     setMainDisplay('gameroom');
   };
   
   return (
     <div>
       <ConnectModal
-        connect={connect}
-        namespace='/room'
+        connect={connectState.connect}
+        client={connectState.client}
         event='create'
-        data={data}
+        data={connectState.data}
         onComplete={handleComplete}
         onClose={handleConnectClose} />
       <Dialog

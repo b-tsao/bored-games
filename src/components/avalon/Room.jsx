@@ -351,18 +351,21 @@ function ActionMenu({disabled, player}) {
 
 const useStepStyles = makeStyles(theme => ({
   board: {
+    position: 'relative',
     maxWidth: 400,
     flexGrow: 1,
   },
   header: {
+    position: 'absolute',
     display: 'flex',
     alignItems: 'center',
     height: 50,
     paddingLeft: theme.spacing(4),
-    backgroundColor: theme.palette.background.default,
+    background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+    color: 'white',
+    width: '100%'
   },
   img: {
-    height: 255,
     maxWidth: 400,
     overflow: 'hidden',
     display: 'block',

@@ -6,7 +6,7 @@ class AvalonSettings {
       boards: [
         {
           id: '5-players',
-          label: '5 Players',
+          label: '5 Players Board',
           minPlayers: 5,
           maxPlayers: 5,
           evils: 2,
@@ -14,7 +14,7 @@ class AvalonSettings {
         },
         {
           id: '6-players',
-          label: '6 Players',
+          label: '6 Players Board',
           minPlayers: 6,
           maxPlayers: 6,
           evils: 2,
@@ -22,7 +22,7 @@ class AvalonSettings {
         },
         {
           id: '7-players',
-          label: '7 Players',
+          label: '7 Players Board',
           minPlayers: 7,
           maxPlayers: 7,
           evils: 3,
@@ -30,7 +30,7 @@ class AvalonSettings {
         },
         {
           id: '8-players',
-          label: '8 Players',
+          label: '8 Players Board',
           minPlayers: 8,
           maxPlayers: 8,
           evils: 3,
@@ -38,7 +38,7 @@ class AvalonSettings {
         },
         {
           id: '9-players',
-          label: '9 Players',
+          label: '9 Players Board',
           minPlayers: 9,
           maxPlayers: 9,
           evils: 3,
@@ -46,7 +46,7 @@ class AvalonSettings {
         },
         {
           id: '10-players',
-          label: '10 Players',
+          label: '10 Players Board',
           minPlayers: 10,
           maxPlayers: 10,
           evils: 4,

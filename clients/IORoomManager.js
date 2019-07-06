@@ -120,10 +120,14 @@ class IORoomManager {
   }
   
   attachHostActionListener(client) {
-    client.on('hostAction', ({action, id}, callback) => {
+    client.on('hostAction', (action, id, callback) => {
       const key = client.roomKey;
       logger.trace(`Client (${client.id}) requesting host action (${action}) against id (${id}) in room (${key})`);
-      return callback(this.gameRoomManager.doHostAction(key, client, action, id));
+      const err = this.gameRoomManager.doHostAction(key, client, action, id);
+      if (!err) {
+        this.broadcastChanges(key);
+      }
+      return callback(err);
     });
   }
   

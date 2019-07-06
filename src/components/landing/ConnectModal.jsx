@@ -48,16 +48,14 @@ export default function ConnectModal(props) {
       message: 'Establishing connection'
     });
     
-    props.client.emit(props.event, props.data);
-    
     const handler = (data) => {
       if (data.status === 'error') {
+        props.client.off(props.event, handler);
         setConnectState({
           status: data.status,
           progress: false,
           message: data.message
         });
-        props.client.off(props.event, handler);
       } else if (data.status === 'complete') {
         props.client.off(props.event, handler);
         props.onComplete();
@@ -71,6 +69,7 @@ export default function ConnectModal(props) {
     };
     
     props.client.on(props.event, handler);
+    props.client.emit(props.event, props.data);
   }
   
   const onCancel = () => {

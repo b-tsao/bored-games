@@ -54,6 +54,7 @@ import {
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
 import ConnectModal from '../landing/ConnectModal';
+import MessageModal from '../landing/MessageModal';
 
 import {
   ClientContext,
@@ -300,22 +301,13 @@ function ActionMenu({disabled, player}) {
   const [client, setClient] = useContext(ClientContext);
   
   const [actionMenuAnchorEl, setActionMenuAnchorEl] = React.useState(null);
-  const [connectState, setConnectState] = useState({
-    data: null,
-    event: '',
-    connect: false
+  const [messageState, setMessageState] = useState({
+    status: '',
+    message: ''
   });
   
-  const handleComplete = () => {
-    setConnectState(prevState => {
-      return {...prevState, connect: false};
-    });
-  };
-  
-  const handleConnectClose = () => {
-    setConnectState(prevState => {
-      return {...prevState, connect: false};
-    });
+  const handleMessageClose = () => {
+    setMessageState({status: '', message: ''});
   };
   
   const isActionMenuOpen = Boolean(actionMenuAnchorEl);
@@ -328,21 +320,22 @@ function ActionMenu({disabled, player}) {
     setActionMenuAnchorEl(null);
   }
   
-  const handleTransferHost = () => {
-  };
-  
-  const handleKick = () => {
+  const handleAction = (action) => {
+    handleActionMenuClose();
+    client.emit('hostAction', action, player.id, (err) => {
+      if (err) {
+        setMessageState({status: 'error', message: err});
+      }
+    });
   };
   
   return (
     <React.Fragment>
-      <ConnectModal
-        connect={connectState.connect}
-        client={client}
-        event={connectState.event}
-        data={connectState.data}
-        onComplete={handleComplete}
-        onClose={handleConnectClose} />
+      <MessageModal
+        open={!!messageState.message}
+        title={messageState.status}
+        message={messageState.message}
+        onClose={handleMessageClose} />
       <div>
         <IconButton
           aria-label="Show more"
@@ -361,18 +354,16 @@ function ActionMenu({disabled, player}) {
           transformOrigin={{vertical: 'top', horizontal: 'right'}}
           open={isActionMenuOpen}
           onClose={handleActionMenuClose}>
-          <MenuItem onClick={null}>
+          <MenuItem onClick={() => {handleAction('transferHost')}}>
             <IconButton
-              onClick={handleTransferHost}
               aria-label="Transfer host"
               color="inherit">
               <TransferIcon />
             </IconButton>
             <p>Transfer Host</p>
           </MenuItem>
-          <MenuItem onClick={null}>
+          <MenuItem onClick={() => {handleAction('kick')}}>
             <IconButton
-              onClick={handleKick}
               aria-label="Kick player"
               color="inherit">
               <KickIcon />

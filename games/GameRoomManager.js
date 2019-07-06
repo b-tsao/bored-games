@@ -177,7 +177,6 @@ class GameRoomManager {
     const room = this.roomManager.getRoom(key);
     let reason = null;
     if (room == null) {
-      logger.error(`Client (${client.id}) host action (${action}) against id (${id}) in room (${key}) failed: Room does not exist`);
       reason = "Room does not exist";
     } else {
       const playersId = room.data.players.map((player) => {return player.id});

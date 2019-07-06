@@ -30,7 +30,7 @@ export default function FloatingActions(props) {
   };
   
   const handleJoin = (key, callback) => {
-    const newClient = socketIOClient('/room');
+    const newClient = socketIOClient('/room', {transports: ['websocket']});
     setConnectState({
       client: newClient,
       key,

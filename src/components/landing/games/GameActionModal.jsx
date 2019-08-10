@@ -21,6 +21,9 @@ import {
 } from '../../../Contexts';
 
 const useStyles = makeStyles(theme => ({
+  content: {
+    padding: '4px 16px'
+  },
   card: {
     marginTop: theme.spacing(2) + 2
   },
@@ -52,7 +55,7 @@ export default function GameActionModal(props) {
     const newClient = socketIOClient('/room', {transports: ['websocket']});
     setConnectState({
       client: newClient,
-      data: {game: props.game.title},
+      data: props.game.title,
       connect: true
     });
   };
@@ -80,7 +83,7 @@ export default function GameActionModal(props) {
         open={!!props.game}
         onClose={handleClose}
         aria-labelledby="form-dialog-title">
-        <DialogContent>
+        <DialogContent className={classes.content}>
           <div className={classes.card}>
             {props.game ? props.game.gameCard : null}
           </div>

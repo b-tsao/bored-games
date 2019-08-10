@@ -1,13 +1,14 @@
 import React, {useState, useContext} from 'react';
 
-import LoadingRoom from './LoadingRoom';
+import LoadingRoom from '../LoadingRoom';
 import AvalonRoom from '../../avalon/Room';
+import AvalonGame from '../../avalon/Game';
 import Maintenance from '../Maintenance';
 
 import {ClientContext} from '../../../Contexts';
 
 export default function GameRoom() {
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
   
   const [room, setRoom] = React.useState(null);
   
@@ -20,11 +21,15 @@ export default function GameRoom() {
       }
     });
   }
-
+  
   const display = room ? (() => {
-    switch (room.data.game) {
+    switch (room.game.title) {
       case 'The Resistance: Avalon':
-        return <AvalonRoom room={room} />
+        if (room.game.state != null && window.location.pathname === '/game') {
+          return <AvalonGame room={room} />
+        } else {
+          return <AvalonRoom room={room} />
+        }
       default:
         return <Maintenance />
     }

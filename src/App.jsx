@@ -6,7 +6,7 @@ import {
 
 /* Import Components */
 import Main from './components/landing/Main';
-import Room from './components/avalon/Room';
+import GameRoom from './components/landing/game/GameRoom';
 
 import {ClientContext} from './Contexts';
 
@@ -17,7 +17,7 @@ export default function App() {
     <ClientContext.Provider value={[client, setClient]}>
       <Router>
         <Route exact path="/" component={Main} />
-        <Route path="/avalon" component={Room} />
+        <Route path="/game" component={GameRoom} />
       </Router>
     </ClientContext.Provider>
   );

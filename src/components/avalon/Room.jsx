@@ -1,4 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
+import {Redirect} from 'react-router-dom';
+import clsx from 'clsx';
 import socketIOClient from 'socket.io-client';
 import PropTypes from 'prop-types';
 import deepExtend from 'deep-extend';
@@ -36,7 +38,6 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-  Row,
   Zoom
 } from '@material-ui/core';
 import {
@@ -53,7 +54,6 @@ import {
   StarBorder as StarIcon
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
-import ConnectModal from '../landing/ConnectModal';
 import MessageModal from '../landing/MessageModal';
 
 import {
@@ -71,7 +71,13 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: 0,
     paddingRight: 0
   },
-  table: {
+  paper: {
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column',
+  },
+  padding: {
+    padding: theme.spacing(2)
   },
   tabs: {
     backgroundColor: theme.palette.background.paper
@@ -118,34 +124,32 @@ const useToolbarStyles = makeStyles(theme => ({
     display: 'flex',
     flex: '0 0 auto',
   },
+  linkButton: {
+    textDecoration: 'none',
+    color: 'inherit'
+  }
 }));
 
 const ActionToolbar = props => {
   const {
     self,
+    roomKey,
     maxPlayers,
     players,
-    spectators
+    spectators,
+    settings
   } = props;
   
   const [client, setClient] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
   const [openNameModal, setOpenNameModal] = useState(false);
-  const [connectState, setConnectState] = useState({
-    data: null,
-    event: 'joinGame',
-    connect: false
-  });
   
   const classes = useToolbarStyles();
   
   const setPlayerName = (name) => {
-    setConnectState({
-      data: name,
-      event: 'joinGame',
-      connect: true
-    });
+    client.emit('joinGame', name);
+    handleNameModalClose();
   };
   
   const handleJoin = () => {
@@ -156,25 +160,8 @@ const ActionToolbar = props => {
     setOpenNameModal(false);
   };
   
-  const handleComplete = () => {
-    setConnectState(prevState => {
-      return {...prevState, connect: false};
-    });
-    handleNameModalClose();
-  };
-  
-  const handleConnectClose = () => {
-    setConnectState(prevState => {
-      return {...prevState, connect: false};
-    });
-  };
-  
   const handleSpectate = () => {
-    setConnectState({
-      data: null,
-      event: 'joinRoom',
-      connect: true
-    });
+    client.emit('joinSpectate');
   };
   
   const handleLeave = () => {
@@ -182,18 +169,33 @@ const ActionToolbar = props => {
     setClient(null);
     setMainDisplay('home');
   };
+  
+  const handleStart = () => {
+    client.emit('game', 'start');
+  };
+  
+  const board = settings.selectedBoard;
+  const maxEvils = settings.boards[board].evils;
+  const maxGoods = settings.maxPlayers - maxEvils;
+  const evils = settings.selectedCards.evil.length;
+  const goods = settings.selectedCards.good.length;
 
-  const startDisabled = self && self.host && players.length === maxPlayers;
+  const hostCheck = self && self.host;
+  // const playersCheck = players.length === maxPlayers;
+  const playersCheck = true; // DEBUG purpose
+  const cardsCheck = goods === maxGoods && evils === maxEvils;
+  
+  let startDisableReason = null;
+  if (!hostCheck) {
+    startDisableReason = "Waiting for host to start";
+  } else if (!playersCheck) {
+    startDisableReason = "Invalid player count";
+  } else if (!cardsCheck) {
+    startDisableReason = "Invalid character card count";
+  }
   
   return (
     <React.Fragment>
-      <ConnectModal
-        connect={connectState.connect}
-        client={client}
-        event={connectState.event}
-        data={connectState.data}
-        onComplete={handleComplete}
-        onClose={handleConnectClose} />
       <NameModal
         open={openNameModal}
         handleJoin={setPlayerName}
@@ -238,11 +240,11 @@ const ActionToolbar = props => {
               </div>
             </Tooltip>
           }
-          <Tooltip title="Start Game" placement="top">
+          <Tooltip title={startDisableReason ? startDisableReason : "Start Game"} placement="top">
             <div>
               <IconButton
-                disabled
-                onClick={null}
+                disabled={!!startDisableReason}
+                onClick={handleStart}
                 aria-label="Start Game">
                 <StartIcon />
               </IconButton>
@@ -264,7 +266,7 @@ function PlayersTable({self, maxPlayers, players}) {
 
   return (
     <Paper className={classes.root}>
-      <Table className={classes.table}>
+      <Table>
         <TableHead>
           <TableRow>
             <TableCell>Host</TableCell>
@@ -298,17 +300,9 @@ function PlayersTable({self, maxPlayers, players}) {
 }
 
 function ActionMenu({disabled, player}) {
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
   
   const [actionMenuAnchorEl, setActionMenuAnchorEl] = React.useState(null);
-  const [messageState, setMessageState] = useState({
-    status: '',
-    message: ''
-  });
-  
-  const handleMessageClose = () => {
-    setMessageState({status: '', message: ''});
-  };
   
   const isActionMenuOpen = Boolean(actionMenuAnchorEl);
   
@@ -322,20 +316,11 @@ function ActionMenu({disabled, player}) {
   
   const handleAction = (action) => {
     handleActionMenuClose();
-    client.emit('hostAction', action, player.id, (err) => {
-      if (err) {
-        setMessageState({status: 'error', message: err});
-      }
-    });
+    client.emit('hostAction', action, player.id);
   };
   
   return (
     <React.Fragment>
-      <MessageModal
-        open={!!messageState.message}
-        title={messageState.status}
-        message={messageState.message}
-        onClose={handleMessageClose} />
       <div>
         <IconButton
           aria-label="Show more"
@@ -379,7 +364,7 @@ function ActionMenu({disabled, player}) {
 const useStepStyles = makeStyles(theme => ({
   board: {
     position: 'relative',
-    maxWidth: 400,
+    maxWidth: '100vw',
     flexGrow: 1,
   },
   header: {
@@ -393,56 +378,71 @@ const useStepStyles = makeStyles(theme => ({
     width: '100%'
   },
   img: {
-    maxWidth: 400,
     overflow: 'hidden',
     display: 'block',
     width: '100%',
   },
 }));
 
-export function BoardStepper({settings}) {
+export function BoardStepper({self, settings}) {
+  const [client] = useContext(ClientContext);
+  
   const classes = useStepStyles();
   const theme = useTheme();
-  const [activeStep, setActiveStep] = React.useState(settings.selectedBoard);
+  
+  const images = settings.boards.map(board => {
+    return (
+      <img
+        className={classes.img}
+        src={board.img}
+        alt={board.label}
+      />
+    );
+  });
+  const activeStep = settings.selectedBoard;
   const maxSteps = settings.boards.length;
-
+  
   function handleNext() {
-    setActiveStep(prevActiveStep => prevActiveStep + 1);
+    client.emit('settings', {selectedBoard: activeStep + 1});
   }
 
   function handleBack() {
-    setActiveStep(prevActiveStep => prevActiveStep - 1);
+    client.emit('settings', {selectedBoard: activeStep - 1});
   }
 
   return (
-    <div className={classes.board}>
-      <Paper square elevation={0} className={classes.header}>
-        <Typography>{settings.boards[activeStep].label}</Typography>
-      </Paper>
-      <img
-        className={classes.img}
-        src={settings.boards[activeStep].img}
-        alt={settings.boards[activeStep].label}
-      />
-      <MobileStepper
-        steps={maxSteps}
-        position="static"
-        variant="text"
-        activeStep={activeStep}
-        nextButton={
-          <Button size="small" onClick={handleNext} disabled={activeStep === maxSteps - 1}>
-            Next
-            {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-          </Button>
-        }
-        backButton={
-          <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-            {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-            Back
-          </Button>
-        }
-      />
-    </div>
+    <React.Fragment>
+      <div className={classes.board}>
+        <Paper square elevation={0} className={classes.header}>
+          <Typography>{settings.boards[activeStep].label}</Typography>
+        </Paper>
+        {images[activeStep]}
+        <MobileStepper
+          steps={maxSteps}
+          position="static"
+          variant="text"
+          activeStep={activeStep}
+          nextButton={
+            <Button
+              size="small"
+              onClick={handleNext}
+              disabled={!self || !self.host || activeStep === maxSteps - 1}>
+              Next
+              {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+            </Button>
+          }
+          backButton={
+            <Button
+              size="small"
+              onClick={handleBack}
+              disabled={!self || !self.host || activeStep === 0}>
+              {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+              Back
+            </Button>
+          }
+        />
+      </div>
+    </React.Fragment>
   );
 }
 
@@ -458,42 +458,49 @@ const useExtraSettingsStyles = makeStyles(theme => ({
   },
 }));
 
-function ExtraSettings({settings}) {
-  const classes = useExtraSettingsStyles();
+function ExtraSettings({self, settings}) {
+  const [client] = useContext(ClientContext);
   
-  const [state, setState] = React.useState({
-    enableHistory: true,
-    spectatorsSeeIdentity: false,
-    evilClarivoyance: false
-  });
-
+  const classes = useExtraSettingsStyles();
+        
   const handleChange = name => event => {
-    setState({ ...state, [name]: event.target.checked });
+    client.emit('settings', {extra: {[name]: event.target.checked}});
   };
-
-  const {spectatorsSeeIdentity, enableHistory, evilClarivoyance} = state;
+  
+  const {enableHistory, spectatorsSeeIdentity, evilClarivoyance} = settings.extra;
+  const error = !self || !self.host;
+  
   return (
-    <div className={classes.extraSettings}>
-      <FormControl component="fieldset" className={classes.formControl}>
-        <FormLabel component="legend">Extra Settings</FormLabel>
-        <FormGroup>
-          <FormControlLabel
-            control={<Checkbox checked={enableHistory} onChange={handleChange('enableHistory')} value="enableHistory" />}
-            label="Enable history"
-          />
-          <FormControlLabel
-            control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
-            label="Enable spectators to see everyone’s identity"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox checked={evilClarivoyance} onChange={handleChange('evilClarivoyance')} value="evilClarivoyance" />
-            }
-            label="Enable evil to see each other’s vote"
-          />
-        </FormGroup>
-      </FormControl>
-    </div>
+    <React.Fragment>
+      <div className={classes.extraSettings}>
+        <FormControl
+          error={error}
+          disabled={error}
+          component="fieldset"
+          className={classes.formControl}>
+          {error ?
+            <FormLabel component="legend">
+              Only host can make changes to settings
+            </FormLabel> : null}
+          <FormGroup>
+            <FormControlLabel
+              control={<Checkbox checked={enableHistory} onChange={handleChange('enableHistory')} value="enableHistory" />}
+              label="Enable history"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
+              label="Enable spectators to see everyone’s identity"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox checked={evilClarivoyance} onChange={handleChange('evilClarivoyance')} value="evilClarivoyance" />
+              }
+              label="Enable evil to see each other’s vote"
+            />
+          </FormGroup>
+        </FormControl>
+      </div>
+    </React.Fragment>
   );
 }
 
@@ -512,17 +519,13 @@ const useCardStyles = makeStyles(theme => ({
   card: {
     display: 'flex',
     maxWidth: 127.66,
-    maxHeight: 199.05
+    maxHeight: 198.77
   },
   image: {
     width: '100%',
     height: '100%',
     opacity: 0.5,
     filter: 'alpha(opacity=50)', /* For IE8 and earlier */
-    '&:hover': {
-      opacity: 1.0,
-      filter: 'alpha(opacity=100)'
-    }
   },
   selectedImage: {
     width: '100%',
@@ -532,64 +535,92 @@ const useCardStyles = makeStyles(theme => ({
   }
 }));
 
-function CardGrid({settings}) {
+function CardGrid({self, settings}) {
+  const [client] = useContext(ClientContext);
+  
   const classes = useCardStyles();
   
-  const board = settings.selectedBoard;
-  
-  const handleSelect = (card) => {
-    
+  const handleSelect = (side, cardIdx) => {
+    let selectedCards = settings.selectedCards[side];
+    const idx = selectedCards.indexOf(cardIdx);
+    if (idx < 0) {
+      selectedCards = [...selectedCards, cardIdx];
+    } else {
+      selectedCards = [...selectedCards.slice(0, idx), ...selectedCards.slice(idx + 1)];
+    }
+    client.emit('settings', {selectedCards: {[side]: selectedCards}});
   };
   
+  const board = settings.selectedBoard;
+  const maxEvils = settings.boards[board].evils;
+  const maxGoods = settings.maxPlayers - maxEvils;
+  const evils = settings.selectedCards.evil.length;
+  const goods = settings.selectedCards.good.length;
+  const disabled = !self || !self.host;
+  
   return (
-    <Container className={classes.container} maxWidth="md">
-      <Paper square elevation={0} className={classes.header}>
-        <Typography>Good ({settings.selectedCards.good.length}/{settings.maxPlayers - settings.boards[settings.selectedBoard].evils})</Typography>
-      </Paper>
-      <Grid container spacing={2}>
-        {settings.cards.good.map((card, idx) => (
-          <Grid item key={card.id}>
-            <Card className={classes.card}>
-              <CardActionArea onClick={() => {handleSelect(card)}}>
-                <img
-                  src={card.img}
-                  alt={card.label}
-                  className={settings.selectedCards.good.indexOf(idx) < 0 ?
-                    classes.image : classes.selectedImage} />
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-      <Paper square elevation={0} className={classes.header}>
-        <Typography>Evil ({settings.selectedCards.evil.length}/{settings.boards[settings.selectedBoard].evils})</Typography>
-      </Paper>
-      <Grid container spacing={2}>
-        {settings.cards.evil.map((card, idx) => (
-          <Grid item key={card.id}>
-            <Card className={classes.card}>
-              <CardActionArea
-        onClick={() => {handleSelect(card)}}
-        className={classes.action}>
-                <img
-                  src={card.img}
-                  alt={card.label}
-                  className={settings.selectedCards.evil.indexOf(idx) < 0 ?
-                    classes.image : classes.selectedImage} />
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+    <React.Fragment>
+      <Container className={classes.container} maxWidth="md">
+        <Paper square elevation={0} className={classes.header}>
+          <Typography>Good ({goods}/{maxGoods})</Typography>
+        </Paper>
+        <Grid container spacing={2}>
+          {settings.cards.good.map((card, idx) => {
+            const selectedCard = settings.selectedCards.good.indexOf(idx) >= 0;
+            const disabledGood = disabled || (goods >= maxGoods && !selectedCard);
+            return (
+              <Grid item key={card.id}>
+                <Card className={classes.card}>
+                  <CardActionArea
+                    disabled={disabledGood}
+                    onClick={() => {handleSelect('good', idx)}}>
+                    <img
+                      src={card.img}
+                      alt={card.label}
+                      className={selectedCard ? classes.selectedImage : classes.image} />
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
+        <Paper square elevation={0} className={classes.header}>
+          <Typography>Evil ({evils}/{maxEvils})</Typography>
+        </Paper>
+        <Grid container spacing={2}>
+          {settings.cards.evil.map((card, idx) => {
+            const selectedCard = settings.selectedCards.evil.indexOf(idx) >= 0;
+            const disabledEvil = disabled || (evils >= maxEvils && !selectedCard);
+            return (
+              <Grid item key={card.id}>
+                <Card className={classes.card}>
+                  <CardActionArea
+                    disabled={disabledEvil}
+                    onClick={() => {handleSelect('evil', idx)}}>
+                    <img
+                      src={card.img}
+                      alt={card.label}
+                      className={selectedCard ? classes.selectedImage : classes.image} />
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Container>
+    </React.Fragment>
   );
 }
 
 export default function Room(props) {
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
   
   const [room, setRoom] = useState(props.room);
   const [tabValue, setTabValue] = useState(0);
+  const [message, setMessage] = useState({
+    status: '',
+    text: ''
+  });
   
   const classes = useStyles();
   const theme = useTheme();
@@ -598,20 +629,35 @@ export default function Room(props) {
     setTabValue(newValue);
   }
   
+  const handleMessageClose = () => {
+    setMessage({status: '', text: ''});
+  };
+  
   useEffect(() => {
-    const handler = roomChanges => {
+    const changeHandler = roomChanges => {
       setRoom({...deepExtend(room, roomChanges)});
     };
     
-    client.on('change', handler);
+    const messageHandler = message => {
+      setMessage({status: message.status, text: message.text});
+    };
+    
+    client.on('change', changeHandler);
+    client.on('message', messageHandler);
     
     return () => {
-      client.off('change', handler);
+      client.off('change', changeHandler);
+      client.off('message', messageHandler);
     };
-  }, [room]);
-
+  }, []);
+  
+  const redirectToGame = (room.game.state != null) ?
+    <Redirect to='/game' /> : null;
+  
+  const paddedPaper = clsx(classes.paper, classes.padding);
+  
   let self = null;
-  for (const player of room.data.players) {
+  for (const player of room.players) {
     if (player.id === client.id) {
       self = player;
       break;
@@ -620,11 +666,17 @@ export default function Room(props) {
   
   return (
     <React.Fragment>
+      {redirectToGame}
+      <MessageModal
+        open={!!message.text}
+        title={message.status}
+        message={message.text}
+        onClose={handleMessageClose} />
       <CssBaseline />
       <div className={classes.heroContent}>
         <Container className={classes.container} maxWidth="sm">
           <Typography component="h1" variant="h6" align="center" color="textPrimary" gutterBottom>
-            {room.data.game}
+            {room.game.title}
           </Typography>
           <Typography variant="overline" display="block" align="center" color="textSecondary" paragraph>
             Room Key: {room.key}
@@ -644,25 +696,39 @@ export default function Room(props) {
           </div>
         </Container>
       </div>
-      <Container className={classes.container} maxWidth="md">
-        {tabValue === 0 && <TabContainer dir={theme.direction}>
-          <ActionToolbar
-            self={self}
-            spectators={room.data.spectators}
-            maxPlayers={room.data.settings.maxPlayers}
-            players={room.data.players} />
-          <PlayersTable
-            self={self}
-            maxPlayers={room.data.settings.maxPlayers}
-            players={room.data.players} />
-        </TabContainer>}
-        {tabValue === 1 && <TabContainer dir={theme.direction}>
-          <Grid container spacing={4}>
-            <BoardStepper settings={room.data.settings} />
-            <ExtraSettings settings={room.data.settings} />
-            <CardGrid settings={room.data.settings} />
-          </Grid>
-        </TabContainer>}
+      <Container className={classes.container} maxWidth="lg">
+        {tabValue === 0 &&
+          <TabContainer dir={theme.direction}>
+            <ActionToolbar
+              self={self}
+              spectators={room.spectators}
+              maxPlayers={room.game.settings.maxPlayers}
+              players={room.players}
+              settings={room.game.settings} />
+            <PlayersTable
+              self={self}
+              maxPlayers={room.game.settings.maxPlayers}
+              players={room.players} />
+          </TabContainer>}
+        {tabValue === 1 &&
+          <TabContainer dir={theme.direction}>
+            <Grid container spacing={3}>
+              {/* Board Stepper */}
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper className={classes.paper}>
+                  <BoardStepper self={self} settings={room.game.settings} />
+                </Paper>
+              </Grid>
+              {/* Extra Settings */}
+              <Grid item xs={12} md={6} lg={6}>
+                <Paper className={paddedPaper}>
+                  <ExtraSettings self={self} settings={room.game.settings} />
+                </Paper>
+              </Grid>
+              {/* Cards */}
+              <CardGrid self={self} settings={room.game.settings} />
+            </Grid>
+          </TabContainer>}
       </Container>
       <Hidden xsDown>
         {/* Footer */}

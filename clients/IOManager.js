@@ -3,11 +3,13 @@ const io = require('socket.io');
 const log4js = require('log4js');
 const IORoomManager = require('./IORoomManager');
 
-const logger = log4js.getLogger('io');
+const logger = log4js.getLogger('IOManager');
 
 class IOManager {
   constructor(server) {
-    this.ioServer = io(server);
+    this.ioServer = io(server, {
+      upgradeTimeout: 60000 // default value is 10000ms, try changing it to 20k or more
+    });
     logger.info('Socket IO is listening on the server');
   
     // Setting up a socket with the namespace "connection" for new sockets

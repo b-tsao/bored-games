@@ -20,7 +20,6 @@ const useStyles = makeStyles(theme => ({
       width: 270,
       height: 250,
       marginBottom: 10,
-      marginLeft: 10,
       position: 'relative'
     }
   },
@@ -49,10 +48,32 @@ const useStyles = makeStyles(theme => ({
 export default function GameCard(props) {
   const classes = useStyles();
   
+  const deadCard = (
+    <Card className={classes.card}>
+      <CardHeader
+        subheader={props.title}
+      />
+      <div className={classes.imageHolder}>
+        <img
+          src={props.image}
+          alt={props.title}
+          className={classes.image} />
+      </div>
+      <CardContent className={classes.content}>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          component="p">
+          {props.subtitle}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+  
   const gameCard = (
     <Card className={classes.card}>
       <CardActionArea
-        onClick={() => {props.handleSelect({title: props.title, gameCard})}}
+        onClick={() => {props.handleSelect({title: props.title, gameCard: deadCard})}}
         className={classes.action}>
         <CardHeader
           subheader={props.title}

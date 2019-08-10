@@ -6,7 +6,7 @@ module.exports = {
   mode: 'development',
   devtool: 'cheap-module-source-map',
   plugins: [
-    /* new BundleAnalyzerPlugin() */
+    // new BundleAnalyzerPlugin()
   ],
   context: path.join(__dirname, './'),
   entry: './src/index.jsx',

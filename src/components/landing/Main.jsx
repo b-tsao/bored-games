@@ -7,9 +7,9 @@ import NavBar from './NavBar';
 import SideBar from './SideBar';
 import FloatingActions from './FloatingActions';
 
-import HelloWorld from './HelloWorld';
+import HelloWorld from './welcome/HelloWorld';
 import Games from './games/Games';
-import GameRoom from './games/GameRoom';
+import GameRoom from './game/GameRoom';
 import Maintenance from './Maintenance';
 
 import {MainDisplayContext} from '../../Contexts';

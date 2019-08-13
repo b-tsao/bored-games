@@ -37,10 +37,6 @@ class PeopleManager {
     return this.people;
   }
   
-  cleanChanges() {
-    return this.people;
-  }
-  
   add(person) {
     const wrapper = {
       data: person,

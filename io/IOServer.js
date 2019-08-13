@@ -1,11 +1,11 @@
 'use strict';
 const io = require('socket.io');
 const log4js = require('log4js');
-const IORoomManager = require('./IORoomManager');
+const IORoomServer = require('./IORoomServer');
 
-const logger = log4js.getLogger('IOManager');
+const logger = log4js.getLogger('IOServer');
 
-class IOManager {
+class IOServer {
   constructor(server) {
     this.ioServer = io(server, {
       upgradeTimeout: 60000 // default value is 10000ms, try changing it to 20k or more
@@ -28,7 +28,7 @@ class IOManager {
   }
   
   initListeners() {
-    new IORoomManager(this.ioServer);
+    new IORoomServer(this.ioServer);
   }
   
   onClientConnect(client) {
@@ -42,4 +42,4 @@ class IOManager {
   }
 }
 
-module.exports = IOManager
+module.exports = IOServer

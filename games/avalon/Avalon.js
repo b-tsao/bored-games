@@ -12,7 +12,7 @@ class Avalon {
     this.settings = new AvalonSettings();
     this.state = null;
     this.players = null;
-    this.changes = {};
+    this.secrets = {};
   }
   
   toJSON() {
@@ -24,55 +24,50 @@ class Avalon {
     }
   }
   
-  cleanChanges() {
-    if (Object.keys(this.changes).length === 0) {
-      return null;
-    }
-    const changes = this.changes;
-    this.changes = {};
-    return changes;
+  changeSettings(settings, callback = () => {}) {
+    const err = this.settings.change(settings, (err, changes) => {
+      if (err) {
+        return callback(err);
+      } else {
+        return callback(null, {settings: changes});
+      }
+    });
   }
   
-  changeSettings(settings) {
-    const err = this.settings.change(settings);
-    if (!err) {
-      this.changes.settings = this.settings.cleanChanges();
-    }
-    return err;
-  }
-  
-  action(action, data) {
+  action(action, data, callback = () => {}) {
     switch (action) {
       case 'start':
-        return this.start(data);
+        return this.start(data, callback);
       default:
-        return `Invalid game action (${action})`;
+        return callback(`Invalid game action (${action})`);
     }
   }
   
-  getPlayerSecrets() {
-    return this.secrets;
-  }
-  
-  start(data) {
-    data.players = [{id: "id1", name: "Test1", host: true}, {id: "id2", name: "Test2", host: false}, {id: "id3", name: "Test3", host: false}, {id: "id4", name: "Test4", host: false}, {id: "id5", name: "Test5", host: false}];
+  start(data, callback = () => {}) {
+    let i = data.players.length + 1;
+    while (i <= 5) {
+      data.players.push({id: "id" + i, name: "Test" + i, host: false});
+      i++;
+    }
     if (data.players.length < this.settings.minPlayers || data.players.length > this.settings.maxPlayers) {
-      return "Invalid number of players";
+      return callback("Invalid number of players");
     } else if (data.players.length !== this.settings.selectedCards.good.length + this.settings.selectedCards.evil.length) {
-      return "Invalid number of selected cards";
+      return callback("Invalid number of selected cards");
     }
     
+    const changes = {};
     this.state = {};
     this.players = data.players.map(player => {return {id: player.id, name: player.name}})
-    this.changes.state = this.state;
-    this.changes.players = this.players;
+    changes.state = this.state;
+    changes.players = this.players;
     const players = data.players.map(player => {return {id: player.id}});
     
-    this.secrets = {};
     this.distributeCards(players);
     for (const player of players) {
       this.secrets[player.id] = {card: player.card};
     }
+    
+    return callback(null, changes, this.secrets);
   }
   
   distributeCards(players) {

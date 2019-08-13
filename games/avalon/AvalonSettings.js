@@ -148,8 +148,6 @@ class AvalonSettings {
       spectatorsSeeIdentity: false,
       evilClarivoyance: false
     };
-    
-    this.changes = {};
   }
   
   get minPlayers () {return this.boards[this.selectedBoard].minPlayers};
@@ -157,33 +155,33 @@ class AvalonSettings {
   
   toJSON() {
     return {
-      boards: this.boards,
+      static: {
+        boards: this.boards,
+        cards: this.cards
+      },
       minPlayers: this.minPlayers,
       maxPlayers: this.maxPlayers,
-      cards: this.cards,
       selectedBoard: this.selectedBoard,
       selectedCards: this.selectedCards,
       extra: this.extra
     };
   }
   
-  cleanChanges() {
-    if (Object.keys(this.changes).length === 0) {
-      return null;
-    }
-    const changes = this.changes;
-    this.changes = {};
-    return changes;
-  }
-  
-  change(settings) {
+  change(settings, callback = () => {}) {
     const reason = this.check(settings);
     if (reason) {
-      return reason;
+      return callback(reason);
     }
+    
+    const changes = {};
     deepExtend(this, settings);
-    deepExtend(this.changes, settings);
-    this.changed(settings);
+    deepExtend(changes, settings);
+    this.changed(settings, (autoChanges) => {
+      if (autoChanges) {
+        deepExtend(changes, autoChanges);
+      }
+      return callback(null, changes);
+    });
   }
   
   check(settings) {
@@ -207,11 +205,13 @@ class AvalonSettings {
     return null;
   }
   
-  changed(settings) {
+  changed(settings, callback = () => {}) {
     for (const setting in settings) {
       switch (setting) {
         case 'selectedBoard':
-          this.selectedBoardChanged();
+          this.selectedBoardChanged(callback);
+        default:
+          return callback();
       }
     }
   }
@@ -241,28 +241,29 @@ class AvalonSettings {
     }
   }
   
-  selectedBoardChanged() {
+  selectedBoardChanged(callback = () => {}) {
     const selectedBoard = this.boards[this.selectedBoard];
     const maxPlayers = selectedBoard.maxPlayers;
     const maxEvils = selectedBoard.evils;
     const maxGoods = maxPlayers - maxEvils;
 
+    const selectedCardsChanges = {};
     if (this.selectedCards.good.length > maxGoods) {
       this.selectedCards.good = this.selectedCards.good.slice(0, maxGoods);
-      if (!this.changes.selectedCards) {
-        this.changes.selectedCards = {};
-      }
-      this.changes.selectedCards.good = this.selectedCards.good;
+      selectedCardsChanges.good = this.selectedCards.good;
     }
     if (this.selectedCards.evil.length > maxEvils) {
       this.selectedCards.evil = this.selectedCards.evil.slice(0, maxEvils);
-      if (!this.changes.selectedCards) {
-        this.changes.selectedCards = {};
-      }
-      this.changes.selectedCards.evil = this.selectedCards.evil;
+      selectedCardsChanges.evil = this.selectedCards.evil;
     }
-    this.changes.minPlayers = this.minPlayers;
-    this.changes.maxPlayers = this.maxPlayers;
+    const changes = {
+      minPlayers: this.minPlayers,
+      maxPlayers: this.maxPlayers
+    };
+    if (Object.keys(selectedCardsChanges).length > 0) {
+      changes.selectedCards = selectedCardsChanges;
+    }
+    return callback(changes);
   }
 }
 

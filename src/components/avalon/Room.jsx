@@ -1,9 +1,6 @@
-import React, {useState, useEffect, useContext} from 'react';
-import {Redirect} from 'react-router-dom';
+import React, {useState, useContext} from 'react';
 import clsx from 'clsx';
-import socketIOClient from 'socket.io-client';
 import PropTypes from 'prop-types';
-import deepExtend from 'deep-extend';
 import {
   makeStyles,
   useTheme
@@ -54,7 +51,6 @@ import {
   StarBorder as StarIcon
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
-import MessageModal from '../landing/MessageModal';
 
 import {
   ClientContext,
@@ -175,7 +171,7 @@ const ActionToolbar = props => {
   };
   
   const board = settings.selectedBoard;
-  const maxEvils = settings.boards[board].evils;
+  const maxEvils = settings.static.boards[board].evils;
   const maxGoods = settings.maxPlayers - maxEvils;
   const evils = settings.selectedCards.evil.length;
   const goods = settings.selectedCards.good.length;
@@ -390,17 +386,8 @@ export function BoardStepper({self, settings}) {
   const classes = useStepStyles();
   const theme = useTheme();
   
-  const images = settings.boards.map(board => {
-    return (
-      <img
-        className={classes.img}
-        src={board.img}
-        alt={board.label}
-      />
-    );
-  });
   const activeStep = settings.selectedBoard;
-  const maxSteps = settings.boards.length;
+  const maxSteps = settings.static.boards.length;
   
   function handleNext() {
     client.emit('settings', {selectedBoard: activeStep + 1});
@@ -414,9 +401,13 @@ export function BoardStepper({self, settings}) {
     <React.Fragment>
       <div className={classes.board}>
         <Paper square elevation={0} className={classes.header}>
-          <Typography>{settings.boards[activeStep].label}</Typography>
+          <Typography>{settings.static.boards[activeStep].label}</Typography>
         </Paper>
-        {images[activeStep]}
+        <img
+          className={classes.img}
+          src={settings.static.boards[activeStep].img}
+          alt={settings.static.boards[activeStep].label}
+        />
         <MobileStepper
           steps={maxSteps}
           position="static"
@@ -552,7 +543,7 @@ function CardGrid({self, settings}) {
   };
   
   const board = settings.selectedBoard;
-  const maxEvils = settings.boards[board].evils;
+  const maxEvils = settings.static.boards[board].evils;
   const maxGoods = settings.maxPlayers - maxEvils;
   const evils = settings.selectedCards.evil.length;
   const goods = settings.selectedCards.good.length;
@@ -565,7 +556,7 @@ function CardGrid({self, settings}) {
           <Typography>Good ({goods}/{maxGoods})</Typography>
         </Paper>
         <Grid container spacing={2}>
-          {settings.cards.good.map((card, idx) => {
+          {settings.static.cards.good.map((card, idx) => {
             const selectedCard = settings.selectedCards.good.indexOf(idx) >= 0;
             const disabledGood = disabled || (goods >= maxGoods && !selectedCard);
             return (
@@ -588,7 +579,7 @@ function CardGrid({self, settings}) {
           <Typography>Evil ({evils}/{maxEvils})</Typography>
         </Paper>
         <Grid container spacing={2}>
-          {settings.cards.evil.map((card, idx) => {
+          {settings.static.cards.evil.map((card, idx) => {
             const selectedCard = settings.selectedCards.evil.indexOf(idx) >= 0;
             const disabledEvil = disabled || (evils >= maxEvils && !selectedCard);
             return (
@@ -612,15 +603,10 @@ function CardGrid({self, settings}) {
   );
 }
 
-export default function Room(props) {
+export default function Room({room}) {
   const [client] = useContext(ClientContext);
   
-  const [room, setRoom] = useState(props.room);
   const [tabValue, setTabValue] = useState(0);
-  const [message, setMessage] = useState({
-    status: '',
-    text: ''
-  });
   
   const classes = useStyles();
   const theme = useTheme();
@@ -628,31 +614,6 @@ export default function Room(props) {
   function handleTabChange(event, newValue) {
     setTabValue(newValue);
   }
-  
-  const handleMessageClose = () => {
-    setMessage({status: '', text: ''});
-  };
-  
-  useEffect(() => {
-    const changeHandler = roomChanges => {
-      setRoom({...deepExtend(room, roomChanges)});
-    };
-    
-    const messageHandler = message => {
-      setMessage({status: message.status, text: message.text});
-    };
-    
-    client.on('change', changeHandler);
-    client.on('message', messageHandler);
-    
-    return () => {
-      client.off('change', changeHandler);
-      client.off('message', messageHandler);
-    };
-  }, []);
-  
-  const redirectToGame = (room.game.state != null) ?
-    <Redirect to='/game' /> : null;
   
   const paddedPaper = clsx(classes.paper, classes.padding);
   
@@ -666,12 +627,6 @@ export default function Room(props) {
   
   return (
     <React.Fragment>
-      {redirectToGame}
-      <MessageModal
-        open={!!message.text}
-        title={message.status}
-        message={message.text}
-        onClose={handleMessageClose} />
       <CssBaseline />
       <div className={classes.heroContent}>
         <Container className={classes.container} maxWidth="sm">

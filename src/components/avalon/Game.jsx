@@ -1,9 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react';
 import clsx from 'clsx';
 import {Link} from 'react-router-dom';
-import socketIOClient from 'socket.io-client';
 import PropTypes from 'prop-types';
-import deepExtend from 'deep-extend';
 import {
   makeStyles,
   useTheme
@@ -180,8 +178,8 @@ export function Board({settings}) {
       <div className={classes.board}>
         <img
           className={classes.img}
-          src={settings.boards[settings.selectedBoard].img}
-          alt={settings.boards[settings.selectedBoard].label}
+          src={settings.static.boards[settings.selectedBoard].img}
+          alt={settings.static.boards[settings.selectedBoard].label}
         />
       </div>
     </React.Fragment>
@@ -200,18 +198,6 @@ export default function Game(props) {
   function handleTabChange(event, newValue) {
     setTabValue(newValue);
   }
-  
-  useEffect(() => {
-    const handler = roomChanges => {
-      setRoom({...deepExtend(room, roomChanges)});
-    };
-    
-    client.on('change', handler);
-    
-    return () => {
-      client.off('change', handler);
-    };
-  }, [room]);
   
   let self = null;
   for (const player of room.game.players) {

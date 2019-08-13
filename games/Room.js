@@ -18,7 +18,6 @@ class Room {
     this.game = this.initGame(game);
     this.spectators = new PeopleManager();
     this.players = new PeopleManager(comparator);
-    this.changes = {};
   }
   
   set key(key) {
@@ -43,15 +42,6 @@ class Room {
     };
   }
   
-  cleanChanges() {
-    if (Object.keys(this.changes).length === 0) {
-      return null;
-    }
-    const changes = this.changes;
-    this.changes = {};
-    return changes;
-  }
-  
   initGame(game) {
     switch (game) {
       case 'The Resistance: Avalon':
@@ -64,14 +54,16 @@ class Room {
     }
   }
   
-  addSpectator(id) {
+  addSpectator(id, callback = () => {}) {
     this.logger.trace(`Adding client (${id})`);
     
     if (this.spectators.contains(id)) {
       const reason = "Already in the room";
       this.logger.error(`Failed to add client (${id}): ${reason}`);
-      return reason;
+      return callback(reason);
     }
+    
+    const changes = {};
     
     // Just in case client was a player
     const player = this.players.remove({id});
@@ -79,16 +71,16 @@ class Room {
       if (player.host && this.players.length > 0) {
         this.players.people[0].host = true;
       }
-      this.trackChange(['players']);
+      changes.players = this.players.toJSON();
     }
     
     this.spectators.add(id);
-    this.trackChange(['spectators']);
+    changes.spectators = this.spectators.toJSON();
     this.logger.info(`Added client (${id})`);
-    return null;
+    return callback(null, changes);
   }
   
-  addPlayer(id, name) {
+  addPlayer(id, name, callback = () => {}) {
     this.logger.trace(`Client (${id}) joining game as name (${name})`);
     
     let reason;
@@ -102,44 +94,51 @@ class Room {
     
     if (reason) {
       this.logger.error(`Client (${id}) failed to join game as name (${name}): ${reason}`);
-      return reason;
+      return callback(reason);
     }
     
     const host = this.players.length === 0;
     
+    const changes = {};
+    
     if (this.spectators.remove(id)) {
-      this.trackChange(['spectators']);
+      changes.spectators = this.spectators.toJSON();
     }
     this.players.add({id, name, host});
-    this.trackChange(['players']);
+    changes.players = this.players.toJSON();
     this.logger.info(`Client (${id}) joined game as name (${name})`);
-    return null;
+    return callback(null, changes);
   }
   
-  remove(id) {
+  remove(id, callback = () => {}) {
     this.logger.trace(`Removing client (${id})`);
+    const changes = {};
     if (this.spectators.remove(id)) {
-      this.trackChange(['spectators']);
+      changes.spectators = this.spectators.toJSON();
     } else {
       const player = this.players.remove({id});
       if (player) {
         if (player.host && this.players.length > 0) {
           this.players.people[0].host = true;
         }
-        this.trackChange(['players']);
+        changes.players = this.players.toJSON();
       } else {
-        this.logger.error(`Failed to remove client (${id}): Client not in room`);
-        return false;
+        const reason = "Client not in room";
+        this.logger.error(`Failed to remove client (${id}): ${reason}`);
+        return callback(reason);
       }
     }
     
     this.logger.info(`Removed client (${id})`);
-    return true;
+    return callback(null, changes);
   }
   
-  hostAction(action, sourceId, targetId) {
+  hostAction(action, sourceId, targetId, callback = () => {}) {
+    this.logger.trace(`Client (${sourceId}) host action (${action}) against client (${targetId}))`);
     const source = this.players.get({id: sourceId});
     const target = this.players.get({id: targetId});
+    
+    const changes = {};
     let reason;
     if (source == null || !source.host) {
       reason = "Host only action";
@@ -151,27 +150,37 @@ class Room {
           case 'transferHost':
             source.host = false;
             target.host = true;
-            this.trackChange(['players']);
+            changes.players = this.players.toJSON();
             break;
           case 'kick':
             this.players.remove(target);
             this.spectators.add(target.id);
-            this.trackChange(['players']);
-            this.trackChange(['spectators']);
+            changes.players = this.players.toJSON();
+            changes.spectators = this.spectators.toJSON();
             break;
           default:
             reason = "Invalid host action";
         }
       }
     }
-    return reason;
+    
+    if (reason) {
+      this.logger.error(`Client (${sourceId}) host action (${action}) against client (${targetId}) failed: ${reason}`);
+      return callback(reason);
+    } else {
+      this.logger.info(`Client (${sourceId}) host action (${action}) against client (${targetId}) completed`);
+      return callback(null, changes);
+    }
   }
   
-  gameAction(id, action, data) {
+  gameAction(id, action, data, callback = () => {}) {
+    this.logger.trace(`Client (${id}) game action (${action})`);
     const player = this.players.get({id});
     let reason;
     if (player == null || !player.host) {
       reason = "Host only action";
+      this.logger.error(`Client (${id}) game action (${action}) failed: ${reason}`);
+      return callback(reason);
     } else {
       if (action === 'start') {
         if (!data) {
@@ -180,30 +189,36 @@ class Room {
         data.players = this.players.toJSON();
         data.spectators = this.spectators.toJSON();
       }
-      reason = this.game.action(action, data);
-      if (!reason) {
-        this.trackChange(['game']);
-      }
+      this.game.action(action, data, (err, changes, secrets) => {
+        if (err) {
+          this.logger.error(`Client (${id}) game action (${action}) failed: ${err}`);
+          return callback(err);
+        } else {
+          this.logger.info(`Client (${id}) game action (${action}) completed`);
+          return callback(null, {game: changes}, secrets);
+        }
+      });
     }
-    return reason;
   }
   
-  getPlayerSecrets() {
-    return this.game.getPlayerSecrets();
-  }
-  
-  changeSettings(id, settings) {
+  changeSettings(id, settings, callback = () => {}) {
+    this.logger.trace(`Client (${id}) change settings (${JSON.stringify(settings)})`);
     const player = this.players.get({id});
-    let reason;
     if (player == null || !player.host) {
-      reason = "Host only action";
+      const reason = "Host only action";
+      this.logger.error(`Client (${id}) change settings failed: ${reason}`);
+      return callback(reason);
     } else {
-      reason = this.game.changeSettings(settings);
-      if (!reason) {
-        this.trackChange(['game']);
-      }
+      this.game.changeSettings(settings, (err, changes) => {
+        if (err) {
+          this.logger.error(`Client (${id}) change settings failed: ${err}`);
+          return callback(err);
+        } else {
+          this.logger.info(`Client (${id}) change settings (${JSON.stringify(settings)}) completed`);
+          return callback(null, {game: changes});
+        }
+      });
     }
-    return reason;
   }
   
   /**
@@ -226,51 +241,6 @@ class Room {
       return "Name already exists";
     }
     return null;
-  }
-  
-  /**
-   * Keep track of changes made to room to return so we don't have to return the whole object every time.
-   * Ex: (room, ['settings'])
-   */
-  trackChange(path) {
-    if (path == null || path.length === 0) {
-      this.changes = this.state;
-      return;
-    }
-    
-    let i = 0;
-    let assign = this;
-    let changes = this.changes;
-    let newField = null;
-    let changesRef;
-    while (i < path.length - 1) {
-      if (!assign[path[i]]) {
-        throw new RangeError('Path does not exist');
-      } else {
-        assign = assign[path[i]];
-      }
-      
-      if (newField) {
-        changes[path[i]] = {};
-      } else if (changes[path[i]]) {
-        changes = changes[path[i]];
-      } else {
-        newField = path[i];
-        changesRef = changes;
-        changes[path[i]] = {};
-      }
-      changes = changes[path[i]];
-      i++;
-    }
-    
-    changes[path[i]] = assign[path[i]].cleanChanges();
-    if (!changes[path[i]]) {
-      if (newField) {
-        delete changesRef[newField];
-      } else {
-        delete changes[path[i]];
-      }
-    }
   }
 }
 

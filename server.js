@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 const router = require('./routes/index');
 
 const http = require('http');
-const IOManager = require('./clients/IOManager');
+const IOServer = require('./io/IOServer');
 
 // resources
 const log4js = require('log4js');
@@ -53,7 +53,7 @@ function startServer() {
   
   const server = http.createServer(app);
   
-  const sio = new IOManager(server);
+  const sio = new IOServer(server);
   
   // Start the server
   server.listen(process.env.PORT, () => {

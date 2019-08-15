@@ -1,5 +1,6 @@
 'use strict';
 const log4js = require('log4js');
+const deepExtend = require('deep-extend');
 const RoomManager = require('../games/RoomManager');
 
 const logger = log4js.getLogger('IORoomManager');
@@ -43,13 +44,13 @@ class IORoomServer {
           } else {
             client.roomKey = key;
             client.join(key);
-            return client.emit('create', {status: 'complete', key});
+            client.emit('create', {status: 'complete', key});
           }
         });
       } catch (err) {
         logger.error(`Client (${client.id}) create game (${game}) room request denied: ${err}`);
         client.emit('create', {status: 'error', message: err.message});
-        return client.disconnect();
+        client.disconnect();
       }
     });
   }
@@ -67,7 +68,7 @@ class IORoomServer {
       }
 
       logger.info(`Client (${client.id}) retrieved room (${key}) information`);
-      return callback(null, room.toJSON());
+      callback(null, room.toJSON());
     });
   }
   
@@ -103,8 +104,9 @@ class IORoomServer {
             client.join(key);
             client.roomKey = key;
           }
+          client.join(`${key}#spectators`);
           client.emit('joinRoom', {status: 'complete'});
-          return this.ioRoomServer.to(key).emit('changes', changes);
+          this.broadcastChanges(room, changes);
         }
       });
     });
@@ -122,8 +124,10 @@ class IORoomServer {
         if (err) {
           client.emit('message', {status: 'error', text: err});
           client.disconnect();
+        } else {
+          client.join(`${key}#spectators`);
         }
-        return this.ioRoomServer.to(key).emit('changes', changes);
+        this.broadcastChanges(room, changes);
       });
     });
     
@@ -138,9 +142,10 @@ class IORoomServer {
       }
       room.addPlayer(client.id, name, (err, changes) => {
         if (err) {
-          return client.emit('message', {status: 'error', text: err});
+          client.emit('message', {status: 'error', text: err});
         } else {
-          return this.ioRoomServer.to(key).emit('changes', changes);
+          client.leave(`${key}#spectators`);
+          this.broadcastChanges(room, changes);
         }
       });
     });
@@ -158,9 +163,9 @@ class IORoomServer {
       }
       room.hostAction(action, client.id, id, (err, changes) => {
         if (err) {
-          return client.emit('message', {status: 'error', text: err});
+          client.emit('message', {status: 'error', text: err});
         } else {
-          return this.ioRoomServer.to(key).emit('changes', changes);
+          this.broadcastChanges(room, changes);
         }
       });
     });
@@ -178,9 +183,9 @@ class IORoomServer {
       }
       room.changeSettings(client.id, settings, (err, changes) => {
         if (err) {
-          return client.emit('message', {status: 'error', text: err});
+          client.emit('message', {status: 'error', text: err});
         } else {
-          return this.ioRoomServer.to(key).emit('changes', changes);
+          this.broadcastChanges(room, changes);
         }
       });
     });
@@ -199,12 +204,9 @@ class IORoomServer {
       room.gameAction(client.id, action, data, (err, changes, secrets) => {
         if (err) {
           client.emit('message', {status: 'error', text: err});
-        } else {
-          this.ioRoomServer.to(key).emit('changes', changes);
-          for (const player in secrets) {
-            logger.debug(`Sending player (${player}) secret (${JSON.stringify(secrets[player])})`);
-            this.ioRoomServer.to(player).emit('secrets', secrets[player]);
-          }
+        }
+        if (changes && changes.game) {
+          this.broadcastChanges(room, changes, secrets);
         }
       });
     });
@@ -216,18 +218,55 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room != null) {
         logger.trace(`Removing client (${client.id}) from room (${client.roomKey}): ${reason}`);
-        room.remove(client.id, (err, changes) => {
+        room.remove(client.id, (err, changes, secrets) => {
           if (!err) {
             if (room.occupants === 0) {
               logger.trace(`Deleting room (${key}): Room empty`);
-              return this.roomManager.deleteRoom(key);
+              this.roomManager.deleteRoom(key);
             } else {
-              return this.ioRoomServer.to(key).emit('changes', changes);
+              this.broadcastChanges(room, changes, secrets);
             }
           }
         });
       }
     });
+  }
+  
+  broadcastChanges(room, changes, secrets) {
+    if (secrets) {
+      const players = room.game.state.players;
+      for (const player of players.people) {
+        let playerView = changes;
+        if (secrets.hasOwnProperty(player.id)) {
+          // player has secrets (player view)
+          playerView = this.addPlayerView(changes, players, secrets[player.id]);
+        }
+        this.ioRoomServer.to(player.id).emit('changes', playerView);
+      }
+      this.ioRoomServer.to(`${room.key}#spectators`).emit('changes', changes);
+    } else {
+      this.ioRoomServer.to(room.key).emit('changes', changes);
+    }
+  }
+  
+  addPlayerView(changes, players, secret) {
+    const playerView = players.map(player => {
+      if (secret.hasOwnProperty(player.id)) {
+        player = JSON.parse(JSON.stringify(player)); // deep clone copy
+        deepExtend(player, secret[player.id]);
+      }
+      return player;
+    });
+    return {
+      ...changes,
+      game: {
+        ...changes.game,
+        state: {
+          ...changes.game.state,
+          players: playerView.toJSON()
+        }
+      }
+    };
   }
 }
 

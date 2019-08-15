@@ -11,7 +11,12 @@ class AvalonSettings {
         minPlayers: 5,
         maxPlayers: 5,
         evils: 2,
-        img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F5-players.png',
+        missions: [{team: 2, fails: 1},
+                   {team: 3, fails: 1},
+                   {team: 2, fails: 1},
+                   {team: 3, fails: 1},
+                   {team: 3, fails: 1}],
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F5-players.png',
       },
       {
         id: '6-players',
@@ -19,7 +24,12 @@ class AvalonSettings {
         minPlayers: 6,
         maxPlayers: 6,
         evils: 2,
-        img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F6-players.png'
+        missions: [{team: 2, fails: 1},
+                   {team: 3, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 3, fails: 1},
+                   {team: 4, fails: 1}],
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F6-players.png'
       },
       {
         id: '7-players',
@@ -27,7 +37,12 @@ class AvalonSettings {
         minPlayers: 7,
         maxPlayers: 7,
         evils: 3,
-        img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F7-players.png'
+        missions: [{team: 2, fails: 1},
+                   {team: 3, fails: 1},
+                   {team: 3, fails: 1},
+                   {team: 4, fails: 2},
+                   {team: 4, fails: 1}],
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F7-players.png'
       },
       {
         id: '8-players',
@@ -35,7 +50,12 @@ class AvalonSettings {
         minPlayers: 8,
         maxPlayers: 8,
         evils: 3,
-        img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F8-players.png'
+        missions: [{team: 3, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 5, fails: 2},
+                   {team: 5, fails: 1}],
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F8-players.png'
       },
       {
         id: '9-players',
@@ -43,7 +63,12 @@ class AvalonSettings {
         minPlayers: 9,
         maxPlayers: 9,
         evils: 3,
-        img: 'https://cdn.glitch.com/47971c1f-0386-433d-943f-b3ab96b26402%2F9-player.png'
+        missions: [{team: 3, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 5, fails: 2},
+                   {team: 5, fails: 1}],
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F9-players.png'
       },
       {
         id: '10-players',
@@ -51,7 +76,12 @@ class AvalonSettings {
         minPlayers: 10,
         maxPlayers: 10,
         evils: 4,
-        img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2F10-players.png'
+        missions: [{team: 3, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 4, fails: 1},
+                   {team: 5, fails: 2},
+                   {team: 5, fails: 1}],
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F10-players.png'
       }
     ];
     this.cards = {
@@ -59,76 +89,140 @@ class AvalonSettings {
         {
           id: 'merlin',
           label: 'Merlin',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fmerlin.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fmerlin.png'
         },
         {
           id: 'percival',
           label: 'Percival',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fpercival.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fpercival.png'
         },
         {
           id: 'servant-1',
           label: 'Loyal Servant of Arthur',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fservant-1.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fservant-1.png'
         },
         {
           id: 'servant-2',
           label: 'Loyal Servant of Arthur',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fservant-2.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fservant-2.png'
         },
         {
           id: 'servant-3',
           label: 'Loyal Servant of Arthur',
-          img: 'https://cdn.glitch.com/47971c1f-0386-433d-943f-b3ab96b26402%2Fservant-3.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fservant-3.png'
         },
         {
           id: 'servant-4',
           label: 'Loyal Servant of Arthur',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fservant-4.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fservant-4.png'
         },
         {
           id: 'servant-5',
           label: 'Loyal Servant of Arthur',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fservant-5.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fservant-5.png'
         }
       ],
       evil: [
         {
           id: 'mordred',
           label: 'Mordred',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fmordred.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fmordred.png'
         },
         {
           id: 'assassin',
           label: 'Assassin',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fassassin.jpg'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fassassin.jpg'
         },
         {
           id: 'morgana',
           label: 'Morgana',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fmorgana.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fmorgana.png'
         },
         {
           id: 'oberon',
           label: 'Oberon',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Foberon.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Foberon.png'
         },
         {
           id: 'minion-1',
           label: 'Minion of Mordred',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fminion-1.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fminion-1.png'
         },
         {
           id: 'minion-2',
           label: 'Minion of Mordred',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fminion-2.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fminion-2.png'
         },
         {
           id: 'minion-3',
           label: 'Minion of Mordred',
-          img: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Fminion-3.png'
+          img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fminion-3.png'
         }
-      ]
+      ],
+      cover: {
+        id: 'character-cover',
+        label: 'Character Cover',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fchar-cover.png'
+      }
+    };
+    this.vote = {
+      approve: {
+        id: 'vote-approve',
+        label: 'Approve',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fapprove.png'
+      },
+      reject: {
+        id: 'vote-reject',
+        label: 'Reject',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Freject.png'
+      },
+      cover: {
+        id: 'vote-cover',
+        label: 'Vote',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fvote.png'
+      }
+    };
+    this.mission = {
+      chosen: {
+        id: 'mission-chosen',
+        label: 'Chosen',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fchosen.png'
+      },
+      success: {
+        id: 'mission-success',
+        label: 'Success',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fsuccess.png'
+      },
+      fail: {
+        id: 'mission-fail',
+        label: 'Fail',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Ffail.png'
+      },
+      cover: {
+        if: 'mission-cover',
+        label: 'Decision',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fvote-cover.png'
+      },
+      succeed: {
+        id: 'mission-succeed',
+        label: 'Succeed',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fsucceed.png'
+      },
+      failed: {
+        id: 'mission-failed',
+        label: 'Failed',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Ffailed.png'
+      },
+      rejects: {
+        id: 'rejects',
+        label: 'Rejects',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Frejects.png'
+      },
+      round: {
+        id: 'round',
+        label: 'Round',
+        img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fround.png'
+      }
     };
     
     this.selectedBoard = 0;
@@ -157,7 +251,9 @@ class AvalonSettings {
     return {
       static: {
         boards: this.boards,
-        cards: this.cards
+        cards: this.cards,
+        vote: this.vote,
+        mission: this.mission
       },
       minPlayers: this.minPlayers,
       maxPlayers: this.maxPlayers,

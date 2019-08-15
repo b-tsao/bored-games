@@ -129,7 +129,7 @@ class RBTree {
   
   getInOrderSuccessor(node) {
     let successor = node.right;
-    while (node.left.key != null) {
+    while (successor.left.key != null) {
       successor = successor.left;
     }
     return successor;
@@ -248,15 +248,13 @@ class RBTree {
     }
     
     const sibling = node.isLeft ? node.parent.right : node.parent.left;
-    if (sibling) {
-      node.sibling.red = red;
-    }
+    sibling.red = red;
     
     if (node.red) {
       return this.balance(node);
     }
     
-    this.paintFamily(parent, !red);
+    this.paintFamily(node.parent, !red);
   }
   
   inOrderTraversal(array, node) {

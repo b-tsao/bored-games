@@ -47,8 +47,7 @@ import {
   MoreVert as MoreIcon,
   Person as HostIcon,
   KeyboardArrowLeft,
-  KeyboardArrowRight,
-  StarBorder as StarIcon
+  KeyboardArrowRight
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
 
@@ -603,9 +602,7 @@ function CardGrid({self, settings}) {
   );
 }
 
-export default function Room({room}) {
-  const [client] = useContext(ClientContext);
-  
+export default function Room({room, self}) {
   const [tabValue, setTabValue] = useState(0);
   
   const classes = useStyles();
@@ -616,14 +613,6 @@ export default function Room({room}) {
   }
   
   const paddedPaper = clsx(classes.paper, classes.padding);
-  
-  let self = null;
-  for (const player of room.players) {
-    if (player.id === client.id) {
-      self = player;
-      break;
-    }
-  }
   
   return (
     <React.Fragment>

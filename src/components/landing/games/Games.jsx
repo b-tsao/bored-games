@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const games = [{title: 'The Resistance: Avalon', subtitle: 'Social Deduction, Deception, Teamwork, Co-op', image: 'https://cdn.glitch.com/0c0821f6-4b1d-4757-975f-81072b5ba242%2Favalon.jpg'}];
+const games = [{title: 'The Resistance: Avalon', subtitle: 'Social Deduction, Deception, Teamwork, Co-op', image: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Favalon.jpg?v=1565656821873'}];
 
 export default function Games() {
   const classes = useStyles();

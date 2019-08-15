@@ -17,20 +17,24 @@ class PeopleManager {
         else return 0;
       };
     }
+    this.comparator = comparator;
     this.tree = new RBTree(compare);
     this.head = null;
     this.tail = null;
     this.length = 0;
+    this.array = null;
   }
   
   get people() {
-    const array = [];
-    let wrapper = this.head;
-    while (wrapper != null) {
-      array.push(wrapper.data);
-      wrapper = wrapper.next;
+    if (!this.array) {
+      this.array = [];
+      let wrapper = this.head;
+      while (wrapper != null) {
+        this.array.push(wrapper.data);
+        wrapper = wrapper.next;
+      }
     }
-    return array;
+    return this.array;
   }
   
   toJSON() {
@@ -53,6 +57,7 @@ class PeopleManager {
       }
       this.tail = wrapper;
       this.length++;
+      this.array = null;
       return true;
     } else {
       return false;
@@ -73,6 +78,7 @@ class PeopleManager {
         this.tail = wrapper.prev;
       }
       this.length--;
+      this.array = null;
       return wrapper.data;
     }
     return null;
@@ -97,6 +103,16 @@ class PeopleManager {
     } else {
       return null;
     }
+  }
+  
+  map(modifier) {
+    const newMe = new PeopleManager(this.comparator);
+    let wrapper = this.head;
+    while (wrapper != null) {
+      newMe.add(modifier(wrapper.data));
+      wrapper = wrapper.next;
+    }
+    return newMe;
   }
 }
 

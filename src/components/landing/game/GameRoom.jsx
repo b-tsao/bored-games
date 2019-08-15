@@ -59,45 +59,54 @@ export default function GameRoom() {
         setMessage({status: message.status, text: message.text});
       };
       
-      const changesHandler = roomChanges => {
+      const changeHandler = roomChanges => {
         setRoom({...deepExtend(room, roomChanges)});
       };
       
-      const secretsHandler = secret => {
-        console.log("secrets", secret);
-      };
-      
       client.on('message', messageHandler);
-      client.on('changes', changesHandler);
-      client.on('secrets', secretsHandler);
+      client.on('changes', changeHandler);
 
       return () => {
         client.off('message', messageHandler);
-        client.off('changes', changesHandler);
-        client.off('secrets', secretsHandler);
+        client.off('changes', changeHandler);
       };
     } else {
       client.emit('get', (err, room) => {
         if (err) {
           console.error(err);
         } else {
-          preloadImages(room.game.settings.static).then(() => {setRoom(room)});
+          preloadImages(room.game.settings.static).then(() => {
+            setRoom(room);
+            if (room.game.state && window.location.pathname === '/game') {
+              client.emit('game', 'connected');
+            }
+          });
         }
       });
     }
   }, [room]);
   
   const display = room ? (() => {
-    if (room.game.state != null && window.location.pathname === '/') {
+    if (room.game.state && window.location.pathname === '/') {
       return <Redirect to='/game' />;
+    }
+    
+    let self = null;
+    const players = room.game.state ? room.game.state.players : room.players;
+    for (const player of players) {
+      if (player.id === client.id) {
+        self = player;
+        break;
+      }
     }
     
     switch (room.game.title) {
       case 'The Resistance: Avalon':
-        if (room.game.state != null && window.location.pathname === '/game') {
-          return <AvalonGame room={room} />
+        if (room.game.state && window.location.pathname === '/game') {
+          console.log(room);
+          return <AvalonGame room={room} self={self} />
         } else {
-          return <AvalonRoom room={room} />
+          return <AvalonRoom room={room} self={self} />
         }
       default:
         return <Maintenance />

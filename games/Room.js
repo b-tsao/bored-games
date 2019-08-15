@@ -122,6 +122,14 @@ class Room {
           this.players.people[0].host = true;
         }
         changes.players = this.players.toJSON();
+        if (this.game.state) {
+          this.game.action(id, 'disconnected', null, (err, gameChanges, secrets) => {
+            this.logger.info(`Removed and disconnected from game client (${id})`);
+            changes.game = gameChanges;
+            callback(null, changes, secrets);
+          });
+          return;
+        }
       } else {
         const reason = "Client not in room";
         this.logger.error(`Failed to remove client (${id}): ${reason}`);
@@ -175,30 +183,28 @@ class Room {
   
   gameAction(id, action, data, callback = () => {}) {
     this.logger.trace(`Client (${id}) game action (${action})`);
-    const player = this.players.get({id});
-    let reason;
-    if (player == null || !player.host) {
-      reason = "Host only action";
-      this.logger.error(`Client (${id}) game action (${action}) failed: ${reason}`);
-      return callback(reason);
-    } else {
-      if (action === 'start') {
-        if (!data) {
-          data = {};
-        }
-        data.players = this.players.toJSON();
-        data.spectators = this.spectators.toJSON();
+    if (action === 'start') {
+      const player = this.players.get({id});
+      let reason;
+      if (player == null || !player.host) {
+        reason = "Host only action";
+        this.logger.error(`Client (${id}) game action (${action}) failed: ${reason}`);
+        return callback(reason);
       }
-      this.game.action(action, data, (err, changes, secrets) => {
-        if (err) {
-          this.logger.error(`Client (${id}) game action (${action}) failed: ${err}`);
-          return callback(err);
-        } else {
-          this.logger.info(`Client (${id}) game action (${action}) completed`);
-          return callback(null, {game: changes}, secrets);
-        }
-      });
+      if (!data) {
+        data = {};
+      }
+      data.players = this.players;
     }
+    this.game.action(id, action, data, (err, changes, secrets) => {
+      if (err) {
+        this.logger.error(`Client (${id}) game action (${action}) failed: ${err}`);
+        return callback(err);
+      } else {
+        this.logger.info(`Client (${id}) game action (${action}) completed`);
+        return callback(null, {game: changes}, secrets);
+      }
+    });
   }
   
   changeSettings(id, settings, callback = () => {}) {

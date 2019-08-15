@@ -3,6 +3,7 @@
 const log4js = require('log4js');
 
 const AvalonSettings = require('./AvalonSettings');
+const PeopleManager = require('../PeopleManager');
 
 const logger = log4js.getLogger('Avalon');
 
@@ -11,7 +12,6 @@ class Avalon {
     this.title = 'The Resistance: Avalon';
     this.settings = new AvalonSettings();
     this.state = null;
-    this.players = null;
     this.secrets = {};
   }
   
@@ -19,8 +19,12 @@ class Avalon {
     return {
       title: this.title,
       settings: this.settings.toJSON(),
-      state: this.state,
-      players: this.players
+      state: this.state ? {
+        ...this.state,
+        team: this.state.team.toJSON(),
+        votes: this.state.votes.toJSON().map(vote => {return vote.id}), // hide the actual vote
+        people: this.state.players.toJSON()
+      } : null
     }
   }
   
@@ -34,21 +38,41 @@ class Avalon {
     });
   }
   
-  action(action, data, callback = () => {}) {
+  action(id, action, data, callback = () => {}) {
+    const cb = (err, changes) => {
+      if (err) {
+        return callback(err);
+      } else {
+        return callback(err, changes, this.secrets); 
+      }
+    };
+    
     switch (action) {
       case 'start':
-        return this.start(data, callback);
+        return this.start(data, cb);
+      case 'choose':
+        return this.choose(id, data, cb);
+      case 'propose':
+        return this.propose(id, cb);
+      case 'vote':
+        return this.vote(id, data, cb);
+      case 'connected':
+        return this.connected(id, true, cb);
+      case 'disconnected':
+        return this.connected(id, false, cb);
       default:
-        return callback(`Invalid game action (${action})`);
+        return cb(`Invalid game action (${action})`);
     }
   }
   
   start(data, callback = () => {}) {
+    // DEBUG TEST ONLY BEGIN
     let i = data.players.length + 1;
-    while (i <= 5) {
-      data.players.push({id: "id" + i, name: "Test" + i, host: false});
+    while (i <= this.settings.minPlayers) {
+      data.players.add({id: "id" + i, name: "TestBot" + i, host: false});
       i++;
     }
+    // DEBUG TEST ONLY END
     if (data.players.length < this.settings.minPlayers || data.players.length > this.settings.maxPlayers) {
       return callback("Invalid number of players");
     } else if (data.players.length !== this.settings.selectedCards.good.length + this.settings.selectedCards.evil.length) {
@@ -56,18 +80,146 @@ class Avalon {
     }
     
     const changes = {};
-    this.state = {};
-    this.players = data.players.map(player => {return {id: player.id, name: player.name}})
-    changes.state = this.state;
-    changes.players = this.players;
-    const players = data.players.map(player => {return {id: player.id}});
+    const comparator = (c1, c2) => {
+      if (c1.id < c2.id) return -1;
+      else if (c1.id > c2.id) return 1;
+      else return 0;
+    };
+    this.state = {
+      players: data.players.map(player => {return {id: player.id, name: player.name}}),
+      phase: 'proposing',
+      message: '',
+      leader: Math.floor(Math.random() * (data.players.length)),
+      team: new PeopleManager(), // [<player.name>]
+      votes: new PeopleManager(comparator), // [{<player.id>: <Boolean>}]
+      missions: [], // [{success: <Boolean>, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
+      rejects: [] // [{team: [<player.name>], votes: {<player.name>: <Boolean>}}] // rejects will be copied into history after every mission
+    };
+    this.state.leader = 0; // DEBUG TEST ONLY
+    this.state.message = this.state.players.people[this.state.leader].name + ' is proposing a team';
+    changes.state = this.toJSON().state;
     
+    const players = data.players.people.map(player => {return {id: player.id}});
     this.distributeCards(players);
+    // Process card information secrets
     for (const player of players) {
-      this.secrets[player.id] = {card: player.card};
+      const secret = {[player.id]: {card: player.card}};
+      const cardId = this.settings.cards[player.card.side][player.card.idx].id;
+      switch (cardId) {
+        case 'merlin':
+          for (const player of players) {
+            const playerCardId = this.settings.cards[player.card.side][player.card.idx].id;
+            if (player.card.side === 'evil' && playerCardId !== 'mordred') {
+              if (!secret[player.id]) {
+                secret[player.id] = {};
+              }
+              secret[player.id].evil = true;
+            }
+          }
+          break;
+        case 'percival':
+          for (const player of players) {
+            const playerCardId = this.settings.cards[player.card.side][player.card.idx].id;
+            if (playerCardId === 'merlin' || playerCardId === 'morgana') {
+              if (!secret[player.id]) {
+                secret[player.id] = {};
+              }
+              secret[player.id].merlin = true;
+            }
+          }
+          break;
+      }
+      if (player.card.side === 'evil' && cardId !== 'oberon') {
+        for (const player of players) {
+          const playerCardId = this.settings.cards[player.card.side][player.card.idx].id;
+          if (player.card.side === 'evil' && playerCardId !== 'oberon') {
+            if (!secret[player.id]) {
+              secret[player.id] = {};
+            }
+            secret[player.id].evil = true;
+          }
+        }
+      }
+      this.secrets[player.id] = secret;
     }
     
-    return callback(null, changes, this.secrets);
+    return callback(null, changes);
+  }
+  
+  choose(id, data, callback = () => {}) {
+    let changes = null;
+    if (this.state && this.state.phase === 'proposing') {
+      const leader = this.state.players.people[this.state.leader];
+      const selectedBoard = this.settings.boards[this.settings.selectedBoard];
+      const currentMission = selectedBoard.missions[this.state.missions.length];
+      if (id === leader.id) {
+        if (this.state.team.remove(data.id) ||
+           (this.state.team.length < currentMission.team && this.state.team.add(data.id))) {
+          changes = {
+            state: {
+              team: this.state.team.toJSON()
+            }
+          };
+        }
+      } else {
+        return callback('Only the leader can choose');
+      }
+    } else {
+      return callback('Game is not in the correct phase');
+    }
+    return callback(null, changes);
+  }
+  
+  propose(id, callback = () => {}) {
+    let changes = null;
+    if (this.state && this.state.phase === 'proposing') {
+      const leader = this.state.players.people[this.state.leader];
+      if (id === leader.id) {
+        this.state.phase = 'voting';
+        changes = {
+          state: {
+            phase: this.state.phase
+          }
+        };
+      } else {
+        return callback('Only the leader can propose');
+      }
+    } else {
+      return callback('Game is not in the correct phase');
+    }
+    return callback(null, changes);
+  }
+  
+  vote(id, data, callback = () => {}) {
+    let changes = null;
+    if (this.state && this.state.phase === 'voting') {
+      this.state.votes.remove({id});
+      this.state.votes.add({id, vote: data.vote});
+      changes = {
+        state: {
+          votes: this.state.votes.toJSON().map(vote => {return vote.id})
+        }
+      };
+    } else {
+      return callback('Game is not in the correct phase');
+    }
+    return callback(null, changes);
+  }
+  
+  connected(id, connected, callback = () => {}) {
+    let changes = null;
+    if (this.state) {
+      const player = this.state.players.get({id});
+      if (player) {
+        player.connected = connected;
+        changes = {
+          state: {
+            players: this.state.players.toJSON()
+          }
+        };
+      }
+    }
+    return callback(null, changes);
   }
   
   distributeCards(players) {

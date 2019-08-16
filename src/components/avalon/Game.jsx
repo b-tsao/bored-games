@@ -185,10 +185,10 @@ const ActionToolbar = ({game, self, power}) => {
   };
 
   const isLeader = self && self.id === game.state.players[game.state.leader].id;
-  const proposePhase = game.state.phase === 'proposing';
+  const choosePhase = game.state.phase === 'choosing';
   const selectedBoard = game.settings.static.boards[game.settings.selectedBoard];
-  const currentMission = selectedBoard.missions[game.state.missions.length];
-  const enableVote = isLeader && proposePhase && game.state.team.length === currentMission.team;
+  const currentMission = selectedBoard.missions[game.state.missions.length - 1];
+  const enableVote = isLeader && choosePhase && game.state.team.length === currentMission.team;
   
   const cardActionAreaClass = reveal ? clsx(classes.cardActionArea, classes.reveal) : classes.cardActionArea;
   
@@ -220,7 +220,7 @@ const ActionToolbar = ({game, self, power}) => {
       <CardActionArea
         disabled={game.state.phase !== 'voting'}
         className={classes.cardActionArea}
-        onClick={() => {handleVote('approve')}}>
+        onClick={() => {handleVote(true)}}>
         <img
           className={imgClass}
           src={game.settings.static.vote.approve.img}
@@ -234,7 +234,7 @@ const ActionToolbar = ({game, self, power}) => {
       <CardActionArea
         disabled={game.state.phase !== 'voting'}
         className={classes.cardActionArea}
-        onClick={() => {handleVote('reject')}}>
+        onClick={() => {handleVote(false)}}>
         <img
           className={imgClass}
           src={game.settings.static.vote.reject.img}
@@ -309,14 +309,17 @@ function PlayersTable({game, self, power}) {
   const classes = useStyles();
 
   const isLeader = self && self.id === game.state.players[game.state.leader].id;
-  const proposePhase = game.state.phase === 'proposing';
-  const canPropose = isLeader && proposePhase;
+  const choosePhase = game.state.phase === 'choosing';
+  const canPropose = isLeader && choosePhase;
   
   const handleChoose = (event, playerId) => {
     if (canPropose) {
       client.emit('game', 'choose', {id: playerId});
     }
   };
+  
+  const selectedBoard = game.settings.static.boards[game.settings.selectedBoard];
+  const missions = selectedBoard.missions.length;
   
   return (
     <React.Fragment>
@@ -360,14 +363,19 @@ function PlayersTable({game, self, power}) {
               }
             }
             
+            const missionHistory = game.state.phase === 'voting' ?
+              game.state.missions.length - 1 : game.state.missions.length;
             const votes = [];
-            for (const mission of game.state.missions) {
-              for (const vote of mission.history[mission.history.length - 1].votes) {
+            for (let i = 0; i < missionHistory; i++) {
+              const mission = game.state.missions[i];
+              if (mission.history.length > 0) {
+                const history = mission.history[mission.history.length - 1];
+                const playerVote = history.votes[player.id];
                 votes.push(
-                  <TableCell key={player.id + '-vote'} component="th" scope="row">
+                  <TableCell key={player.id + '-mission' + votes.length} component="th" scope="row">
                     <Zoom in={true}>
                       <Card className={classes.card}>
-                        {vote[player.id] ?
+                        {playerVote ?
                           <img
                             className={imgClass}
                             src={game.settings.static.vote.approve.img}
@@ -386,7 +394,7 @@ function PlayersTable({game, self, power}) {
             for (const voter of game.state.votes) {
               if (player.id === voter) {
                 votes.push(
-                  <TableCell key={player.id + '-vote'} component="th" scope="row">
+                  <TableCell key={player.id + '-mission' + votes.length} component="th" scope="row">
                     <Zoom in={true}>
                       <Card className={classes.card}>
                         <img
@@ -397,7 +405,23 @@ function PlayersTable({game, self, power}) {
                     </Zoom>
                   </TableCell>
                 );
+                break;
               }
+            }
+            
+            for (let i = votes.length; i < missions; i++) {
+              votes.push(
+                <TableCell key={player.id + '-mission' + i} component="th" scope="row">
+                  <Zoom in={false}>
+                    <Card className={classes.card}>
+                      <img
+                        className={imgClass}
+                        src={game.settings.static.vote.cover.img}
+                        alt={game.settings.static.vote.cover.label} />
+                    </Card>
+                  </Zoom>
+                </TableCell>
+              );
             }
             
             return (

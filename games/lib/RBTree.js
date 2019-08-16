@@ -64,6 +64,17 @@ class RBTree {
     return key;
   }
   
+  clear() {
+    this.destroy(this.root);
+  }
+
+  destroy(node) {
+    for (const child of node.children) {
+      this.destroy(child);
+    }
+    node.croak();
+  }
+  
   handleDoubleBlack(node) {
     if (node == null || node.parent == null) {
       // no double black or double black node is now root, no action needed

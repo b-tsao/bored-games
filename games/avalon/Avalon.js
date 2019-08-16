@@ -87,16 +87,16 @@ class Avalon {
     };
     this.state = {
       players: data.players.map(player => {return {id: player.id, name: player.name}}),
-      phase: 'proposing',
+      phase: 'choosing',
       message: '',
       leader: Math.floor(Math.random() * (data.players.length)),
       team: new PeopleManager(), // [<player.name>]
       votes: new PeopleManager(comparator), // [{<player.id>: <Boolean>}]
-      missions: [], // [{success: <Boolean>, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
+      missions: [{history: []}], // [{success: <Boolean>, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
       rejects: [] // [{team: [<player.name>], votes: {<player.name>: <Boolean>}}] // rejects will be copied into history after every mission
     };
     this.state.leader = 0; // DEBUG TEST ONLY
-    this.state.message = this.state.players.people[this.state.leader].name + ' is proposing a team';
+    this.state.message = this.state.players.people[this.state.leader].name + ' is choosing a team';
     changes.state = this.toJSON().state;
     
     const players = data.players.people.map(player => {return {id: player.id}});
@@ -148,10 +148,10 @@ class Avalon {
   
   choose(id, data, callback = () => {}) {
     let changes = null;
-    if (this.state && this.state.phase === 'proposing') {
+    if (this.state && this.state.phase === 'choosing') {
       const leader = this.state.players.people[this.state.leader];
       const selectedBoard = this.settings.boards[this.settings.selectedBoard];
-      const currentMission = selectedBoard.missions[this.state.missions.length];
+      const currentMission = selectedBoard.missions[this.state.missions.length - 1];
       if (id === leader.id) {
         if (this.state.team.remove(data.id) ||
            (this.state.team.length < currentMission.team && this.state.team.add(data.id))) {
@@ -165,14 +165,14 @@ class Avalon {
         return callback('Only the leader can choose');
       }
     } else {
-      return callback('Game is not in the correct phase');
+      return callback('Game is not in the choosing phase');
     }
     return callback(null, changes);
   }
   
   propose(id, callback = () => {}) {
     let changes = null;
-    if (this.state && this.state.phase === 'proposing') {
+    if (this.state && this.state.phase === 'choosing') {
       const leader = this.state.players.people[this.state.leader];
       if (id === leader.id) {
         this.state.phase = 'voting';
@@ -185,23 +185,72 @@ class Avalon {
         return callback('Only the leader can propose');
       }
     } else {
-      return callback('Game is not in the correct phase');
+      return callback('Game is not in the choosing phase');
     }
     return callback(null, changes);
   }
   
   vote(id, data, callback = () => {}) {
-    let changes = null;
     if (this.state && this.state.phase === 'voting') {
       this.state.votes.remove({id});
       this.state.votes.add({id, vote: data.vote});
-      changes = {
+      // DEBUG TEST ONLY BEGIN
+      for (const player of this.state.players.people) {
+        this.state.votes.add({id: player.id, vote: false});
+      }
+      // DEBUG TEST ONLY END
+      if (this.state.votes.length === this.state.players.length) {
+        this.state.phase = 'tally';
+      }
+      const changes = {
         state: {
           votes: this.state.votes.toJSON().map(vote => {return vote.id})
         }
       };
+      callback(null, changes);
+      if (this.state.phase === 'tally') {
+        this.tally(callback);
+      }
     } else {
-      return callback('Game is not in the correct phase');
+      return callback('Game is not in the voting phase');
+    }
+  }
+  
+  tally(callback = () => {}) {
+    const currentMission = this.state.missions[this.state.missions.length - 1];
+    const votes = {};
+    for (const voter of this.state.votes.toJSON()) {
+      votes[voter.id] = voter.vote;
+    }
+    currentMission.history.push({team: this.state.team.people, votes});
+    
+    const approvals = [];
+    const rejections = [];
+    for (const voter of this.state.votes.toJSON()) {
+      if (voter.vote) {
+        approvals.push(voter);
+      } else {
+        rejections.push(voter);
+      }
+    }
+    
+    this.state.votes.clear();
+    
+    const changes = {};
+    if (approvals.length > rejections.length) {
+      this.state.phase = 'mission';
+      changes.state = {
+        phase: this.state.phase
+      };
+    } else {
+      this.state.phase = 'choosing';
+      this.state.team.clear();
+      changes.state = {
+        phase: this.state.phase,
+        missions: this.state.missions,
+        team: this.state.team.toJSON(),
+        votes: this.state.votes.toJSON()
+      };
     }
     return callback(null, changes);
   }

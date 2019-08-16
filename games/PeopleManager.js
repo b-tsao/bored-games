@@ -105,6 +105,14 @@ class PeopleManager {
     }
   }
   
+  clear() {
+    this.tree.clear();
+    this.head = null;
+    this.tail = null;
+    this.length = 0;
+    this.array = null;
+  }
+  
   map(modifier) {
     const newMe = new PeopleManager(this.comparator);
     let wrapper = this.head;

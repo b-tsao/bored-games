@@ -11,11 +11,11 @@ class AvalonSettings {
         minPlayers: 5,
         maxPlayers: 5,
         evils: 2,
-        missions: [{team: 2, fails: 1},
-                   {team: 3, fails: 1},
-                   {team: 2, fails: 1},
-                   {team: 3, fails: 1},
-                   {team: 3, fails: 1}],
+        quests: [{team: 2, fails: 1},
+                 {team: 3, fails: 1},
+                 {team: 2, fails: 1},
+                 {team: 3, fails: 1},
+                 {team: 3, fails: 1}],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F5-players.png',
       },
       {
@@ -24,11 +24,11 @@ class AvalonSettings {
         minPlayers: 6,
         maxPlayers: 6,
         evils: 2,
-        missions: [{team: 2, fails: 1},
-                   {team: 3, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 3, fails: 1},
-                   {team: 4, fails: 1}],
+        quests: [{team: 2, fails: 1},
+                 {team: 3, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 3, fails: 1},
+                 {team: 4, fails: 1}],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F6-players.png'
       },
       {
@@ -37,11 +37,11 @@ class AvalonSettings {
         minPlayers: 7,
         maxPlayers: 7,
         evils: 3,
-        missions: [{team: 2, fails: 1},
-                   {team: 3, fails: 1},
-                   {team: 3, fails: 1},
-                   {team: 4, fails: 2},
-                   {team: 4, fails: 1}],
+        quests: [{team: 2, fails: 1},
+                 {team: 3, fails: 1},
+                 {team: 3, fails: 1},
+                 {team: 4, fails: 2},
+                 {team: 4, fails: 1}],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F7-players.png'
       },
       {
@@ -50,11 +50,11 @@ class AvalonSettings {
         minPlayers: 8,
         maxPlayers: 8,
         evils: 3,
-        missions: [{team: 3, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 5, fails: 2},
-                   {team: 5, fails: 1}],
+        quests: [{team: 3, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 5, fails: 2},
+                 {team: 5, fails: 1}],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F8-players.png'
       },
       {
@@ -63,11 +63,11 @@ class AvalonSettings {
         minPlayers: 9,
         maxPlayers: 9,
         evils: 3,
-        missions: [{team: 3, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 5, fails: 2},
-                   {team: 5, fails: 1}],
+        quests: [{team: 3, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 5, fails: 2},
+                 {team: 5, fails: 1}],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F9-players.png'
       },
       {
@@ -76,11 +76,11 @@ class AvalonSettings {
         minPlayers: 10,
         maxPlayers: 10,
         evils: 4,
-        missions: [{team: 3, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 4, fails: 1},
-                   {team: 5, fails: 2},
-                   {team: 5, fails: 1}],
+        quests: [{team: 3, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 4, fails: 1},
+                 {team: 5, fails: 2},
+                 {team: 5, fails: 1}],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F10-players.png'
       }
     ];
@@ -182,34 +182,34 @@ class AvalonSettings {
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fvote.png'
       }
     };
-    this.mission = {
+    this.quest = {
       chosen: {
-        id: 'mission-chosen',
+        id: 'quest-chosen',
         label: 'Chosen',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fchosen.png'
       },
       success: {
-        id: 'mission-success',
+        id: 'quest-success',
         label: 'Success',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fsuccess.png'
       },
       fail: {
-        id: 'mission-fail',
+        id: 'quest-fail',
         label: 'Fail',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Ffail.png'
       },
       cover: {
-        if: 'mission-cover',
+        if: 'quest-cover',
         label: 'Decision',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fvote-cover.png'
       },
       succeed: {
-        id: 'mission-succeed',
+        id: 'quest-succeed',
         label: 'Succeed',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fsucceed.png'
       },
       failed: {
-        id: 'mission-failed',
+        id: 'quest-failed',
         label: 'Failed',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Ffailed.png'
       },
@@ -253,7 +253,7 @@ class AvalonSettings {
         boards: this.boards,
         cards: this.cards,
         vote: this.vote,
-        mission: this.mission
+        quest: this.quest
       },
       minPlayers: this.minPlayers,
       maxPlayers: this.maxPlayers,

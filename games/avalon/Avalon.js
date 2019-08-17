@@ -22,7 +22,8 @@ class Avalon {
       state: this.state ? {
         ...this.state,
         team: this.state.team.toJSON(),
-        votes: this.state.votes.toJSON().map(vote => {return vote.id}), // hide the actual vote
+        votes: this.state.votes.toJSON().map(voter => {return voter.id}), // hide the actual vote
+        quest: this.state.quest.toJSON().map(chosen => {return chosen.id}),
         people: this.state.players.toJSON()
       } : null
     }
@@ -56,6 +57,8 @@ class Avalon {
         return this.propose(id, cb);
       case 'vote':
         return this.vote(id, data, cb);
+      case 'quest':
+        return this.quest(id, data, cb);
       case 'connected':
         return this.connected(id, true, cb);
       case 'disconnected':
@@ -89,11 +92,11 @@ class Avalon {
       players: data.players.map(player => {return {id: player.id, name: player.name}}),
       phase: 'choosing',
       message: '',
-      leader: Math.floor(Math.random() * (data.players.length)),
+      leader: Math.floor(Math.random() * (data.players.length)), // idx of players
       team: new PeopleManager(), // [<player.name>]
       votes: new PeopleManager(comparator), // [{<player.id>: <Boolean>}]
-      missions: [{history: []}], // [{success: <Boolean>, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
-      rejects: [] // [{team: [<player.name>], votes: {<player.name>: <Boolean>}}] // rejects will be copied into history after every mission
+      quest: new PeopleManager(comparator), // [<player.id>]
+      quests: [{history: []}] // [{outcome: {success: <Boolean>, decisions: [<Boolean>]}, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
     };
     this.state.leader = 0; // DEBUG TEST ONLY
     this.state.message = this.state.players.people[this.state.leader].name + ' is choosing a team';
@@ -151,10 +154,10 @@ class Avalon {
     if (this.state && this.state.phase === 'choosing') {
       const leader = this.state.players.people[this.state.leader];
       const selectedBoard = this.settings.boards[this.settings.selectedBoard];
-      const currentMission = selectedBoard.missions[this.state.missions.length - 1];
+      const currentQuest = selectedBoard.quests[this.state.quests.length - 1];
       if (id === leader.id) {
         if (this.state.team.remove(data.id) ||
-           (this.state.team.length < currentMission.team && this.state.team.add(data.id))) {
+           (this.state.team.length < currentQuest.team && this.state.team.add(data.id))) {
           changes = {
             state: {
               team: this.state.team.toJSON()
@@ -192,24 +195,26 @@ class Avalon {
   
   vote(id, data, callback = () => {}) {
     if (this.state && this.state.phase === 'voting') {
-      this.state.votes.remove({id});
-      this.state.votes.add({id, vote: data.vote});
-      // DEBUG TEST ONLY BEGIN
-      for (const player of this.state.players.people) {
-        this.state.votes.add({id: player.id, vote: false});
-      }
-      // DEBUG TEST ONLY END
-      if (this.state.votes.length === this.state.players.length) {
-        this.state.phase = 'tally';
-      }
-      const changes = {
-        state: {
-          votes: this.state.votes.toJSON().map(vote => {return vote.id})
+      if (this.state.players.contains({id})) {
+       this.state.votes.remove({id});
+        this.state.votes.add({id, vote: data.vote});
+        // DEBUG TEST ONLY BEGIN
+        for (const player of this.state.players.people) {
+          this.state.votes.add({id: player.id, vote: data.vote});
         }
-      };
-      callback(null, changes);
-      if (this.state.phase === 'tally') {
-        this.tally(callback);
+        // DEBUG TEST ONLY END
+        const changes = {state: {}};
+        if (this.state.votes.length === this.state.players.length) {
+          this.state.phase = 'tally';
+          changes.state.phase = this.state.phase;
+        }
+        changes.state.votes = this.state.votes.toJSON().map(voter => {return voter.id});
+        callback(null, changes);
+        if (this.state.phase === 'tally') {
+          this.tally(callback);
+        } 
+      } else {
+        return callback('Not a player');
       }
     } else {
       return callback('Game is not in the voting phase');
@@ -217,41 +222,117 @@ class Avalon {
   }
   
   tally(callback = () => {}) {
-    const currentMission = this.state.missions[this.state.missions.length - 1];
+    const changes = {state: {}};
+    
+    const currentQuest = this.state.quests[this.state.quests.length - 1];
     const votes = {};
+    let approvals = 0;
+    let rejections = 0;
     for (const voter of this.state.votes.toJSON()) {
       votes[voter.id] = voter.vote;
-    }
-    currentMission.history.push({team: this.state.team.people, votes});
-    
-    const approvals = [];
-    const rejections = [];
-    for (const voter of this.state.votes.toJSON()) {
       if (voter.vote) {
-        approvals.push(voter);
+        approvals++;
       } else {
-        rejections.push(voter);
+        rejections++;
       }
     }
+    currentQuest.history.push({team: this.state.team.people, votes});
+    changes.state.quests = this.state.quests;
     
     this.state.votes.clear();
+    changes.state.votes = this.state.votes.toJSON();
     
-    const changes = {};
-    if (approvals.length > rejections.length) {
-      this.state.phase = 'mission';
-      changes.state = {
-        phase: this.state.phase
-      };
+    if (approvals > rejections) {
+      this.state.phase = 'questing';
+    } else {
+      if (currentQuest.history.length >= 5) {
+        this.state.phase = 'end';
+      } else {
+        this.state.phase = 'choosing';
+        this.state.team.clear();
+        changes.state.team = this.state.team.toJSON();
+      }
+    }
+    changes.state.phase = this.state.phase;
+    
+    return callback(null, changes);
+  }
+  
+  quest(id, data, callback = () => {}) {
+    if (this.state && this.state.phase === 'questing') {
+      if (this.secrets[id]) {
+        if (this.secrets[id][id].card.side === 'good' && data.decision === false) {
+          return callback('Stop trolling, good can not fail the mission');
+        } else {
+          this.state.quest.remove({id});
+          this.state.quest.add({id, decision: data.decision});
+          // DEBUG TEST ONLY BEGIN
+          for (const id of this.state.team.people) {
+            this.state.quest.add({id, decision: true});
+          }
+          // DEBUG TEST ONLY END
+          const changes = {state: {}};
+          if (this.state.quest.length === this.state.team.length) {
+            this.state.phase = 'result';
+            changes.state.phase = this.state.phase;
+          }
+          changes.state.quest = this.state.quest.toJSON().map(chosen => {return chosen.id});
+          callback(null, changes);
+          if (this.state.phase === 'result') {
+            this.result(callback);
+          }
+        }
+      } else {
+        return callback('Not a player');
+      }
+    } else {
+      return callback('Game is not in the voting phase');
+    }
+  }
+  
+  result(callback = () => {}) {
+    const changes = {state: {}};
+    
+    // Check if quest failed overall
+    const selectedBoard = this.settings.boards[this.settings.selectedBoard];
+    const quest = selectedBoard.quests[this.state.quests.length - 1];
+    let fails = 0;
+    let success = true;
+    for (const q of this.state.quest.toJSON()) {
+      if (!q.decision) {
+        fails++;
+        if (fails >= quest.fails) {
+          success = false;
+          break;
+        }
+      }
+    }
+    const currentQuest = this.state.quests[this.state.quests.length - 1];
+    currentQuest.outcome = {success, decisions: this.state.quest.toJSON().map(chosen => {return chosen.decision})};
+    
+    this.state.quest.clear();
+    changes.state.quest = this.state.quest.toJSON();
+    
+    // Determine if the game ended
+    let succeed = 0;
+    let failed = 0;
+    for (const q of this.state.quests) {
+      if (q.outcome.success) {
+        succeed++;
+      } else {
+        failed++;
+      }
+    }
+    if (succeed >= 3) {
+      this.state.phase = 'assassinating';
+    } else if (failed >= 3) {
+      this.state.phase = 'end';
     } else {
       this.state.phase = 'choosing';
-      this.state.team.clear();
-      changes.state = {
-        phase: this.state.phase,
-        missions: this.state.missions,
-        team: this.state.team.toJSON(),
-        votes: this.state.votes.toJSON()
-      };
+      this.state.quests.push({history: []});
     }
+    changes.state.quests = this.state.quests;
+    changes.state.phase = this.state.phase;
     return callback(null, changes);
   }
   

@@ -122,6 +122,12 @@ const useToolbarStyles = makeStyles(theme => ({
     maxHeight: 105.25,
     margin: 'auto'
   },
+  questCard: {
+    display: 'flex',
+    maxWidth: 82.75,
+    maxHeight: 134.66,
+    margin: 'auto'
+  },
   cardActionArea: {
     position: 'relative',
     width: '100%',
@@ -183,12 +189,22 @@ const ActionToolbar = ({game, self, power}) => {
   const handleVote = (vote) => {
     client.emit('game', 'vote', {vote});
   };
+  
+  const handleQuest = (decision) => {
+    client.emit('game', 'quest', {decision});
+  };
 
   const isLeader = self && self.id === game.state.players[game.state.leader].id;
   const choosePhase = game.state.phase === 'choosing';
   const selectedBoard = game.settings.static.boards[game.settings.selectedBoard];
-  const currentMission = selectedBoard.missions[game.state.missions.length - 1];
-  const enableVote = isLeader && choosePhase && game.state.team.length === currentMission.team;
+  const currentQuest = selectedBoard.quests[game.state.quests.length - 1];
+  const enableVote = isLeader && choosePhase && game.state.team.length === currentQuest.team;
+  
+  const disableVote = game.state.phase !== 'voting';
+  const disableQuest = game.state.phase !== 'questing' || 
+                       !self || 
+                       !game.state.team.includes(self.id);
+  const disableFailQuest = disableQuest || self.card.side === 'good';
   
   const cardActionAreaClass = reveal ? clsx(classes.cardActionArea, classes.reveal) : classes.cardActionArea;
   
@@ -213,16 +229,18 @@ const ActionToolbar = ({game, self, power}) => {
     </Card>
   ) : null;
   
-  const imgClass = game.state.phase !== 'voting' ? clsx(classes.img, classes.disabledImg) : classes.img;
+  const voteClass = disableVote ? clsx(classes.img, classes.disabledImg) : classes.img;
+  const questClass = disableQuest ? clsx(classes.img, classes.disabledImg) : classes.img;
+  const questFailClass = disableFailQuest ? clsx(classes.img, classes.disabledImg) : classes.img;
   
   const approveVote = self && self.card ? (
     <Card className={classes.voteCard}>
       <CardActionArea
-        disabled={game.state.phase !== 'voting'}
+        disabled={disableVote}
         className={classes.cardActionArea}
         onClick={() => {handleVote(true)}}>
         <img
-          className={imgClass}
+          className={voteClass}
           src={game.settings.static.vote.approve.img}
           alt={game.settings.static.vote.approve.label} />
       </CardActionArea>
@@ -232,13 +250,41 @@ const ActionToolbar = ({game, self, power}) => {
   const rejectVote = self && self.card ? (
     <Card className={classes.voteCard}>
       <CardActionArea
-        disabled={game.state.phase !== 'voting'}
+        disabled={disableVote}
         className={classes.cardActionArea}
         onClick={() => {handleVote(false)}}>
         <img
-          className={imgClass}
+          className={voteClass}
           src={game.settings.static.vote.reject.img}
           alt={game.settings.static.vote.reject.label} />
+      </CardActionArea>
+    </Card>
+  ) : null;
+  
+  const successCard = self && self.card ? (
+    <Card className={classes.questCard}>
+      <CardActionArea
+        disabled={disableQuest}
+        className={classes.cardActionArea}
+        onClick={() => {handleQuest(true)}}>
+        <img
+          className={questClass}
+          src={game.settings.static.quest.success.img}
+          alt={game.settings.static.quest.success.label} />
+      </CardActionArea>
+    </Card>
+  ) : null;
+  
+  const failCard = self && self.card ? (
+    <Card className={classes.questCard}>
+      <CardActionArea
+        disabled={disableFailQuest}
+        className={classes.cardActionArea}
+        onClick={() => {handleQuest(false)}}>
+        <img
+          className={questFailClass}
+          src={game.settings.static.quest.fail.img}
+          alt={game.settings.static.quest.fail.label} />
       </CardActionArea>
     </Card>
   ) : null;
@@ -295,6 +341,12 @@ const ActionToolbar = ({game, self, power}) => {
               <Grid item xs={6} md={6} lg={6}>
                 {rejectVote}
               </Grid>
+              <Grid item xs={6} md={6} lg={6}>
+                {successCard}
+              </Grid>
+              <Grid item xs={6} md={6} lg={6}>
+                {failCard}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
@@ -319,7 +371,6 @@ function PlayersTable({game, self, power}) {
   };
   
   const selectedBoard = game.settings.static.boards[game.settings.selectedBoard];
-  const missions = selectedBoard.missions.length;
   
   return (
     <React.Fragment>
@@ -334,6 +385,9 @@ function PlayersTable({game, self, power}) {
               <TableCell>M3</TableCell>
               <TableCell>M4</TableCell>
               <TableCell>M5</TableCell>
+            </Hidden>
+            <Hidden smUp>
+              <TableCell>Vote</TableCell>
             </Hidden>
           </TableRow>
         </TableHead>
@@ -363,16 +417,17 @@ function PlayersTable({game, self, power}) {
               }
             }
             
-            const missionHistory = game.state.phase === 'voting' ?
-              game.state.missions.length - 1 : game.state.missions.length;
+            const questHistory = game.state.phase === 'voting' || game.state.phase === 'tally' ?
+              game.state.quests.length - 1 : game.state.quests.length;
             const votes = [];
-            for (let i = 0; i < missionHistory; i++) {
-              const mission = game.state.missions[i];
-              if (mission.history.length > 0) {
-                const history = mission.history[mission.history.length - 1];
+            
+            for (let i = 0; i < questHistory; i++) {
+              const quest = game.state.quests[i];
+              if (quest.history.length > 0) {
+                const history = quest.history[quest.history.length - 1];
                 const playerVote = history.votes[player.id];
                 votes.push(
-                  <TableCell key={player.id + '-mission' + votes.length} component="th" scope="row">
+                  <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">
                     <Zoom in={true}>
                       <Card className={classes.card}>
                         {playerVote ?
@@ -393,8 +448,8 @@ function PlayersTable({game, self, power}) {
             
             for (const voter of game.state.votes) {
               if (player.id === voter) {
-                votes.push(
-                  <TableCell key={player.id + '-mission' + votes.length} component="th" scope="row">
+                const playerVoted = 
+                  <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">
                     <Zoom in={true}>
                       <Card className={classes.card}>
                         <img
@@ -403,15 +458,15 @@ function PlayersTable({game, self, power}) {
                           alt={game.settings.static.vote.cover.label} />
                       </Card>
                     </Zoom>
-                  </TableCell>
-                );
+                  </TableCell>;
+                votes.push(playerVoted);
                 break;
               }
             }
             
-            for (let i = votes.length; i < missions; i++) {
+            for (let i = votes.length; i < selectedBoard.quests.length; i++) {
               votes.push(
-                <TableCell key={player.id + '-mission' + i} component="th" scope="row">
+                <TableCell key={player.id + '-quest' + i} component="th" scope="row">
                   <Zoom in={false}>
                     <Card className={classes.card}>
                       <img
@@ -438,13 +493,17 @@ function PlayersTable({game, self, power}) {
                     <Card className={classes.card}>
                       <img
                         className={imgClass}
-                        src={game.settings.static.mission.chosen.img}
-                        alt={game.settings.static.mission.chosen.label} />
+                        src={game.settings.static.quest.chosen.img}
+                        alt={game.settings.static.quest.chosen.label} />
                     </Card>
                   </Zoom>
                 </TableCell>
                 <Hidden xsDown>
                   {votes}
+                </Hidden>
+                <Hidden smUp>
+                  {game.state.quests.length > 0 ?
+                    votes[game.state.quests.length - 1] : null}
                 </Hidden>
               </TableRow>
             );
@@ -461,17 +520,19 @@ const useBoardStyles = makeStyles(theme => ({
     maxWidth: '100vw',
     flexGrow: 1
   },
+  quest: {
+    position: 'absolute',
+    width: '17.5%'
+  },
   round: {
     position: 'absolute',
     width: '8%',
-    top: '56.7%',
-    left: '14.5%'
+    transition: 'left 1s linear'
   },
   rejects: {
     position: 'absolute',
-    width: '11.6%',
-    top: '78%',
-    left: '5.2%'
+    width: '11.8%',
+    transition: 'left 1s linear'
   },
   header: {
     position: 'absolute',
@@ -494,23 +555,51 @@ export function Board({game}) {
   
   const classes = useBoardStyles();
   
+  const currentQuest = game.state.quests.length - 1;
+  let rejectedTeams = game.state.quests[currentQuest].history.length - 1;
+  if (game.state.phase === 'choosing' || game.state.phase === 'voting') {
+    rejectedTeams++;
+  }
+  
+  const roundStyle = {
+    top: '56.7%',
+    left: 14.5 + 18.75 * currentQuest + '%'
+  };
+  
+  const rejectsStyle = {
+    top: '78%',
+    left: 5.1 + 13.75 * rejectedTeams + '%'
+  };
+  
   const roundPiece = (
-    <div className={classes.round}>
+    <div style={roundStyle} className={classes.round}>
       <img
         className={classes.img}
-        src={game.settings.static.mission.round.img}
-        alt={game.settings.static.mission.round.label} />
+        src={game.settings.static.quest.round.img}
+        alt={game.settings.static.quest.round.label} />
     </div>
   );
   
   const rejectsPiece = (
-    <div className={classes.rejects}>
+    <div style={rejectsStyle} className={classes.rejects}>
       <img
         className={classes.img}
-        src={game.settings.static.mission.rejects.img}
-        alt={game.settings.static.mission.rejects.label} />
+        src={game.settings.static.quest.rejects.img}
+        alt={game.settings.static.quest.rejects.label} />
     </div>
   );
+  
+  const questResults = [];
+  for (let i = 0; i < 5; i++) {
+    questResults.push(
+      <div key={'quest' + i} style={{top: '40%', left: 2.5 + 18.9 * i + '%'}} className={classes.quest}>
+        <img
+          className={classes.img}
+          src={game.settings.static.quest.succeed.img}
+          alt={game.settings.static.quest.succeed.label} />
+      </div>
+    );
+  }
   
   return (
     <div className={classes.board}>
@@ -518,6 +607,7 @@ export function Board({game}) {
         className={classes.img}
         src={game.settings.static.boards[game.settings.selectedBoard].img}
         alt={game.settings.static.boards[game.settings.selectedBoard].label} />
+      {questResults}
       {roundPiece}
       {rejectsPiece}
     </div>

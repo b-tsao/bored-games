@@ -179,9 +179,11 @@ class Avalon {
       const leader = this.state.players.people[this.state.leader];
       if (id === leader.id) {
         this.state.phase = 'voting';
+        this.state.message = ''; // TEST DEBUG ONLY
         changes = {
           state: {
-            phase: this.state.phase
+            phase: this.state.phase,
+            message: this.state.message // // TEST DEBUG ONLY
           }
         };
       } else {
@@ -200,7 +202,9 @@ class Avalon {
         this.state.votes.add({id, vote: data.vote});
         // DEBUG TEST ONLY BEGIN
         for (const player of this.state.players.people) {
-          this.state.votes.add({id: player.id, vote: data.vote});
+          if (player.id.includes('id')) {
+            this.state.votes.add({id: player.id, vote: data.vote});
+          }
         }
         // DEBUG TEST ONLY END
         const changes = {state: {}};
@@ -268,7 +272,9 @@ class Avalon {
           this.state.quest.add({id, decision: data.decision});
           // DEBUG TEST ONLY BEGIN
           for (const id of this.state.team.people) {
-            this.state.quest.add({id, decision: true});
+            if (id.includes('id')) {
+              this.state.quest.add({id, decision: true});
+            }
           }
           // DEBUG TEST ONLY END
           const changes = {state: {}};
@@ -309,6 +315,11 @@ class Avalon {
     }
     const currentQuest = this.state.quests[this.state.quests.length - 1];
     currentQuest.outcome = {success, decisions: this.state.quest.toJSON().map(chosen => {return chosen.decision})};
+    
+    // TEST DEBUG ONLY BEGIN
+    this.state.message = `Decisions: ${currentQuest.outcome.decisions}`;
+    changes.state.message = this.state.message;
+    // TEST DEBUG ONLY END
     
     this.state.quest.clear();
     changes.state.quest = this.state.quest.toJSON();

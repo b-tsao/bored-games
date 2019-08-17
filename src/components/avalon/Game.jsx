@@ -13,6 +13,7 @@ import {
   Card,
   CardActionArea,
   Container,
+  Fade,
   Grid,
   Hidden,
   IconButton,
@@ -481,7 +482,6 @@ function PlayersTable({game, self, power}) {
             
             return (
               <TableRow
-                hover={canPropose}
                 key={idx}
                 onClick={e => handleChoose(e, player.id)}
                 className={playerRowClass}>
@@ -590,15 +590,21 @@ export function Board({game}) {
   );
   
   const questResults = [];
-  for (let i = 0; i < 5; i++) {
-    questResults.push(
-      <div key={'quest' + i} style={{top: '40%', left: 2.5 + 18.9 * i + '%'}} className={classes.quest}>
-        <img
-          className={classes.img}
-          src={game.settings.static.quest.succeed.img}
-          alt={game.settings.static.quest.succeed.label} />
-      </div>
-    );
+  for (let i = 0; i < game.state.quests.length; i++) {
+    if (game.state.quests[i].outcome) {
+      const questPieces = game.settings.static.quest;
+      const result = game.state.quests[i].outcome.success ? questPieces.succeed : questPieces.failed;
+      questResults.push(
+        <Fade key={'quest-result' + i} in={true}>
+          <div style={{top: '40%', left: 2.5 + 18.9 * i + '%'}} className={classes.quest}>
+            <img
+              className={classes.img}
+              src={result.img}
+              alt={result.label} />
+          </div>
+        </Fade>
+      );
+    }
   }
   
   return (

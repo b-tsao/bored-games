@@ -40,6 +40,14 @@ async function preloadImages(settings) {
   }
 }
 
+function getSelf(clientId, players) {
+  for (const player of players) {
+    if (player.client === clientId) {
+      return player;
+    }
+  }
+}
+
 export default function GameRoom() {
   const [client] = useContext(ClientContext);
   
@@ -77,8 +85,8 @@ export default function GameRoom() {
         } else {
           preloadImages(room.game.settings.static).then(() => {
             setRoom(room);
-            if (room.game.state && window.location.pathname === '/game') {
-              client.emit('game', 'connected');
+            if (window.location.pathname === '/game') {
+              client.emit('game', 'connect', {client: client.id});
             }
           });
         }
@@ -86,27 +94,42 @@ export default function GameRoom() {
     }
   }, [room]);
   
-  const display = room ? (() => {
-    if (room.game.state && window.location.pathname === '/') {
-      return <Redirect to='/game' />;
+  useEffect(() => {
+    const connectedHandler = () => {
+      client.emit('reconnect');
+      client.emit('get', (err, room) => {
+        if (err) {
+          console.error(err);
+        } else {
+          preloadImages(room.game.settings.static).then(() => {
+            setRoom(room);
+            if (window.location.pathname === '/game') {
+              client.emit('game', 'connect', {client: client.id});
+            }
+          });
+        }
+      });
     }
-    
-    let self = null;
-    const players = room.game.state ? room.game.state.players : room.players;
-    for (const player of players) {
-      if (player.id === client.id) {
-        self = player;
-        break;
-      }
+
+    client.on('connect', connectedHandler);
+
+    return () => {
+      client.off('connect', connectedHandler);
+    };
+  }, [client]);
+  
+  const display = room ? (() => {
+    if (room.game.state && room.game.state.phase !== 'end' && window.location.pathname === '/') {
+      return <Redirect to='/game' />;
     }
     
     switch (room.game.title) {
       case 'The Resistance: Avalon':
-        if (room.game.state && window.location.pathname === '/game') {
-          console.log(room);
-          return <AvalonGame room={room} self={self} />
+        console.log(room);
+        if (window.location.pathname === '/game') {
+          return <AvalonGame room={room} self={getSelf(client.id, room.game.state.players)} />
         } else {
-          return <AvalonRoom room={room} self={self} />
+          return <AvalonRoom room={room} self={getSelf(client.id, room.players)} />
         }
       default:
         return <Maintenance />

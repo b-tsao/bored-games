@@ -1,112 +1,128 @@
 'use strict';
 
 const log4js = require('log4js');
-const RBTree = require('./lib/RBTree');
 
 const logger = log4js.getLogger('PeopleManager');
 
 class PeopleManager {
-  constructor(comparator) {
-    let compare = null;
-    if (comparator) {
-      compare = (c1, c2) => {return comparator(c1.data, c2.data)};
-    } else {
-      compare = (c1, c2) => {
-        if (c1.data < c2.data) return -1;
-        else if (c1.data > c2.data) return 1;
-        else return 0;
-      };
-    }
-    this.comparator = comparator;
-    this.tree = new RBTree(compare);
+  constructor() {
+    this.people = {};
     this.head = null;
     this.tail = null;
     this.length = 0;
     this.array = null;
   }
   
-  get people() {
+  toArray() {
     if (!this.array) {
       this.array = [];
-      let wrapper = this.head;
-      while (wrapper != null) {
-        this.array.push(wrapper.data);
-        wrapper = wrapper.next;
+      let node = this.head;
+      while (node != null) {
+        this.array.push(node.data);
+        node = node.next;
       }
     }
     return this.array;
   }
   
-  toJSON() {
-    return this.people;
+  getHead() {
+    if (this.head) {
+      return this.head.data;
+    } else {
+      return null;
+    }
   }
   
-  add(person) {
-    const wrapper = {
-      data: person,
+  getTail() {
+    if (this.tail) {
+      return this.tail.data;
+    } else {
+      return null;
+    }
+  }
+  
+  add(key, value) {
+    if (this.people.hasOwnProperty(key)) {
+      return false;
+    } else if (value == null) {
+      value = key;
+    }
+
+    const node = {
+      data: value,
       prev: this.tail,
       next: null
     };
     
-    if (this.tree.add(wrapper)) {
-      if (this.head == null) {
-        this.head = wrapper;
-      }
-      if (this.tail != null) {
-        this.tail.next = wrapper;
-      }
-      this.tail = wrapper;
-      this.length++;
-      this.array = null;
-      return true;
+    if (this.tail) {
+      this.tail.next = node;
     } else {
-      return false;
+      // If tail doesn't exist, head doesn't exist either
+      this.head = node;
     }
+    this.tail = node;
+    this.people[key] = node;
+    if (!this.array) {
+      this.array = [];
+    }
+    this.array.push(node.data);
+    this.length++;
+    return true;
   }
   
-  remove(person) {
-    const wrapper = this.tree.delete({data: person});
-    if (wrapper) {
-      if (wrapper.prev) {
-        wrapper.prev.next = wrapper.next;
-      } else {
-        this.head = wrapper.next;
-      }
-      if (wrapper.next) {
-        wrapper.next.prev = wrapper.prev;
-      } else {
-        this.tail = wrapper.prev;
-      }
-      this.length--;
-      this.array = null;
-      return wrapper.data;
+  remove(key) {
+    const node = this.people[key];
+    
+    if (!node) {
+      return null;
     }
-    return null;
-  }
-  
-  contains(person, compare) {
-    if (this.get(person, compare)) {
-      return true;
+    
+    if (this.array && node === this.tail) {
+      this.array.pop();
     } else {
-      return false;
+      this.array = null;
     }
+    
+    if (node.prev) {
+      node.prev.next = node.next;
+    } else {
+      // node is a head
+      this.head = node.next;
+    }
+    if (node.next) {
+      node.next.prev = node.prev;
+    } else {
+      // node is a tail
+      this.tail = node.prev;
+    }
+    
+    delete this.people[key];
+    this.length--;
+    return node.data;
   }
   
-  get(person, comparator) {
-    let compare = null;
-    if (comparator) {
-      compare = (c1, c2) => {return comparator(c1.data, c2.data)};
-    }
-    const wrapper = this.tree.get({data: person}, compare).key;
-    if (wrapper) {
-      return wrapper.data;
+  contains(key) {
+    return !!this.people[key];
+  }
+  
+  get(key) {
+    const node = this.people[key];
+    if (node) {
+      return node.data;
     } else {
       return null;
     }
   }
   
   clear() {
-    this.tree.clear();
+    for (const key in this.people) {
+      const node = this.people[key];
+      node.data = null;
+      node.prev = null;
+      node.next = null;
+    }
+    
+    this.people = {};
     this.head = null;
     this.tail = null;
     this.length = 0;
@@ -114,12 +130,12 @@ class PeopleManager {
   }
   
   map(modifier) {
-    const newMe = new PeopleManager(this.comparator);
-    let wrapper = this.head;
-    while (wrapper != null) {
-      newMe.add(modifier(wrapper.data));
-      wrapper = wrapper.next;
+    const newMe = new PeopleManager();
+    
+    for (const key in this.people) {
+      newMe.add(key, modifier(JSON.parse(JSON.stringify(this.get(key)))));
     }
+    
     return newMe;
   }
 }

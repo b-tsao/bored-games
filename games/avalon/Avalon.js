@@ -21,10 +21,10 @@ class Avalon {
       settings: this.settings.toJSON(),
       state: this.state ? {
         ...this.state,
-        team: this.state.team.toJSON(),
-        votes: this.state.votes.toJSON().map(voter => {return voter.id}), // hide the actual vote
-        quest: this.state.quest.toJSON().map(chosen => {return chosen.id}),
-        people: this.state.players.toJSON()
+        team: this.state.team.toArray(),
+        voters: this.state.voters.toArray().map(voter => {return voter.id}), // hide the actual vote
+        quest: this.state.quest.toArray().map(chosen => {return chosen.id}),
+        players: this.state.players.toArray()
       } : null
     }
   }
@@ -40,11 +40,16 @@ class Avalon {
   }
   
   action(id, action, data, callback = () => {}) {
-    const cb = (err, changes) => {
+    const cb = (err, changes, options) => {
       if (err) {
         return callback(err);
       } else {
-        return callback(err, changes, this.secrets); 
+        if (options) {
+          options.sendSecrets = true;
+        } else {
+          options = {sendSecrets: true};
+        }
+        return callback(err, changes, options); 
       }
     };
     
@@ -59,10 +64,10 @@ class Avalon {
         return this.vote(id, data, cb);
       case 'quest':
         return this.quest(id, data, cb);
-      case 'connected':
-        return this.connected(id, true, cb);
-      case 'disconnected':
-        return this.connected(id, false, cb);
+      case 'connect':
+        return this.connect(id, data, cb);
+      case 'disconnect':
+        return this.connect(id, null, cb);
       default:
         return cb(`Invalid game action (${action})`);
     }
@@ -72,7 +77,7 @@ class Avalon {
     // DEBUG TEST ONLY BEGIN
     let i = data.players.length + 1;
     while (i <= this.settings.minPlayers) {
-      data.players.add({id: "id" + i, name: "TestBot" + i, host: false});
+      data.players.add("id" + i, {id: "id" + i, name: "TestBot" + i, host: false});
       i++;
     }
     // DEBUG TEST ONLY END
@@ -89,20 +94,20 @@ class Avalon {
       else return 0;
     };
     this.state = {
-      players: data.players.map(player => {return {id: player.id, name: player.name}}),
+      players: data.players.map(player => {return {id: player.id, client: player.client, name: player.name}}),
       phase: 'choosing',
       message: '',
       leader: Math.floor(Math.random() * (data.players.length)), // idx of players
       team: new PeopleManager(), // [<player.name>]
-      votes: new PeopleManager(comparator), // [{<player.id>: <Boolean>}]
+      voters: new PeopleManager(comparator), // [{<player.id>: <Boolean>}]
       quest: new PeopleManager(comparator), // [<player.id>]
       quests: [{history: []}] // [{outcome: {success: <Boolean>, decisions: [<Boolean>]}, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
     };
     this.state.leader = 0; // DEBUG TEST ONLY
-    this.state.message = this.state.players.people[this.state.leader].name + ' is choosing a team';
+    this.state.message = this.state.players.toArray()[this.state.leader].name + ' is choosing a team';
     changes.state = this.toJSON().state;
     
-    const players = data.players.people.map(player => {return {id: player.id}});
+    const players = data.players.toArray().map(player => {return {id: player.id}});
     this.distributeCards(players);
     // Process card information secrets
     for (const player of players) {
@@ -146,13 +151,13 @@ class Avalon {
       this.secrets[player.id] = secret;
     }
     
-    return callback(null, changes);
+    return callback(null, changes, {setCookie: true});
   }
   
   choose(id, data, callback = () => {}) {
     let changes = null;
     if (this.state && this.state.phase === 'choosing') {
-      const leader = this.state.players.people[this.state.leader];
+      const leader = this.state.players.toArray()[this.state.leader];
       const selectedBoard = this.settings.boards[this.settings.selectedBoard];
       const currentQuest = selectedBoard.quests[this.state.quests.length - 1];
       if (id === leader.id) {
@@ -160,7 +165,7 @@ class Avalon {
            (this.state.team.length < currentQuest.team && this.state.team.add(data.id))) {
           changes = {
             state: {
-              team: this.state.team.toJSON()
+              team: this.state.team.toArray()
             }
           };
         }
@@ -176,7 +181,7 @@ class Avalon {
   propose(id, callback = () => {}) {
     let changes = null;
     if (this.state && this.state.phase === 'choosing') {
-      const leader = this.state.players.people[this.state.leader];
+      const leader = this.state.players.toArray()[this.state.leader];
       if (id === leader.id) {
         this.state.phase = 'voting';
         this.state.message = ''; // TEST DEBUG ONLY
@@ -197,22 +202,22 @@ class Avalon {
   
   vote(id, data, callback = () => {}) {
     if (this.state && this.state.phase === 'voting') {
-      if (this.state.players.contains({id})) {
-       this.state.votes.remove({id});
-        this.state.votes.add({id, vote: data.vote});
+      if (this.state.players.contains(id)) {
+       this.state.voters.remove(id);
+        this.state.voters.add(id, {id, vote: data.vote});
         // DEBUG TEST ONLY BEGIN
-        for (const player of this.state.players.people) {
+        for (const player of this.state.players.toArray()) {
           if (player.id.includes('id')) {
-            this.state.votes.add({id: player.id, vote: data.vote});
+            this.state.voters.add(player.id, {id: player.id, vote: data.vote});
           }
         }
         // DEBUG TEST ONLY END
         const changes = {state: {}};
-        if (this.state.votes.length === this.state.players.length) {
+        if (this.state.voters.length === this.state.players.length) {
           this.state.phase = 'tally';
           changes.state.phase = this.state.phase;
         }
-        changes.state.votes = this.state.votes.toJSON().map(voter => {return voter.id});
+        changes.state.voters = this.state.voters.toArray().map(voter => {return voter.id});
         callback(null, changes);
         if (this.state.phase === 'tally') {
           this.tally(callback);
@@ -232,7 +237,7 @@ class Avalon {
     const votes = {};
     let approvals = 0;
     let rejections = 0;
-    for (const voter of this.state.votes.toJSON()) {
+    for (const voter of this.state.voters.toArray()) {
       votes[voter.id] = voter.vote;
       if (voter.vote) {
         approvals++;
@@ -240,11 +245,11 @@ class Avalon {
         rejections++;
       }
     }
-    currentQuest.history.push({team: this.state.team.people, votes});
+    currentQuest.history.push({team: this.state.team.toArray(), votes});
     changes.state.quests = this.state.quests;
     
-    this.state.votes.clear();
-    changes.state.votes = this.state.votes.toJSON();
+    this.state.voters.clear();
+    changes.state.voters = this.state.voters.toArray();
     
     if (approvals > rejections) {
       this.state.phase = 'questing';
@@ -254,12 +259,13 @@ class Avalon {
       } else {
         this.state.phase = 'choosing';
         this.state.team.clear();
-        changes.state.team = this.state.team.toJSON();
+        changes.state.team = this.state.team.toArray();
       }
     }
     changes.state.phase = this.state.phase;
+    const options = this.state.phase === 'end' ? {deleteCookie: true} : null;
     
-    return callback(null, changes);
+    return callback(null, changes, options);
   }
   
   quest(id, data, callback = () => {}) {
@@ -268,12 +274,12 @@ class Avalon {
         if (this.secrets[id][id].card.side === 'good' && data.decision === false) {
           return callback('Stop trolling, good can not fail the mission');
         } else {
-          this.state.quest.remove({id});
-          this.state.quest.add({id, decision: data.decision});
+          this.state.quest.remove(id);
+          this.state.quest.add(id, {id, decision: data.decision});
           // DEBUG TEST ONLY BEGIN
-          for (const id of this.state.team.people) {
+          for (const id of this.state.team.toArray()) {
             if (id.includes('id')) {
-              this.state.quest.add({id, decision: true});
+              this.state.quest.add(id, {id, decision: true});
             }
           }
           // DEBUG TEST ONLY END
@@ -282,7 +288,7 @@ class Avalon {
             this.state.phase = 'result';
             changes.state.phase = this.state.phase;
           }
-          changes.state.quest = this.state.quest.toJSON().map(chosen => {return chosen.id});
+          changes.state.quest = this.state.quest.toArray().map(chosen => {return chosen.id});
           callback(null, changes);
           if (this.state.phase === 'result') {
             this.result(callback);
@@ -304,7 +310,7 @@ class Avalon {
     const quest = selectedBoard.quests[this.state.quests.length - 1];
     let fails = 0;
     let success = true;
-    for (const q of this.state.quest.toJSON()) {
+    for (const q of this.state.quest.toArray()) {
       if (!q.decision) {
         fails++;
         if (fails >= quest.fails) {
@@ -314,15 +320,21 @@ class Avalon {
       }
     }
     const currentQuest = this.state.quests[this.state.quests.length - 1];
-    currentQuest.outcome = {success, decisions: this.state.quest.toJSON().map(chosen => {return chosen.decision})};
+    currentQuest.outcome = {success, decisions: this.state.quest.toArray().map(chosen => {return chosen.decision})};
     
     // TEST DEBUG ONLY BEGIN
-    this.state.message = `Decisions: ${currentQuest.outcome.decisions}`;
+    let f = 0;
+    for (const decision of currentQuest.outcome.decisions) {
+      if (!decision) {
+        f++;
+      }
+    }
+    this.state.message = `Decisions: fails = ${f}`;
     changes.state.message = this.state.message;
     // TEST DEBUG ONLY END
     
     this.state.quest.clear();
-    changes.state.quest = this.state.quest.toJSON();
+    changes.state.quest = this.state.quest.toArray();
     
     // Determine if the game ended
     let succeed = 0;
@@ -335,7 +347,8 @@ class Avalon {
       }
     }
     if (succeed >= 3) {
-      this.state.phase = 'assassinating';
+      // this.state.phase = 'assassinating';
+      this.state.phase = 'end'; // DEBUG TEST ONLY WHILE ASSASSINATION ISN'T IMPLEMENTED YET
     } else if (failed >= 3) {
       this.state.phase = 'end';
     } else {
@@ -344,18 +357,19 @@ class Avalon {
     }
     changes.state.quests = this.state.quests;
     changes.state.phase = this.state.phase;
-    return callback(null, changes);
+    const options = this.state.phase === 'end' ? {deleteCookie: true} : null;
+    return callback(null, changes, options);
   }
   
-  connected(id, connected, callback = () => {}) {
+  connect(id, data, callback = () => {}) {
     let changes = null;
     if (this.state) {
-      const player = this.state.players.get({id});
+      const player = this.state.players.get(id);
       if (player) {
-        player.connected = connected;
+        player.client = data ? data.client : null;
         changes = {
           state: {
-            players: this.state.players.toJSON()
+            players: this.state.players.toArray()
           }
         };
       }
@@ -365,6 +379,10 @@ class Avalon {
   
   distributeCards(players) {
     const shuffledIdx = this.shuffle(Object.keys(players));
+    if (players.length < 8) {
+      // Shuffle twice because sample size may be too small
+      this.shuffle(shuffledIdx);
+    }
     
     let i = 0;
     let idx = 0;
@@ -384,18 +402,18 @@ class Avalon {
   }
   
   /**
-   * Shuffles array in place.
+   * Fisher-Yates algorithm to shuffle array in place.
    * @param {Array} a items An array containing the items.
    */
-  shuffle(a) {
-    let j, x, i;
-    for (i = a.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        x = a[i];
-        a[i] = a[j];
-        a[j] = x;
+  shuffle(arr) {
+    let randIdx, tmp, idx;
+    for (idx = arr.length - 1; idx > 0; idx--) {
+        randIdx = Math.floor(Math.random() * idx);
+        tmp = arr[idx];
+        arr[idx] = arr[randIdx];
+        arr[randIdx] = tmp;
     }
-    return a;
+    return arr;
   }
 }
 

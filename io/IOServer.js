@@ -7,9 +7,7 @@ const logger = log4js.getLogger('IOServer');
 
 class IOServer {
   constructor(server) {
-    this.ioServer = io(server, {
-      upgradeTimeout: 60000 // default value is 10000ms, try changing it to 20k or more
-    });
+    this.ioServer = io(server);
     logger.info('Socket IO is listening on the server');
   
     // Setting up a socket with the namespace "connection" for new sockets

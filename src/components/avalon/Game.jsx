@@ -36,7 +36,7 @@ import {
 } from '@material-ui/icons';
 import MessageModal from '../landing/MessageModal';
 
-import {ClientContext} from '../../Contexts';
+import {ClientContext, MainDisplayContext} from '../../Contexts';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -115,7 +115,7 @@ const useToolbarStyles = makeStyles(theme => ({
     maxHeight: 198.77,
     margin: 'auto',
     perspective: '1000px',
-    boxShadow: 'none',
+    boxShadow: 'none'
   },
   voteCard: {
     display: 'flex',
@@ -134,7 +134,7 @@ const useToolbarStyles = makeStyles(theme => ({
     width: '100%',
     height: '100%',
     textAlign: 'center',
-    transition: 'transform 0.6s',
+    transition: 'transform 600ms',
     transformStyle: 'preserve-3d',
     boxShadow:'0 4px 8px 0 rgba(0,0,0,0.2)'
   },
@@ -142,17 +142,19 @@ const useToolbarStyles = makeStyles(theme => ({
     transform: 'rotateY(180deg)'
   },
   front: {
+    zIndex: 1,
     backgroundColor: '#bbb',
     color: 'black',
     '&, $back': {
       position: 'absolute',
       width: '100%',
       height: '100%',
-      backfaceVisibility: 'hidden'
+      backfaceVisibility: 'hidden',
+      transform: 'rotateY(0deg)'
     }
   },
   back: {
-    backgroundColor: '#2980b9',
+    backgroundColor: '#bbb',
     color: 'white',
     transform: 'rotateY(180deg)'
   },
@@ -169,6 +171,7 @@ const useToolbarStyles = makeStyles(theme => ({
 
 const ActionToolbar = ({game, self, power}) => {
   const [client, setClient] = useContext(ClientContext);
+  const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
   const [reveal, setReveal] = power;
   
@@ -179,8 +182,14 @@ const ActionToolbar = ({game, self, power}) => {
   };
   
   const handleLeave = () => {
-    client.disconnect();
-    setClient(null);
+    if (game.state.phase === 'end') {
+      client.emit('game', 'disconnect');
+      setMainDisplay('gameroom');
+    } else {
+      setMainDisplay('home');
+      client.disconnect();
+      setClient(null);
+    }
   };
   
   const handleSelect = () => {
@@ -211,8 +220,9 @@ const ActionToolbar = ({game, self, power}) => {
   
   const playerCard = self && self.card ? (
     <Card className={classes.card}>
-      <CardActionArea
+      <div
         className={cardActionAreaClass}
+        style={{cursor: 'pointer'}}
         onClick={handleSelect}>
         <div className={classes.front}>
           <img
@@ -226,7 +236,7 @@ const ActionToolbar = ({game, self, power}) => {
             src={game.settings.static.cards[self.card.side][self.card.idx].img}
             alt={game.settings.static.cards[self.card.side][self.card.idx].label} />
         </div>
-      </CardActionArea>
+      </div>
     </Card>
   ) : null;
   
@@ -323,7 +333,9 @@ const ActionToolbar = ({game, self, power}) => {
           <Tooltip title="Leave Game" placement="top">
             <div>
               <Link to="/" onClick={handleLeave} className={classes.linkButton}>
-                <LeaveIcon />
+                <IconButton aria-label="Connect">
+                  <LeaveIcon />
+                </IconButton>
               </Link>
             </div>
           </Tooltip>
@@ -405,7 +417,7 @@ function PlayersTable({game, self, power}) {
             
             let playerCellClass = null;
             let imgClass = classes.img;
-            if (!player.connected) {
+            if (!player.client) {
               playerCellClass = classes.disconnected;
               imgClass = clsx(imgClass, classes.disconnectedImg);
             }
@@ -447,7 +459,7 @@ function PlayersTable({game, self, power}) {
               }
             }
             
-            for (const voter of game.state.votes) {
+            for (const voter of game.state.voters) {
               if (player.id === voter) {
                 const playerVoted = 
                   <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">

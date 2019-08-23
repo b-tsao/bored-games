@@ -52,7 +52,7 @@ export default function GameActionModal(props) {
   };
   
   const handleCreate = () => {
-    const newClient = socketIOClient('/room', {transports: ['websocket']});
+    const newClient = socketIOClient('/room');
     setConnectState({
       client: newClient,
       data: props.game.title,

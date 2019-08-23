@@ -76,10 +76,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Main() {
+  const [mainDisplay, setMainDisplay] = React.useContext(MainDisplayContext);
+  
   const classes = useStyles();
   
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [mainDisplay, setMainDisplay] = React.useState('home');
   const [gameName, setGameName] = React.useState(null);
   
   const toggleDrawer = (event) => {
@@ -104,33 +105,30 @@ export default function Main() {
   
   return (
     <div className={classes.root}>
-      <MainDisplayContext.Provider
-    value={[mainDisplay, setMainDisplay]}>
-        <CssBaseline />
-        <NavBar
-          className={classes.appBar}
-          toggleDrawer={toggleDrawer} />
-        <SideBar
-          className={clsx(classes.drawer, {
+      <CssBaseline />
+      <NavBar
+        className={classes.appBar}
+        toggleDrawer={toggleDrawer} />
+      <SideBar
+        className={clsx(classes.drawer, {
+          [classes.drawerOpen]: drawerOpen,
+          [classes.drawerClose]: !drawerOpen,
+        })}
+        classes={{
+          paper: clsx({
             [classes.drawerOpen]: drawerOpen,
             [classes.drawerClose]: !drawerOpen,
-          })}
-          classes={{
-            paper: clsx({
-              [classes.drawerOpen]: drawerOpen,
-              [classes.drawerClose]: !drawerOpen,
-            }),
-          }}
-          open={drawerOpen}
-          setDisplay={setMainDisplay}
-          gameName={gameName} />
-        <FloatingActions
-          className={classes.fab} />
-        <main className={classes.content}>
-          <div className={classes.toolbar} />
-          {display}
-        </main>
-      </MainDisplayContext.Provider>
+          }),
+        }}
+        open={drawerOpen}
+        setDisplay={setMainDisplay}
+        gameName={gameName} />
+      <FloatingActions
+        className={classes.fab} />
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        {display}
+      </main>
     </div>
   );
 }

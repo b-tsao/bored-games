@@ -118,22 +118,16 @@ const useToolbarStyles = makeStyles(theme => ({
   title: {
     display: 'flex',
     flex: '0 0 auto',
-  },
-  linkButton: {
-    textDecoration: 'none',
-    color: 'inherit'
   }
 }));
 
-const ActionToolbar = props => {
+const ActionToolbar = ({self, room}) => {
   const {
-    self,
-    roomKey,
-    maxPlayers,
     players,
-    spectators,
-    settings
-  } = props;
+    spectators
+  } = room;
+  
+  const maxPlayers = room.game.settings.maxPlayers;
   
   const [client, setClient] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
@@ -169,11 +163,11 @@ const ActionToolbar = props => {
     client.emit('game', 'start');
   };
   
-  const board = settings.selectedBoard;
-  const maxEvils = settings.static.boards[board].evils;
-  const maxGoods = settings.maxPlayers - maxEvils;
-  const evils = settings.selectedCards.evil.length;
-  const goods = settings.selectedCards.good.length;
+  const board = room.game.settings.selectedBoard;
+  const maxEvils = room.game.settings.static.boards[board].evils;
+  const maxGoods = room.game.settings.maxPlayers - maxEvils;
+  const evils = room.game.settings.selectedCards.evil.length;
+  const goods = room.game.settings.selectedCards.good.length;
 
   const hostCheck = self && self.host;
   // const playersCheck = players.length === maxPlayers;
@@ -196,13 +190,13 @@ const ActionToolbar = props => {
         handleJoin={setPlayerName}
         handleClose={handleNameModalClose} />
       <Toolbar className={classes.toolbar}>
-        <div className={classes.title}>
-          <Hidden xsDown>
+        <Hidden xsDown>
+          <div className={classes.title}>
             <Typography variant="h6" id="tableTitle">
               Spectators: {spectators.length}
             </Typography>
-          </Hidden>
-        </div>
+          </div>
+        </Hidden>
         <div className={classes.spacer} />
         <div className={classes.actions}>
           <Tooltip title="Leave Room" placement="top">
@@ -645,10 +639,7 @@ export default function Room({room, self}) {
           <TabContainer dir={theme.direction}>
             <ActionToolbar
               self={self}
-              spectators={room.spectators}
-              maxPlayers={room.game.settings.maxPlayers}
-              players={room.players}
-              settings={room.game.settings} />
+              room={room} />
             <PlayersTable
               self={self}
               maxPlayers={room.game.settings.maxPlayers}

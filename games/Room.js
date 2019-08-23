@@ -9,15 +9,9 @@ class Room {
   constructor(game) {
     this.logger = log4js.getLogger("Room#undefined");
     
-    const comparator = (c1, c2) => {
-      if (c1.id < c2.id) return -1;
-      else if (c1.id > c2.id) return 1;
-      else return 0;
-    };
-    
     this.game = this.initGame(game);
     this.spectators = new PeopleManager();
-    this.players = new PeopleManager(comparator);
+    this.players = new PeopleManager();
   }
   
   set key(key) {
@@ -37,8 +31,8 @@ class Room {
     return {
       key: this.key,
       game: this.game.toJSON(),
-      players: this.players.toJSON(),
-      spectators: this.spectators.toJSON()
+      players: this.players.toArray(),
+      spectators: this.spectators.toArray()
     };
   }
   
@@ -54,39 +48,74 @@ class Room {
     }
   }
   
-  addSpectator(id, callback = () => {}) {
+  add(user, callback = () => {}) {
+    const {id, client} = user;
     this.logger.trace(`Adding client (${id})`);
+    
+    if (this.game.state) {
+      // Game is already in progress, this might be a reconnect
+      this.logger.trace(`Game in progress, checking if client (${id}) is a player`);
+      const player = this.game.state.players.get(id);
+      if (player) {
+        this.addPlayer(user, player.name, (err, changes) => {
+          if (err) {
+            return callback(err);
+          } else {
+            this.game.action(id, 'connect', {client}, (err, gameChanges, options) => {
+              this.logger.info(`Added and connected client (${id}) to game (${this.game.title}`);
+              changes.game = gameChanges;
+              return callback(null, changes, options);
+            });
+          }
+        });
+        return;
+      }
+    }
+    
+    if (this.spectators.contains(id) || this.players.contains(id)) {
+      const reason = "Already in the room";
+      this.logger.error(`Failed to add client (${id}): ${reason}`);
+      return callback(reason);
+    }
+    
+    this.addSpectator(user, callback);
+  }
+  
+  addSpectator(user, callback = () => {}) {
+    const {id, client} = user;
+    this.logger.trace(`Adding client (${id}) as spectator`);
     
     if (this.spectators.contains(id)) {
       const reason = "Already in the room";
-      this.logger.error(`Failed to add client (${id}): ${reason}`);
+      this.logger.error(`Failed to add client (${id}) as spectator: ${reason}`);
       return callback(reason);
     }
     
     const changes = {};
     
     // Just in case client was a player
-    const player = this.players.remove({id});
+    const player = this.players.remove(id);
     if (player) {
       if (player.host && this.players.length > 0) {
-        this.players.people[0].host = true;
+        this.players.getHead().host = true;
       }
-      changes.players = this.players.toJSON();
+      changes.players = this.players.toArray();
     }
     
     this.spectators.add(id);
-    changes.spectators = this.spectators.toJSON();
-    this.logger.info(`Added client (${id})`);
+    changes.spectators = this.spectators.toArray();
+    this.logger.info(`Added client (${id}) as spectator`);
     return callback(null, changes);
   }
   
-  addPlayer(id, name, callback = () => {}) {
+  addPlayer(user, name, callback = () => {}) {
+    const {id, client} = user;
     this.logger.trace(`Client (${id}) joining game as name (${name})`);
     
     let reason;
     if (this.game.settings.hasOwnProperty('maxPlayers') && this.players.length >= this.game.settings.maxPlayers) {
       reason = "Room capacity exceeded";
-    } else if (this.players.contains({id})) {
+    } else if (this.players.contains(id)) {
       reason = "Already in the game";
     } else {
       reason = this.checkName(name);
@@ -102,10 +131,10 @@ class Room {
     const changes = {};
     
     if (this.spectators.remove(id)) {
-      changes.spectators = this.spectators.toJSON();
+      changes.spectators = this.spectators.toArray();
     }
-    this.players.add({id, name, host});
-    changes.players = this.players.toJSON();
+    this.players.add(id, {id, client, name, host});
+    changes.players = this.players.toArray();
     this.logger.info(`Client (${id}) joined game as name (${name})`);
     return callback(null, changes);
   }
@@ -114,19 +143,19 @@ class Room {
     this.logger.trace(`Removing client (${id})`);
     const changes = {};
     if (this.spectators.remove(id)) {
-      changes.spectators = this.spectators.toJSON();
+      changes.spectators = this.spectators.toArray();
     } else {
-      const player = this.players.remove({id});
+      const player = this.players.remove(id);
       if (player) {
         if (player.host && this.players.length > 0) {
-          this.players.people[0].host = true;
+          this.players.getHead().host = true;
         }
-        changes.players = this.players.toJSON();
+        changes.players = this.players.toArray();
         if (this.game.state) {
-          this.game.action(id, 'disconnected', null, (err, gameChanges, secrets) => {
+          this.game.action(id, 'disconnect', null, (err, gameChanges, options) => {
             this.logger.info(`Removed and disconnected from game client (${id})`);
             changes.game = gameChanges;
-            callback(null, changes, secrets);
+            callback(null, changes, options);
           });
           return;
         }
@@ -143,8 +172,8 @@ class Room {
   
   hostAction(action, sourceId, targetId, callback = () => {}) {
     this.logger.trace(`Client (${sourceId}) host action (${action}) against client (${targetId}))`);
-    const source = this.players.get({id: sourceId});
-    const target = this.players.get({id: targetId});
+    const source = this.players.get(sourceId);
+    const target = this.players.get(targetId);
     
     const changes = {};
     let reason;
@@ -158,13 +187,13 @@ class Room {
           case 'transferHost':
             source.host = false;
             target.host = true;
-            changes.players = this.players.toJSON();
+            changes.players = this.players.toArray();
             break;
           case 'kick':
             this.players.remove(target);
             this.spectators.add(target.id);
-            changes.players = this.players.toJSON();
-            changes.spectators = this.spectators.toJSON();
+            changes.players = this.players.toArray();
+            changes.spectators = this.spectators.toArray();
             break;
           default:
             reason = "Invalid host action";
@@ -184,7 +213,7 @@ class Room {
   gameAction(id, action, data, callback = () => {}) {
     this.logger.trace(`Client (${id}) game action (${action})`);
     if (action === 'start') {
-      const player = this.players.get({id});
+      const player = this.players.get(id);
       let reason;
       if (player == null || !player.host) {
         reason = "Host only action";
@@ -196,20 +225,20 @@ class Room {
       }
       data.players = this.players;
     }
-    this.game.action(id, action, data, (err, changes, secrets) => {
+    this.game.action(id, action, data, (err, changes, options) => {
       if (err) {
         this.logger.error(`Client (${id}) game action (${action}) failed: ${err}`);
         return callback(err);
       } else {
         this.logger.info(`Client (${id}) game action (${action}) completed`);
-        return callback(null, {game: changes}, secrets);
+        return callback(null, {game: changes}, options);
       }
     });
   }
   
   changeSettings(id, settings, callback = () => {}) {
     this.logger.trace(`Client (${id}) change settings (${JSON.stringify(settings)})`);
-    const player = this.players.get({id});
+    const player = this.players.get(id);
     if (player == null || !player.host) {
       const reason = "Host only action";
       this.logger.error(`Client (${id}) change settings failed: ${reason}`);
@@ -237,15 +266,12 @@ class Room {
       return "Invalid name";
     }
     
-    const comparator = (c1, c2) => {
-      if (c1.name < c2.name) return -1;
-      else if (c1.name > c2.name) return 1;
-      else return 0;
-    };
-    
-    if (this.players.contains({name}, comparator)) {
-      return "Name already exists";
+    for (const player of this.players.toArray()) {
+      if (player.name === name) {
+        return "Name already exists";
+      }
     }
+    
     return null;
   }
 }

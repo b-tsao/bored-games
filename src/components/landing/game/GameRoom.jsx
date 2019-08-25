@@ -42,14 +42,14 @@ async function preloadImages(settings) {
 
 function getSelf(clientId, players) {
   for (const player of players) {
-    if (player.client === clientId) {
+    if (player.client.id === clientId) {
       return player;
     }
   }
 }
 
 export default function GameRoom() {
-  const [client] = useContext(ClientContext);
+  const [client, setClient] = useContext(ClientContext);
   
   const [room, setRoom] = React.useState(null);
   const [message, setMessage] = useState({
@@ -59,6 +59,19 @@ export default function GameRoom() {
   
   const handleMessageClose = () => {
     setMessage({status: '', text: ''});
+  };
+  
+  const connectedHandler = () => {
+    client.emit('get', (err, room) => {
+      if (err) {
+        console.error(err);
+      } else {
+        preloadImages(room.game.settings.static).then(() => {
+          setRoom(room);
+          client.emit('connected');
+        });
+      }
+    });
   };
   
   useEffect(() => {
@@ -79,42 +92,18 @@ export default function GameRoom() {
         client.off('changes', changeHandler);
       };
     } else {
-      client.emit('get', (err, room) => {
-        if (err) {
-          console.error(err);
-        } else {
-          preloadImages(room.game.settings.static).then(() => {
-            setRoom(room);
-            if (window.location.pathname === '/game') {
-              client.emit('game', 'connect', {client: client.id});
-            }
-          });
-        }
-      });
+      connectedHandler();
     }
   }, [room]);
   
   useEffect(() => {
-    const connectedHandler = () => {
-      client.emit('reconnect');
-      client.emit('get', (err, room) => {
-        if (err) {
-          console.error(err);
-        } else {
-          preloadImages(room.game.settings.static).then(() => {
-            setRoom(room);
-            if (window.location.pathname === '/game') {
-              client.emit('game', 'connect', {client: client.id});
-            }
-          });
-        }
-      });
-    }
-
     client.on('connect', connectedHandler);
 
     return () => {
       client.off('connect', connectedHandler);
+      if (!client.connected) {
+        setClient(null);
+      }
     };
   }, [client]);
   

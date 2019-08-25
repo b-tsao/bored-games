@@ -9,6 +9,7 @@ const logger = log4js.getLogger('RoomManager');
 
 class RoomManager {
   constructor() {
+    this.roomTimers = {};
     this.roomTree = new PrefixTree();
   }
   
@@ -17,18 +18,25 @@ class RoomManager {
    *
    * @return room if successful, throws an error otherwise.
    */
-  createRoom(title) {
+  createRoom(title, callback = () => {}) {
     logger.trace(`Creating game (${title}) room`);
-    const room = new Room(title);
-    let uid;
-    let success = false;
-    do {
-      uid = uuid().split('-')[0].substring(0, 4).toUpperCase();
-      success = this.roomTree.add(uid, room);
-    } while (!success);
-    room.key = uid;
-    logger.info(`Game (${title}) room (${room.key}) created`);
-    return room;
+    const room = new Room();
+    room.setGame(title, (err) => {
+      if (err) {
+        return callback(err);
+      } else {
+        let uid;
+        let success = false;
+        do {
+          uid = uuid().split('-')[0].substring(0, 4).toUpperCase();
+          success = this.roomTree.add(uid, room);
+        } while (!success);
+        room.key = uid;
+        logger.info(`Game (${title}) room (${room.key}) created`);
+        this.roomTimer(room.key);
+        return callback(null, room);
+      }
+    });
   }
   
   /**
@@ -43,31 +51,32 @@ class RoomManager {
     return this.roomTree.get(key.toUpperCase());
   }
   
-  gameAction(key, id, action, data) {
-    logger.trace(`Client (${id}) game action (${action}) in room (${key})`);
-    const room = this.get(key);
-    let reason = null;
-    if (room == null) {
-      reason = "Room does not exist";
-    } else {
-      reason = room.gameAction(id, action, data);
+  /**
+   * Deletes the room associated with the key after given amount of time in millis.
+  *
+   * @param key room key
+   * @param timer time in millis to expire room, default 30 minutes
+   * @return {Object<key: String, data: null>} room associated with key, null if operation is unsuccessful due to key not being associated with any rooms.
+   */
+  roomTimer(key, timer) {
+    const millis = timer ? timer : 1800000;
+    this.clearRoomTimer(key);
+    logger.trace(`Room (${key}) will expire after ${millis} millis`)
+    const roomTimer = {
+      timeout: millis,
+      timer: setTimeout(() => {
+        this.deleteRoom(key);
+        logger.trace(`Room (${key}) has expired after ${roomTimer.timeout} millis`);
+      }, millis)
     }
-    
-    if (reason) {
-      logger.error(`Client (${id}) game action (${action}) in room (${key}) failed: ${reason}`);
-      return reason;
-    }
-    logger.info(`Client (${id}) game action (${action}) in room (${key}) completed`);
-    return null;
+    this.roomTimers[key] = roomTimer;
   }
   
-  getPlayerSecrets(key) {
-    const room = this.get(key);
-    let reason = null;
-    if (room == null) {
-      return null;
-    } else {
-      return room.getPlayerSecrets();
+  clearRoomTimer(key) {
+    if (this.roomTimers[key]) {
+      clearTimeout(this.roomTimers[key].timer);
+      delete this.roomTimers[key];
+      logger.trace(`Room (${key}) timer cleared`);
     }
   }
   
@@ -77,7 +86,12 @@ class RoomManager {
    * @return {Object<key: String, data: null>} room associated with key, null if operation is unsuccessful due to key not being associated with any rooms.
    */
   deleteRoom(key) {
-    return this.roomTree.remove(key.toUpperCase());
+    this.clearRoomTimer(key);
+    const room = this.roomTree.remove(key.toUpperCase());
+    if (room) {
+      logger.info(`Room (${key}) deleted`);
+      return room;
+    }
   }
 }
 

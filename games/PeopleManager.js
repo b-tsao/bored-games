@@ -25,7 +25,22 @@ class PeopleManager {
     return this.array;
   }
   
-  getHead() {
+  [Symbol.iterator]() {
+    return {
+      current: this.head,
+      next: function() {
+        const node = this.current;
+        if (node != null) {
+          this.current = node.next;
+          return {value: node.data, done: false};
+        } else {
+          return {done: true};
+        }
+      }
+    };
+  }
+  
+  getFirst() {
     if (this.head) {
       return this.head.data;
     } else {
@@ -33,7 +48,7 @@ class PeopleManager {
     }
   }
   
-  getTail() {
+  getLast() {
     if (this.tail) {
       return this.tail.data;
     } else {
@@ -133,7 +148,7 @@ class PeopleManager {
     const newMe = new PeopleManager();
     
     for (const key in this.people) {
-      newMe.add(key, modifier(JSON.parse(JSON.stringify(this.get(key)))));
+      newMe.add(key, modifier(this.get(key)));
     }
     
     return newMe;

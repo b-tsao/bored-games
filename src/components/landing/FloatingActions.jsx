@@ -60,7 +60,7 @@ export default function FloatingActions(props) {
       <ConnectModal
         connect={connectState.connect}
         client={connectState.client}
-        event='joinRoom'
+        event='join'
         data={connectState.key}
         onComplete={handleComplete}
         onClose={handleConnectClose} />

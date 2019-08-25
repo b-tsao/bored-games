@@ -50,7 +50,7 @@ export default function ConnectModal(props) {
     
     const handler = (data) => {
       if (data.status === 'error') {
-        props.client.off(props.event, handler);
+        props.client.disconnect();
         setConnectState({
           status: data.status,
           progress: false,

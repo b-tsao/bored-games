@@ -62,6 +62,9 @@ const useStyles = makeStyles(theme => ({
   disconnected: {
     color: 'rgba(0, 0, 0, 0.54)'
   },
+  leader: {
+    color: 'rgba(255,215,0)'
+  },
   card: {
     marginRight: 'auto',
     maxWidth: 40
@@ -417,9 +420,11 @@ function PlayersTable({game, self, power}) {
             
             let playerCellClass = null;
             let imgClass = classes.img;
-            if (!player.client) {
+            if (player.client.status === 'disconnected') {
               playerCellClass = classes.disconnected;
               imgClass = clsx(imgClass, classes.disconnectedImg);
+            } else if (game.state.leader === idx) {
+              playerCellClass = classes.leader;
             }
             
             let playerChosen = false;

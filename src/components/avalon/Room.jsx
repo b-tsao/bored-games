@@ -81,6 +81,9 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(2, 0, 0),
   },
+  disconnected: {
+    color: 'rgba(0, 0, 0, 0.54)'
+  },
   footer: {
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(2),
@@ -129,7 +132,7 @@ const ActionToolbar = ({self, room}) => {
   
   const maxPlayers = room.game.settings.maxPlayers;
   
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
   const [openNameModal, setOpenNameModal] = useState(false);
@@ -154,9 +157,14 @@ const ActionToolbar = ({self, room}) => {
   };
   
   const handleLeave = () => {
-    client.disconnect();
-    setClient(null);
-    setMainDisplay('home');
+    if (client.connected) {
+      client.emit('leave', () => {
+        client.disconnect();
+        setMainDisplay('home');
+      });
+    } else {
+      setMainDisplay('home');
+    }
   };
   
   const handleStart = () => {
@@ -250,7 +258,7 @@ function PlayersTable({self, maxPlayers, players}) {
   
   const rows = [...players];
   while (rows.length < maxPlayers) {
-    rows.push({host: false, name: ''});
+    rows.push({host: false, name: '', client: {}});
   }
 
   return (
@@ -271,7 +279,10 @@ function PlayersTable({self, maxPlayers, players}) {
                   <HostIcon />
                 </Zoom>
               </TableCell>
-              <TableCell component="th" scope="row">
+              <TableCell
+                component="th"
+                scope="row"
+                className={player.client.status === 'disconnected' ? classes.disconnected : null}>
                 {player.name}
               </TableCell>
               <TableCell align="right">

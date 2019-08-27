@@ -2,7 +2,6 @@ import React from 'react';
 import clsx from 'clsx';
 import {makeStyles} from '@material-ui/core/styles';
 
-import {CssBaseline} from '@material-ui/core';
 import NavBar from './NavBar';
 import SideBar from './SideBar';
 import FloatingActions from './FloatingActions';
@@ -105,7 +104,6 @@ export default function Main() {
   
   return (
     <div className={classes.root}>
-      <CssBaseline />
       <NavBar
         className={classes.appBar}
         toggleDrawer={toggleDrawer} />

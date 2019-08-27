@@ -4,7 +4,6 @@ import {makeStyles} from '@material-ui/core/styles';
 
 import {
   AppBar,
-  CssBaseline,
   IconButton,
   Toolbar,
   Typography

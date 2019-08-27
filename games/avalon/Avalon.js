@@ -95,7 +95,6 @@ class Avalon {
       quests: [{history: []}] // [{outcome: {success: <Boolean>, decisions: [<Boolean>]}, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
     };
     this.state.leader = 0; // DEBUG TEST ONLY
-    this.state.message = this.state.players.toArray()[this.state.leader].name + ' is choosing a team';
     changes.state = this.toJSON().state;
     
     const players = data.players.toArray().map(player => {return {id: player.id}});
@@ -175,11 +174,9 @@ class Avalon {
       const leader = this.state.players.toArray()[this.state.leader];
       if (id === leader.id) {
         this.state.phase = 'voting';
-        this.state.message = ''; // TEST DEBUG ONLY
         changes = {
           state: {
             phase: this.state.phase,
-            message: this.state.message // // TEST DEBUG ONLY
           }
         };
       } else {
@@ -194,7 +191,7 @@ class Avalon {
   vote(id, data, callback = () => {}) {
     if (this.state && this.state.phase === 'voting') {
       if (this.state.players.contains(id)) {
-       this.state.voters.remove(id);
+        this.state.voters.remove(id);
         this.state.voters.add(id, {id, vote: data.vote});
         // DEBUG TEST ONLY BEGIN
         for (const player of this.state.players) {
@@ -209,6 +206,7 @@ class Avalon {
           changes.state.phase = this.state.phase;
         }
         changes.state.voters = this.state.voters.toArray().map(voter => {return voter.id});
+        
         callback(null, changes);
         if (this.state.phase === 'tally') {
           this.tally(callback);
@@ -248,6 +246,8 @@ class Avalon {
     
     if (approvals > rejections) {
       this.state.phase = 'questing';
+      this.state.message = ''; // DEBUG TEST ONLY
+      changes.state.message = ''; // DEBUG TEST ONLY
     } else {
       if (currentQuest.history.length >= 5) {
         this.state.phase = 'end';
@@ -324,7 +324,7 @@ class Avalon {
         f++;
       }
     }
-    this.state.message = `Decisions: fails = ${f}`;
+    this.state.message = `Fails = ${f}`;
     changes.state.message = this.state.message;
     // TEST DEBUG ONLY END
     
@@ -349,6 +349,8 @@ class Avalon {
     } else {
       this.state.phase = 'choosing';
       this.state.quests.push({history: []});
+      this.state.team.clear();
+      changes.state.team = this.state.team.toArray();
     }
     changes.state.quests = this.state.quests;
     changes.state.phase = this.state.phase;

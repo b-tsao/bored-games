@@ -13,7 +13,6 @@ import {
   CardActionArea,
   Checkbox,
   Container,
-  CssBaseline,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -621,7 +620,6 @@ export default function Room({room, self}) {
   
   return (
     <React.Fragment>
-      <CssBaseline />
       <div className={classes.heroContent}>
         <Container className={classes.container} maxWidth="sm">
           <Typography component="h1" variant="h6" align="center" color="textPrimary" gutterBottom>

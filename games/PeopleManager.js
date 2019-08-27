@@ -77,11 +77,8 @@ class PeopleManager {
     }
     this.tail = node;
     this.people[key] = node;
-    if (!this.array) {
-      this.array = [];
-    }
-    this.array.push(node.data);
     this.length++;
+    this.array = null;
     return true;
   }
   
@@ -92,11 +89,7 @@ class PeopleManager {
       return null;
     }
     
-    if (this.array && node === this.tail) {
-      this.array.pop();
-    } else {
-      this.array = null;
-    }
+    this.array = null;
     
     if (node.prev) {
       node.prev.next = node.next;
@@ -113,6 +106,7 @@ class PeopleManager {
     
     delete this.people[key];
     this.length--;
+    this.array = null;
     return node.data;
   }
   

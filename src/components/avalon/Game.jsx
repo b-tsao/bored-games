@@ -217,7 +217,6 @@ const ActionToolbar = ({game, self, power}) => {
   const disableQuest = game.state.phase !== 'questing' || 
                        !self || 
                        !game.state.team.includes(self.id);
-  const disableFailQuest = disableQuest || self.card.side === 'good';
   
   const cardActionAreaClass = reveal ? clsx(classes.cardActionArea, classes.reveal) : classes.cardActionArea;
   
@@ -245,7 +244,6 @@ const ActionToolbar = ({game, self, power}) => {
   
   const voteClass = disableVote ? clsx(classes.img, classes.disabledImg) : classes.img;
   const questClass = disableQuest ? clsx(classes.img, classes.disabledImg) : classes.img;
-  const questFailClass = disableFailQuest ? clsx(classes.img, classes.disabledImg) : classes.img;
   
   const approveVote = self && self.card ? (
     <Card className={classes.voteCard}>
@@ -292,11 +290,11 @@ const ActionToolbar = ({game, self, power}) => {
   const failCard = self && self.card ? (
     <Card className={classes.questCard}>
       <CardActionArea
-        disabled={disableFailQuest}
+        disabled={disableQuest}
         className={classes.cardActionArea}
         onClick={() => {handleQuest(false)}}>
         <img
-          className={questFailClass}
+          className={questClass}
           src={game.settings.static.quest.fail.img}
           alt={game.settings.static.quest.fail.label} />
       </CardActionArea>

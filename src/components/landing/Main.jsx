@@ -68,7 +68,7 @@ const useStyles = makeStyles(theme => ({
   },
   fab: {
     zIndex: theme.zIndex.drawer + 1,
-    position: 'absolute',
+    position: 'fixed',
     bottom: theme.spacing(2),
     right: theme.spacing(2)
   }

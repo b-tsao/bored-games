@@ -72,7 +72,7 @@ export default function GameCard(props) {
   const gameCard = (
     <Card className={classes.card}>
       <CardActionArea
-        onClick={() => {props.handleSelect({title: props.title, gameCard: deadCard})}}
+        onClick={() => {props.handleSelect({id: props.id, gameCard: deadCard})}}
         className={classes.action}>
         <CardHeader
           subheader={props.title}
@@ -99,6 +99,7 @@ export default function GameCard(props) {
 }
 
 GameCard.propTypes = {
+  id: PropTypes.string,
   title: PropTypes.string,
   subtitle: PropTypes.string,
   image: PropTypes.string,

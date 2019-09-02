@@ -9,6 +9,7 @@ const logger = log4js.getLogger('Avalon');
 
 class Avalon {
   constructor() {
+    this.id = "the-resistance-avalon";
     this.title = 'The Resistance: Avalon';
     this.settings = new AvalonSettings();
     this.state = null;
@@ -17,6 +18,7 @@ class Avalon {
   
   toJSON() {
     return {
+      id: this.id,
       title: this.title,
       settings: this.settings.toJSON(),
       state: this.state ? {
@@ -267,7 +269,7 @@ class Avalon {
     if (this.state && this.state.phase === 'questing') {
       if (this.secrets[id]) {
         if (this.secrets[id][id].card.side === 'good' && data.decision === false) {
-          return callback('Stop trolling, good can not fail the mission');
+          return callback("Troll, which side are you on?\nGood can not fail the mission.");
         } else {
           this.state.quest.remove(id);
           this.state.quest.add(id, {id, decision: data.decision});

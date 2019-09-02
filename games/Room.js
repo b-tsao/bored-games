@@ -42,15 +42,18 @@ class Room {
     };
   }
 
-  setGame(game, callback = () => {}) {
+  setGame(gameId, callback = () => {}) {
     let err;
-    switch (game) {
-      case 'The Resistance: Avalon':
+    switch (gameId) {
+      case 'the-resistance-avalon':
         this.game = new Avalon();
+        break;
+      case 'shifty-eyed-spies':
+        err = "Currently unavailable";
         break;
       default:
         err = "Game not supported";
-        this.logger.error(`Failed to create game (${game}) room: ${err}`);
+        this.logger.error(`Failed to create game (${gameId}) room: ${err}`);
     }
     return callback(err);
   }
@@ -227,7 +230,7 @@ class Room {
     if (player && player.client.id === client) {
       player.client.status = 'disconnected';
       player.client.id = null;
-      if (player.host) {
+      if (player.host && !this.game.state) {
         player.host = false;
         const nextHost = this.findNextConnectedPlayer();
         if (nextHost) {

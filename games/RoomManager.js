@@ -18,10 +18,10 @@ class RoomManager {
    *
    * @return room if successful, throws an error otherwise.
    */
-  createRoom(title, callback = () => {}) {
-    logger.trace(`Creating game (${title}) room`);
+  createRoom(gameId, callback = () => {}) {
+    logger.trace(`Creating game (${gameId}) room`);
     const room = new Room();
-    room.setGame(title, (err) => {
+    room.setGame(gameId, (err) => {
       if (err) {
         return callback(err);
       } else {
@@ -32,8 +32,8 @@ class RoomManager {
           success = this.roomTree.add(uid, room);
         } while (!success);
         room.key = uid;
-        logger.info(`Game (${title}) room (${room.key}) created`);
-        this.roomTimer(room.key);
+        logger.info(`Game (${gameId}) room (${room.key}) created`);
+        this.roomTimer(room.key, 300000); // If no one joins within 5 minutes, expire room
         return callback(null, room);
       }
     });
@@ -58,16 +58,15 @@ class RoomManager {
    * @param timer time in millis to expire room, default 30 minutes
    * @return {Object<key: String, data: null>} room associated with key, null if operation is unsuccessful due to key not being associated with any rooms.
    */
-  roomTimer(key, timer) {
-    const millis = timer ? timer : 1800000;
+  roomTimer(key, timer = 1800000) {
     this.clearRoomTimer(key);
-    logger.trace(`Room (${key}) will expire after ${millis} millis`)
+    logger.trace(`Room (${key}) will expire after ${timer} millis`)
     const roomTimer = {
-      timeout: millis,
+      timeout: timer,
       timer: setTimeout(() => {
         this.deleteRoom(key);
         logger.trace(`Room (${key}) has expired after ${roomTimer.timeout} millis`);
-      }, millis)
+      }, timer)
     }
     this.roomTimers[key] = roomTimer;
   }

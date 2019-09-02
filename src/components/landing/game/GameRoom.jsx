@@ -112,8 +112,8 @@ export default function GameRoom() {
       return <Redirect to='/game' />;
     }
     
-    switch (room.game.title) {
-      case 'The Resistance: Avalon':
+    switch (room.game.id) {
+      case 'the-resistance-avalon':
         console.log(room);
         if (window.location.pathname === '/game') {
           return <AvalonGame room={room} self={getSelf(client.id, room.game.state.players)} />

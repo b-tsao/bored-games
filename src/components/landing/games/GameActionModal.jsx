@@ -55,7 +55,7 @@ export default function GameActionModal(props) {
     const newClient = socketIOClient('/room');
     setConnectState({
       client: newClient,
-      data: props.game.title,
+      data: props.game.id,
       connect: true
     });
   };

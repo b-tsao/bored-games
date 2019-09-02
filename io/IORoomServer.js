@@ -45,13 +45,13 @@ class IORoomServer {
   }
   
   attachCreateListener(client) {
-    client.on('create', (game) => {
-      logger.trace(`User (${client.userId}) requesting create game (${game}) room`);
+    client.on('create', (gameId) => {
+      logger.trace(`User (${client.userId}) requesting create game (${gameId}) room`);
       
       client.emit('create', {status: 'creating', message: 'Creating room'});
-      this.roomManager.createRoom(game, (err, room) => {
+      this.roomManager.createRoom(gameId, (err, room) => {
         if (err) {
-          logger.error(`User (${client.userId}) create game (${game}) room request denied: ${err}`);
+          logger.error(`User (${client.userId}) create game (${gameId}) room request denied: ${err}`);
           client.emit('create', {status: 'error', message: err});
           client.disconnect();
           return;

@@ -45,11 +45,16 @@ function startServer() {
   // Logging for each returned request
   app.use(log4js.connectLogger(log4js.getLogger("return"), {level: 'info'}));
   
-  // Router setup
-  app.use(router);
-
   // Handle requests for static files
   app.use(express.static('public'));
+  
+  // Router setup
+  app.use(router);
+  
+  // Redirect if nothing else sent a response
+  app.get('*', (req, res) => {
+    res.redirect('/');
+  });
   
   const server = http.createServer(app);
   

@@ -96,7 +96,7 @@ class Avalon {
       quest: new PeopleManager(), // [<player.id>]
       quests: [{history: []}] // [{outcome: {success: <Boolean>, decisions: [<Boolean>]}, history: [{team: [<player.name>], votes: {<player.name>: <Boolean>}]}]
     };
-    this.state.leader = 0; // DEBUG TEST ONLY
+    // this.state.leader = 0; // DEBUG TEST ONLY
     changes.state = this.toJSON().state;
     
     const players = data.players.toArray().map(player => {return {id: player.id}});
@@ -295,7 +295,7 @@ class Avalon {
         return callback('Not a player');
       }
     } else {
-      return callback('Game is not in the voting phase');
+      return callback('Game is not in the questing phase');
     }
   }
   

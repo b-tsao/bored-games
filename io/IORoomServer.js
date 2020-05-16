@@ -2,6 +2,7 @@
 const log4js = require('log4js');
 const cookie = require('cookie');
 const deepExtend = require('deep-extend');
+const {compressChanges} = require('../games/lib/Plugin');
 const RoomManager = require('../games/RoomManager');
 
 const logger = log4js.getLogger('IORoomServer');
@@ -21,9 +22,9 @@ class IORoomServer {
       this.attachLeaveListener(client);
       this.attachConnectListener(client);
       this.attachDisconnectListener(client);
-      this.attachGetListener(client);
       this.attachHostActionListener(client);
       this.attachSettingsListener(client);
+      this.attachStartListener(client);
       this.attachGameListener(client);
     });
   }
@@ -105,13 +106,13 @@ class IORoomServer {
         client.emit('message', {status: 'error', text: "Room does not exist"});
         return client.disconnect();
       }
-      room.addSpectator({id: client.userId, client: client.id}, (err, changes) => {
+      room.addSpectator({id: client.userId, client: client.id}, (err, ctxChanges) => {
         if (err) {
           client.emit('message', {status: 'error', text: err});
           client.disconnect();
         } else {
           client.join(`${key}#spectators`);
-          this.broadcastChanges(room, changes);
+          this.ioRoomServer.to(key).emit('changes', ctxChanges);
         }
       });
     });
@@ -125,39 +126,31 @@ class IORoomServer {
         client.emit('message', {status: 'error', text: "Room does not exist"});
         return client.disconnect();
       }
-      room.addPlayer({id: client.userId, client: client.id}, name, (err, changes) => {
+      const err = room.addPlayer({id: client.userId, client: client.id}, name, (err, ctxChanges) => {
         if (err) {
           client.emit('message', {status: 'error', text: err});
         } else {
           client.leave(`${key}#spectators`);
-          this.broadcastChanges(room, changes);
+          this.ioRoomServer.to(key).emit('changes', ctxChanges);
         }
       });
     });
   }
   
   attachLeaveListener(client) {
-    client.on('leave', (callback = () => {}) => {
+    client.on('leave', () => {
+      client.disconnect();
+      
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) leaving room (${key})`);
-      
-      client.emit('setCookie', 'userId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;');
-      client.emit('setCookie', 'roomKey=;expires=Thu, 01 Jan 1970 00:00:01 GMT;');
       const room = this.roomManager.getRoom(key);
-      if (room == null) {
-        callback();
-        client.disconnect();
-      } else {
-        room.remove(client.userId, (err, changes) => {
-          callback();
-          client.disconnect();
-          if (!err) {
-            if (room.occupants === 0) {
-              logger.trace(`Deleting room (${key}): Room empty`);
-              this.roomManager.deleteRoom(key);
-            } else {
-              this.broadcastChanges(room, changes);
-            }
+      if (room != null) {
+        room.remove(client.userId, (err, ctxChanges) => {
+          if (room.occupants === 0) {
+            logger.trace(`Deleting room (${key}): Room empty`);
+            this.roomManager.deleteRoom(key);
+          } else if (!err) {
+            this.ioRoomServer.to(key).emit('changes', ctxChanges);
           }
         });
       }
@@ -175,22 +168,23 @@ class IORoomServer {
         client.disconnect();
         return;
       }
-      room.connect(client.userId, client.id, (err, changes, options) => {
+      room.connect(client.userId, client.id, (err, ctxChanges) => {
         if (err) {
           client.emit('message', {status: 'error', text: err});
           client.disconnect();
           return;
-        }
-        this.roomManager.clearRoomTimer(key);
-        client.emit('setCookie', cookie.serialize('userId', client.userId));
-        client.emit('setCookie', cookie.serialize('roomKey', room.key));
-        client.join(key);
-        // TODO MOVE: THIS IS A TERRIBLE PLACE TO DO THIS, BUT IT'S HERE FOR NOW
-        if (room.spectators.contains(client.userId)) {
+        } else if (room.spectators.hasOwnProperty(client.userId)) {
+          // Is there a better way/place to do this?
           client.join(`${key}#spectators`);
+          // END HACK
         }
-        // END HACK
-        this.broadcastChanges(room, changes, options);
+        client.emit('setCookie', cookie.serialize('userId', client.userId));
+        client.emit('setCookie', cookie.serialize('roomKey', key));
+        client.join(key);
+        this.roomManager.clearRoomTimer(key);
+        const [filteredState] = room.getState(client.userId);
+        client.emit('room', room.getContext(), filteredState);
+        client.to(key).emit('changes', ctxChanges);
       });
     });
   }
@@ -201,38 +195,19 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room != null) {
         logger.trace(`Disconnecting user (${client.userId}) with client (${client.id}) from room (${client.roomKey}): ${reason}`);
-        room.disconnect(client.userId, client.id, (err, changes, options) => {
-          if (!err) {
-            if (room.occupants === 0) {
-              this.roomManager.roomTimer(key);
-            } else {
-              this.broadcastChanges(room, changes, options);
-            }
+        room.disconnect(client.userId, client.id, (err, ctxChanges) => {
+          if (room.occupants === 0) {
+            this.roomManager.roomTimer(key);
+          } else if (!err) {
+            this.ioRoomServer.to(key).emit('changes', ctxChanges);
           }
         });
       }
     });
   }
   
-  attachGetListener(client) {
-    client.on('get', (callback = () => {}) => {
-      const key = client.roomKey;
-      logger.trace(`User (${client.userId}) requesting room (${key}) information`);
-      
-      const room = this.roomManager.getRoom(key);
-      if (room == null) {
-        logger.error(`User (${client.userId}) failed to retrieve room (${key}) information: Room does not exist`);
-        callback('Room does not exist');
-        return client.disconnect();
-      }
-
-      logger.info(`User (${client.userId}) retrieved room (${key}) information`);
-      callback(null, room.toJSON());
-    });
-  }
-  
   attachHostActionListener(client) {
-    client.on('hostAction', (action, id) => {
+    client.on('hostAction', (action, id, data) => {
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) requesting host action (${action}) against user (${id}) in room (${key})`);
       const room = this.roomManager.getRoom(key);
@@ -241,11 +216,11 @@ class IORoomServer {
         client.emit('message', {status: 'error', text: "Room does not exist"});
         return client.disconnect();
       }
-      room.hostAction(action, client.userId, id, (err, changes) => {
+      room.hostAction(action, client.userId, id, data, (err, ctxChanges) => {
         if (err) {
           client.emit('message', {status: 'error', text: err});
         } else {
-          this.broadcastChanges(room, changes);
+          this.ioRoomServer.to(key).emit('changes', ctxChanges);
         }
       });
     });
@@ -261,11 +236,43 @@ class IORoomServer {
         client.emit('message', {status: 'error', text: "Room does not exist"});
         return client.disconnect();
       }
-      room.changeSettings(client.userId, settings, (err, changes) => {
+      room.changeSettings(client.userId, settings, (err, ctxChanges) => {
         if (err) {
           client.emit('message', {status: 'error', text: err});
         } else {
-          this.broadcastChanges(room, changes);
+          this.ioRoomServer.to(key).emit('changes', ctxChanges);
+        }
+      });
+    });
+  }
+  
+  attachStartListener(client) {
+    client.on('start', () => {
+      const key = client.roomKey;
+      logger.trace(`User (${client.userId}) requesting start game in room (${key})`);
+      const room = this.roomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`User (${client.userId}) start game in room (${key}) failed: Room does not exist`);
+        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.disconnect();
+        return;
+      }
+      room.startGame(client.userId, (err, ctxChanges, stateChanges, prevState) => {
+        if (err) {
+          logger.error(`User (${client.userId}) start game in room (${key}) failed: ${err}`);
+          client.emit('message', {status: 'error', text: err});
+        } else {
+          for (const id in room.players) {
+            const player = room.players[id];
+            if (player.client.status === 'connected') {
+              const [filteredState, filterChanges] = room.getState(id);
+              const [finalState, finalChanges] = compressChanges(prevState, stateChanges.concat(filterChanges));
+              this.ioRoomServer.to(player.client.id).emit('changes', ctxChanges, finalChanges);
+            }
+          }
+          const [filteredState, filterChanges] = room.getState();
+          const [finalState, finalChanges] = compressChanges(prevState, stateChanges.concat(filterChanges));
+          this.ioRoomServer.to(`${room.key}#spectators`).emit('room', ctxChanges, finalChanges);
         }
       });
     });
@@ -289,69 +296,6 @@ class IORoomServer {
         this.broadcastChanges(room, changes, options);
       });
     });
-  }
-  
-  broadcastChanges(room, changes, options) {
-    const {sendSecrets} = options ? options : false;
-
-    if (sendSecrets && room.game.state) {
-      const players = room.game.state.players;
-      const secrets = room.game.secrets;
-      for (const player of players) {
-        if (player.client.status === 'connected') {
-          let playerView = changes;
-          if (secrets.hasOwnProperty(player.id)) {
-            // player has secrets (player view)
-            playerView = this.addPlayerView(changes, players, secrets[player.id]);
-          }
-          this.ioRoomServer.to(player.client.id).emit('changes', playerView);
-        }
-      }
-      if (changes) {
-        // I'm just hacking now....
-        if (!changes.game) {
-          changes.game = {state: {}};
-        } else if (!changes.game.state) {
-          changes.game.state = {};
-        }
-        changes.game.state.players = room.game.state.players.toArray();
-        // end hack
-        this.ioRoomServer.to(`${room.key}#spectators`).emit('changes', changes);
-      }
-    } else {
-      if (changes) {
-        this.ioRoomServer.to(room.key).emit('changes', changes);
-      }
-    }
-  }
-  
-  addPlayerView(changes, players, secret) {
-    const playerView = players.map(player => {
-      if (secret.hasOwnProperty(player.id)) {
-        player = JSON.parse(JSON.stringify(player)); // deep clone copy
-        deepExtend(player, secret[player.id]);
-      }
-      return player;
-    });
-    
-    if (!changes) {
-      changes = {game: {state: {}}};
-    } else if (!changes.game) {
-      changes.game = {state: {}};
-    } else if (!changes.game.state) {
-      changes.game.state = {};
-    }
-    
-    return {
-      ...changes,
-      game: {
-        ...changes.game,
-        state: {
-          ...changes.game.state,
-          players: playerView.toArray()
-        }
-      }
-    };
   }
 }
 

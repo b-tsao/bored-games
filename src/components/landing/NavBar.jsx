@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {makeStyles} from '@material-ui/core/styles';
 
@@ -46,7 +46,7 @@ export default function NavBar(props) {
         <Typography className={classes.title} variant="h6" noWrap>
           Bored Games
         </Typography>
-        {<SearchBar />}
+        <SearchBar />
         <div className={classes.grow} />
         <ActionBar />
       </Toolbar>

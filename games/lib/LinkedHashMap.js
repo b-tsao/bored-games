@@ -1,16 +1,16 @@
 'use strict';
 
-const log4js = require('log4js');
-
-const logger = log4js.getLogger('PeopleManager');
-
-class PeopleManager {
+class LinkedHashMap {
   constructor() {
-    this.people = {};
+    this.map = {};
     this.head = null;
     this.tail = null;
     this.length = 0;
     this.array = null;
+  }
+  
+  toJSON() {
+    return this.toArray();
   }
   
   toArray() {
@@ -57,7 +57,7 @@ class PeopleManager {
   }
   
   add(key, value) {
-    if (this.people.hasOwnProperty(key)) {
+    if (this.map.hasOwnProperty(key)) {
       return false;
     } else if (value == null) {
       value = key;
@@ -76,14 +76,14 @@ class PeopleManager {
       this.head = node;
     }
     this.tail = node;
-    this.people[key] = node;
+    this.map[key] = node;
     this.length++;
     this.array = null;
     return true;
   }
   
   remove(key) {
-    const node = this.people[key];
+    const node = this.map[key];
     
     if (!node) {
       return null;
@@ -104,18 +104,18 @@ class PeopleManager {
       this.tail = node.prev;
     }
     
-    delete this.people[key];
+    delete this.map[key];
     this.length--;
     this.array = null;
     return node.data;
   }
   
   contains(key) {
-    return !!this.people[key];
+    return !!this.map[key];
   }
   
   get(key) {
-    const node = this.people[key];
+    const node = this.map[key];
     if (node) {
       return node.data;
     } else {
@@ -124,14 +124,14 @@ class PeopleManager {
   }
   
   clear() {
-    for (const key in this.people) {
-      const node = this.people[key];
+    for (const key in this.map) {
+      const node = this.map[key];
       node.data = null;
       node.prev = null;
       node.next = null;
     }
     
-    this.people = {};
+    this.map = {};
     this.head = null;
     this.tail = null;
     this.length = 0;
@@ -139,9 +139,9 @@ class PeopleManager {
   }
   
   map(modifier) {
-    const newMe = new PeopleManager();
+    const newMe = new LinkedHashMap();
     
-    for (const key in this.people) {
+    for (const key in this.map) {
       newMe.add(key, modifier(this.get(key)));
     }
     
@@ -149,4 +149,4 @@ class PeopleManager {
   }
 }
 
-module.exports = PeopleManager;
+module.exports = LinkedHashMap;

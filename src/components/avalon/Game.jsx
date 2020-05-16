@@ -9,16 +9,14 @@ import {
 
 import {
   Badge,
-  Button,
   Card,
   CardActionArea,
+  CardContent,
   Container,
   Fade,
   Grid,
   Hidden,
   IconButton,
-  Menu,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -34,63 +32,8 @@ import {
   HowToVote as VoteIcon,
   Cancel as LeaveIcon,
 } from '@material-ui/icons';
-import MessageModal from '../landing/MessageModal';
 
 import {ClientContext, MainDisplayContext} from '../../Contexts';
-
-const useStyles = makeStyles(theme => ({
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
-  },
-  container: {
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-  },
-  paper: {
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
-  padding: {
-    padding: theme.spacing(2)
-  },
-  margin: {
-    margin: theme.spacing(1)
-  },
-  disconnected: {
-    color: 'rgba(0, 0, 0, 0.54)'
-  },
-  leader: {
-    color: 'rgba(255,215,0)'
-  },
-  card: {
-    marginRight: 'auto',
-    maxWidth: 40
-  },
-  disconnectedImg: {
-    opacity: 0.5,
-    filter: 'alpha(opacity=50)', /* For IE8 and earlier */
-  },
-  img: {
-    overflow: 'hidden',
-    display: 'block',
-    width: '100%'
-  },
-  evil: {
-    transition: 'all .2s ease-in',
-    backgroundColor: '#df92a3'
-  },
-  merlin: {
-    transition: 'all .2s ease-in',
-    backgroundColor: '#b3d7fa'
-  },
-  normal: {
-    transition: 'all .2s ease-in',
-    backgroundColor: 'inherit'
-  }
-}));
 
 const useToolbarStyles = makeStyles(theme => ({
   toolbar: {
@@ -99,6 +42,9 @@ const useToolbarStyles = makeStyles(theme => ({
   },
   spacer: {
     flex: '1 1 100%',
+  },
+  margin: {
+    margin: theme.spacing(1)
   },
   actions: {
     display: 'flex',
@@ -164,15 +110,16 @@ const useToolbarStyles = makeStyles(theme => ({
   img: {
     overflow: 'hidden',
     display: 'block',
-    width: '100%'
+    width: '100%',
+    height: '100%'
   },
   disabledImg: {
     opacity: 0.5,
     filter: 'alpha(opacity=50)', /* For IE8 and earlier */
-  },
+  }
 }));
 
-const ActionToolbar = ({game, self, power}) => {
+const ActionToolbar = ({room, self, power}) => {
   const [client, setClient] = useContext(ClientContext);
   const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
@@ -185,13 +132,13 @@ const ActionToolbar = ({game, self, power}) => {
   };
   
   const handleLeave = () => {
-    if (game.state.phase === 'end') {
+    if (room.state.phase === 'end') {
       client.emit('game', 'disconnect');
       setMainDisplay('gameroom');
     } else {
-      setMainDisplay('home');
       client.disconnect();
       setClient(null);
+      setMainDisplay('home');
     }
   };
   
@@ -207,20 +154,27 @@ const ActionToolbar = ({game, self, power}) => {
     client.emit('game', 'quest', {decision});
   };
 
-  const isLeader = self && self.id === game.state.players[game.state.leader].id;
-  const choosePhase = game.state.phase === 'choosing';
-  const selectedBoard = game.settings.static.boards[game.settings.selectedBoard];
-  const currentQuest = selectedBoard.quests[game.state.quests.length - 1];
-  const enableVote = isLeader && choosePhase && game.state.team.length === currentQuest.team;
+  const isLeader = self && self.id === room.state.players[room.state.leader].id;
+  const choosePhase = room.state.phase === 'choosing';
+  const selectedBoard = room.ctx.settings.selectedBoard;
+  const board = room.ctx.settings.static.boards[selectedBoard];
+  const currentQuest = board.quests[room.state.quests.length - 1];
+  const enableVote = isLeader && choosePhase && Object.keys(room.state.team) === currentQuest.team;
   
-  const disableVote = game.state.phase !== 'voting';
-  const disableQuest = game.state.phase !== 'questing' || 
+  const disableVote = room.state.phase !== 'voting';
+  const disableQuest = room.state.phase !== 'questing' || 
                        !self || 
-                       !game.state.team.includes(self.id);
+                       !room.state.team.hasOwnProperty(self.id);
   
   const cardActionAreaClass = reveal ? clsx(classes.cardActionArea, classes.reveal) : classes.cardActionArea;
-  
-  const playerCard = self && self.card ? (
+
+  let player;
+  for (const p of room.state.players) {
+    if (p.id === self.id) {
+      player = p;
+    }
+  }
+  const playerCard = player && player.card ? (
     <Card className={classes.card}>
       <div
         className={cardActionAreaClass}
@@ -229,14 +183,14 @@ const ActionToolbar = ({game, self, power}) => {
         <div className={classes.front}>
           <img
             className={classes.img}
-            src={game.settings.static.cards.cover.img}
-            alt={game.settings.static.cards.cover.label} />
+            src={room.ctx.settings.static.cards.cover.img}
+            alt={room.ctx.settings.static.cards.cover.label} />
         </div>
         <div className={classes.back}>
           <img
             className={classes.img}
-            src={game.settings.static.cards[self.card.side][self.card.idx].img}
-            alt={game.settings.static.cards[self.card.side][self.card.idx].label} />
+            src={room.ctx.settings.static.cards[player.card.side][player.card.idx].img}
+            alt={room.ctx.settings.static.cards[player.card.side][player.card.idx].label} />
         </div>
       </div>
     </Card>
@@ -245,7 +199,7 @@ const ActionToolbar = ({game, self, power}) => {
   const voteClass = disableVote ? clsx(classes.img, classes.disabledImg) : classes.img;
   const questClass = disableQuest ? clsx(classes.img, classes.disabledImg) : classes.img;
   
-  const approveVote = self && self.card ? (
+  const approveVote = player && player.card ? (
     <Card className={classes.voteCard}>
       <CardActionArea
         disabled={disableVote}
@@ -253,13 +207,13 @@ const ActionToolbar = ({game, self, power}) => {
         onClick={() => {handleVote(true)}}>
         <img
           className={voteClass}
-          src={game.settings.static.vote.approve.img}
-          alt={game.settings.static.vote.approve.label} />
+          src={room.ctx.settings.static.vote.approve.img}
+          alt={room.ctx.settings.static.vote.approve.label} />
       </CardActionArea>
     </Card>
   ) : null;
   
-  const rejectVote = self && self.card ? (
+  const rejectVote = player && player.card ? (
     <Card className={classes.voteCard}>
       <CardActionArea
         disabled={disableVote}
@@ -267,13 +221,13 @@ const ActionToolbar = ({game, self, power}) => {
         onClick={() => {handleVote(false)}}>
         <img
           className={voteClass}
-          src={game.settings.static.vote.reject.img}
-          alt={game.settings.static.vote.reject.label} />
+          src={room.ctx.settings.static.vote.reject.img}
+          alt={room.ctx.settings.static.vote.reject.label} />
       </CardActionArea>
     </Card>
   ) : null;
   
-  const successCard = self && self.card ? (
+  const successCard = player && player.card ? (
     <Card className={classes.questCard}>
       <CardActionArea
         disabled={disableQuest}
@@ -281,13 +235,13 @@ const ActionToolbar = ({game, self, power}) => {
         onClick={() => {handleQuest(true)}}>
         <img
           className={questClass}
-          src={game.settings.static.quest.success.img}
-          alt={game.settings.static.quest.success.label} />
+          src={room.ctx.settings.static.quest.success.img}
+          alt={room.ctx.settings.static.quest.success.label} />
       </CardActionArea>
     </Card>
   ) : null;
   
-  const failCard = self && self.card ? (
+  const failCard = player && player.card ? (
     <Card className={classes.questCard}>
       <CardActionArea
         disabled={disableQuest}
@@ -295,13 +249,13 @@ const ActionToolbar = ({game, self, power}) => {
         onClick={() => {handleQuest(false)}}>
         <img
           className={questClass}
-          src={game.settings.static.quest.fail.img}
-          alt={game.settings.static.quest.fail.label} />
+          src={room.ctx.settings.static.quest.fail.img}
+          alt={room.ctx.settings.static.quest.fail.label} />
       </CardActionArea>
     </Card>
   ) : null;
   
-  const voteIcon = self ? (
+  const voteIcon = player ? (
     <Tooltip title="Vote" placement="top">
       <div>
         <IconButton
@@ -325,7 +279,7 @@ const ActionToolbar = ({game, self, power}) => {
       <Toolbar className={classes.toolbar}>
         <div className={classes.title}>
           <Typography variant="h6" id="tableTitle">
-            {game.state.message}
+            {room.state.message}
           </Typography>
         </div>
         <div className={classes.spacer} />
@@ -369,13 +323,47 @@ const ActionToolbar = ({game, self, power}) => {
   );
 };
 
-function PlayersTable({game, self, power}) {
+const usePlayersTableStyle = makeStyles(theme => ({
+  disconnected: {
+    color: 'rgba(0, 0, 0, 0.54)'
+  },
+  leader: {
+    color: 'rgba(255,215,0)'
+  },
+  card: {
+    marginRight: 'auto',
+    maxWidth: 40
+  },
+  disconnectedImg: {
+    opacity: 0.5,
+    filter: 'alpha(opacity=50)', /* For IE8 and earlier */
+  },
+  img: {
+    overflow: 'hidden',
+    display: 'block',
+    width: '100%'
+  },
+  evil: {
+    transition: 'all .2s ease-in',
+    backgroundColor: '#df92a3'
+  },
+  merlin: {
+    transition: 'all .2s ease-in',
+    backgroundColor: '#b3d7fa'
+  },
+  normal: {
+    transition: 'all .2s ease-in',
+    backgroundColor: 'inherit'
+  }
+}));
+
+function PlayersTable({room, self, power}) {
   const [client] = useContext(ClientContext);
   
-  const classes = useStyles();
+  const classes = usePlayersTableStyle();
 
-  const isLeader = self && self.id === game.state.players[game.state.leader].id;
-  const choosePhase = game.state.phase === 'choosing';
+  const isLeader = self && self.id === room.state.players[room.state.leader].id;
+  const choosePhase = room.state.phase === 'choosing';
   const canPropose = isLeader && choosePhase;
   
   const handleChoose = (event, playerId) => {
@@ -384,7 +372,8 @@ function PlayersTable({game, self, power}) {
     }
   };
   
-  const selectedBoard = game.settings.static.boards[game.settings.selectedBoard];
+  const selectedBoard = room.ctx.settings.selectedBoard;
+  const board = room.ctx.settings.static.boards[selectedBoard];
   
   return (
     <React.Fragment>
@@ -406,39 +395,33 @@ function PlayersTable({game, self, power}) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {game.state.players.map((player, idx) => {
+          {room.state.players.map((player, idx) => {
             let playerRowClass = classes.normal;
             if (power) {
-              if (player.evil) {
+              if (player.card && player.card.side === 'evil') {
                 playerRowClass = classes.evil;
-              } else if (player.merlin) {
+              } else if (player.card && player.card.id === 'merlin') {
                 playerRowClass = classes.merlin;
               }
             }
             
             let playerCellClass = null;
             let imgClass = classes.img;
-            if (player.client.status === 'disconnected') {
+            if (room.ctx.players[player.id].client.status === 'disconnected') {
               playerCellClass = classes.disconnected;
               imgClass = clsx(imgClass, classes.disconnectedImg);
-            } else if (game.state.leader === idx) {
+            } else if (room.state.leader === idx) {
               playerCellClass = classes.leader;
             }
             
-            let playerChosen = false;
-            for (const chosen of game.state.team) {
-              if (player.id === chosen) {
-                playerChosen = true;
-                break;
-              }
-            }
+            const playerChosen = room.state.team.hasOwnProperty(player.id);
             
-            const questHistory = game.state.phase === 'voting' || game.state.phase === 'tally' ?
-              game.state.quests.length - 1 : game.state.quests.length;
+            const questHistory = room.state.phase === 'voting' || room.state.phase === 'tally' ?
+              room.state.quests.length - 1 : room.state.quests.length;
             const votes = [];
             
             for (let i = 0; i < questHistory; i++) {
-              const quest = game.state.quests[i];
+              const quest = room.state.quests[i];
               if (quest.history.length > 0) {
                 const history = quest.history[quest.history.length - 1];
                 const playerVote = history.votes[player.id];
@@ -449,12 +432,12 @@ function PlayersTable({game, self, power}) {
                         {playerVote ?
                           <img
                             className={imgClass}
-                            src={game.settings.static.vote.approve.img}
-                            alt={game.settings.static.vote.approve.label} /> :
+                            src={room.ctx.settings.static.vote.approve.img}
+                            alt={room.ctx.settings.static.vote.approve.label} /> :
                           <img
                             className={imgClass}
-                            src={game.settings.static.vote.reject.img}
-                            alt={game.settings.static.vote.reject.label} />}
+                            src={room.ctx.settings.static.vote.reject.img}
+                            alt={room.ctx.settings.static.vote.reject.label} />}
                       </Card>
                     </Zoom>
                   </TableCell>
@@ -462,33 +445,30 @@ function PlayersTable({game, self, power}) {
               }
             }
             
-            for (const voter of game.state.voters) {
-              if (player.id === voter) {
-                const playerVoted = 
-                  <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">
-                    <Zoom in={true}>
-                      <Card className={classes.card}>
-                        <img
-                          className={imgClass}
-                          src={game.settings.static.vote.cover.img}
-                          alt={game.settings.static.vote.cover.label} />
-                      </Card>
-                    </Zoom>
-                  </TableCell>;
-                votes.push(playerVoted);
-                break;
-              }
+            if (room.state.voters.hasOwnProperty(player.id)) {
+              const playerVoted = 
+                <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">
+                  <Zoom in={true}>
+                    <Card className={classes.card}>
+                      <img
+                        className={imgClass}
+                        src={room.ctx.settings.static.vote.cover.img}
+                        alt={room.ctx.settings.static.vote.cover.label} />
+                    </Card>
+                  </Zoom>
+                </TableCell>;
+              votes.push(playerVoted);
             }
             
-            for (let i = votes.length; i < selectedBoard.quests.length; i++) {
+            for (let i = votes.length; i < board.quests.length; i++) {
               votes.push(
                 <TableCell key={player.id + '-quest' + i} component="th" scope="row">
                   <Zoom in={false}>
                     <Card className={classes.card}>
                       <img
                         className={imgClass}
-                        src={game.settings.static.vote.cover.img}
-                        alt={game.settings.static.vote.cover.label} />
+                        src={room.ctx.settings.static.vote.cover.img}
+                        alt={room.ctx.settings.static.vote.cover.label} />
                     </Card>
                   </Zoom>
                 </TableCell>
@@ -501,15 +481,15 @@ function PlayersTable({game, self, power}) {
                 onClick={e => handleChoose(e, player.id)}
                 className={playerRowClass}>
                 <TableCell className={playerCellClass} component="th" scope="row">
-                  {player.name}
+                  {room.ctx.players[player.id].name}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   <Zoom in={playerChosen}>
                     <Card className={classes.card}>
                       <img
                         className={imgClass}
-                        src={game.settings.static.quest.chosen.img}
-                        alt={game.settings.static.quest.chosen.label} />
+                        src={room.ctx.settings.static.quest.chosen.img}
+                        alt={room.ctx.settings.static.quest.chosen.label} />
                     </Card>
                   </Zoom>
                 </TableCell>
@@ -517,8 +497,8 @@ function PlayersTable({game, self, power}) {
                   {votes}
                 </Hidden>
                 <Hidden smUp>
-                  {game.state.quests.length > 0 ?
-                    votes[game.state.quests.length - 1] : null}
+                  {room.state.quests.length > 0 ?
+                    votes[room.state.quests.length - 1] : null}
                 </Hidden>
               </TableRow>
             );
@@ -564,15 +544,42 @@ const useBoardStyles = makeStyles(theme => ({
     display: 'block',
     width: '100%'
   },
+  playerCard: {
+    height: '14%',
+    width: '10%'
+  },
+  playerMedia: {
+    height: '100%',
+    width: '100%'
+  }
 }));
 
-export function Board({game}) {
+export function Board({room, self, power}) {
   
   const classes = useBoardStyles();
   
-  const currentQuest = game.state.quests.length - 1;
-  let rejectedTeams = game.state.quests[currentQuest].history.length - 1;
-  if (game.state.phase === 'choosing' || game.state.phase === 'voting') {
+  const players = room.state.players.map((player, idx) => {
+    return (
+      <Card key={idx} className={classes.playerCard}>
+        <CardActionArea>
+          <img
+            className={classes.playerMedia}
+            src={room.ctx.settings.static.quest.chosen.img}
+            alt={room.ctx.settings.static.quest.chosen.label}
+          />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+              {room.ctx.players[player.id].name}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    );
+  });
+  
+  const currentQuest = room.state.quests.length - 1;
+  let rejectedTeams = room.state.quests[currentQuest].history.length - 1;
+  if (room.ctx.phase === 'choosing' || room.ctx.phase === 'voting') {
     rejectedTeams++;
   }
   
@@ -590,8 +597,8 @@ export function Board({game}) {
     <div style={roundStyle} className={classes.round}>
       <img
         className={classes.img}
-        src={game.settings.static.quest.round.img}
-        alt={game.settings.static.quest.round.label} />
+        src={room.ctx.settings.static.quest.round.img}
+        alt={room.ctx.settings.static.quest.round.label} />
     </div>
   );
   
@@ -599,16 +606,16 @@ export function Board({game}) {
     <div style={rejectsStyle} className={classes.rejects}>
       <img
         className={classes.img}
-        src={game.settings.static.quest.rejects.img}
-        alt={game.settings.static.quest.rejects.label} />
+        src={room.ctx.settings.static.quest.rejects.img}
+        alt={room.ctx.settings.static.quest.rejects.label} />
     </div>
   );
   
   const questResults = [];
-  for (let i = 0; i < game.state.quests.length; i++) {
-    if (game.state.quests[i].outcome) {
-      const questPieces = game.settings.static.quest;
-      const result = game.state.quests[i].outcome.success ? questPieces.succeed : questPieces.failed;
+  for (let i = 0; i < room.state.quests.length; i++) {
+    if (room.state.quests[i].outcome) {
+      const questPieces = room.ctx.settings.static.quest;
+      const result = room.state.quests[i].outcome.success ? questPieces.succeed : questPieces.failed;
       questResults.push(
         <Fade key={'quest-result' + i} in={true}>
           <div style={{top: '40%', left: 2.5 + 18.9 * i + '%'}} className={classes.quest}>
@@ -626,14 +633,36 @@ export function Board({game}) {
     <div className={classes.board}>
       <img
         className={classes.img}
-        src={game.settings.static.boards[game.settings.selectedBoard].img}
-        alt={game.settings.static.boards[game.settings.selectedBoard].label} />
+        src={room.ctx.settings.static.boards[room.ctx.settings.selectedBoard].img}
+        alt={room.ctx.settings.static.boards[room.ctx.settings.selectedBoard].label} />
       {questResults}
       {roundPiece}
       {rejectsPiece}
+      {players}
     </div>
   );
 }
+
+const useStyles = makeStyles(theme => ({
+  content: {
+    flexGrow: 1,
+    height: '100vh',
+    overflow: 'auto',
+  },
+  container: {
+    height: '100vh',
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+  paper: {
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column',
+  },
+  padding: {
+    padding: theme.spacing(2)
+  }
+}));
 
 export default function Game({room, self}) {
   const [reveal, setReveal] = useState(false);
@@ -650,27 +679,29 @@ export default function Game({room, self}) {
           {/* Board */}
           <Grid item xs={12} md={6} lg={6}>
             <Paper className={classes.paper}>
-              <Board game={room.game} />
+              <Board room={room}
+                self={self}
+                power={reveal} />
             </Paper>
           </Grid>
           {/* Actions */}
           <Grid item xs={12} md={6} lg={6}>
             <Paper className={paddedPaper}>
               <ActionToolbar
-                game={room.game}
+                room={room}
                 self={self}
                 power={[reveal, setReveal]} />
             </Paper>
           </Grid>
           {/* Players */}
-          <Grid item xs={12}>
+          {/*<Grid item xs={12}>
             <Paper className={paddedPaper}>
               <PlayersTable
-                game={room.game}
+                room={room}
                 self={self}
                 power={reveal} />
             </Paper>
-          </Grid>
+          </Grid>*/}
         </Grid>
       </Container>
     </main>

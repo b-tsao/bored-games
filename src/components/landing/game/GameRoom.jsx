@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import {Redirect} from 'react-router-dom';
-import deepExtend from 'deep-extend';
+import {applyPatches} from "immer";
 
 import MessageModal from '../MessageModal';
 
@@ -9,7 +9,7 @@ import AvalonRoom from '../../avalon/Room';
 import AvalonGame from '../../avalon/Game';
 import Maintenance from '../Maintenance';
 
-import {ClientContext} from '../../../Contexts';
+import {ClientContext, MainDisplayContext} from '../../../Contexts';
 
 /**
  * Preload of all 'img' fields in passed in object.
@@ -41,15 +41,16 @@ async function preloadImages(settings) {
 }
 
 function getSelf(clientId, players) {
-  for (const player of players) {
-    if (player.client.id === clientId) {
-      return player;
+  for (const id in players) {
+    if (players[id].client.id === clientId) {
+      return {id, ...players[id]};
     }
   }
 }
 
 export default function GameRoom() {
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
+  const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
   
   const [room, setRoom] = React.useState(null);
   const [message, setMessage] = useState({
@@ -61,64 +62,84 @@ export default function GameRoom() {
     setMessage({status: '', text: ''});
   };
   
-  const connectedHandler = () => {
-    client.emit('get', (err, room) => {
-      if (err) {
-        console.error(err);
-      } else {
-        preloadImages(room.game.settings.static).then(() => {
-          setRoom(room);
-          client.emit('connected');
-        });
-      }
-    });
-  };
-  
   useEffect(() => {
-    if (room) {
-      const messageHandler = message => {
-        setMessage({status: message.status, text: message.text});
-      };
+    const roomHandler = (ctx, state) => {
+      preloadImages(ctx.settings.static).then(() => {
+        setRoom({ctx, state});
+      });
+    };
+    
+    const patchHandler = (ctxPatches, statePatches) => {
+      console.log("ctx", ctxPatches);
+      console.log("state", statePatches);
       
-      const changeHandler = roomChanges => {
-        setRoom({...deepExtend(room, roomChanges)});
-      };
+      if (ctxPatches) {
+        room.ctx = applyPatches(room.ctx, ctxPatches);
+      }
+      if (statePatches) {
+        room.state = applyPatches(room.state, statePatches);
+      }
       
-      client.on('message', messageHandler);
-      client.on('changes', changeHandler);
-
-      return () => {
-        client.off('message', messageHandler);
-        client.off('changes', changeHandler);
-      };
-    } else {
-      connectedHandler();
-    }
+      setRoom({...room});
+    };
+    
+    client.on('room', roomHandler);
+    client.on('changes', patchHandler);
+    
+    return () => {
+      client.off('room', roomHandler);
+      client.off('changes', patchHandler)
+    };
   }, [room]);
   
   useEffect(() => {
-    client.on('connect', connectedHandler);
+    const setCookieHandler = cookie => {
+      document.cookie = cookie;
+    };
+    
+    const connectedHandler = () => {
+      client.emit('connected');
+    };
+    
+    const messageHandler = message => {
+      setMessage({status: message.status, text: message.text});
+    };
+    
+    if (client) {
+      client.on('setCookie', setCookieHandler);
+      client.on('connect', connectedHandler);
+      client.on('message', messageHandler);
+      connectedHandler();
+    } else {
+      setCookieHandler('userId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;');
+      setCookieHandler('roomKey=;expires=Thu, 01 Jan 1970 00:00:01 GMT;');
+      setMainDisplay('home');
+    }
 
     return () => {
-      client.off('connect', connectedHandler);
-      if (!client.connected) {
-        setClient(null);
+      if (client) {
+        client.off('setCookie', setCookieHandler);
+        client.off('connect', connectedHandler);
+        client.off('message', messageHandler);
       }
     };
   }, [client]);
   
   const display = room ? (() => {
-    if (room.game.state && room.game.state.phase !== 'end' && window.location.pathname === '/') {
+    if (room.ctx.phase !== undefined && window.location.pathname === '/') {
       return <Redirect to='/game' />;
     }
     
-    switch (room.game.id) {
+    console.log("room", room);
+    const self = client ? getSelf(client.id, room.ctx.players) : null;
+    console.log("self", self)
+    
+    switch (room.ctx.id) {
       case 'the-resistance-avalon':
-        console.log(room);
         if (window.location.pathname === '/game') {
-          return <AvalonGame room={room} self={getSelf(client.id, room.game.state.players)} />
+          return <AvalonGame room={room} self={self} />
         } else {
-          return <AvalonRoom room={room} self={getSelf(client.id, room.players)} />
+          return <AvalonRoom room={room} self={self} />
         }
       default:
         return <Maintenance />

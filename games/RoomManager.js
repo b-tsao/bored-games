@@ -20,23 +20,22 @@ class RoomManager {
    */
   createRoom(gameId, callback = () => {}) {
     logger.trace(`Creating game (${gameId}) room`);
-    const room = new Room();
-    room.setGame(gameId, (err) => {
-      if (err) {
-        return callback(err);
-      } else {
-        let uid;
-        let success = false;
-        do {
-          uid = uuid().split('-')[0].substring(0, 4).toUpperCase();
-          success = this.roomTree.add(uid, room);
-        } while (!success);
-        room.key = uid;
-        logger.info(`Game (${gameId}) room (${room.key}) created`);
-        this.roomTimer(room.key, 300000); // If no one joins within 5 minutes, expire room
-        return callback(null, room);
-      }
-    });
+    try {
+      const room = new Room(gameId);
+      let uid;
+      let success = false;
+      do {
+        uid = uuid().split('-')[0].substring(0, 4).toUpperCase();
+        success = this.roomTree.add(uid, room);
+      } while (!success);
+      room.key = uid;
+      logger.info(`Game (${gameId}) room (${room.key}) created`);
+      this.roomTimer(room.key, 300000); // If no one joins within 5 minutes, expire room
+      return callback(null, room);
+    } catch (err) {
+      logger.error(`Failed to create game (${gameId}) room: ${err}`);
+      return callback(err.message);
+    }
   }
   
   /**
@@ -60,12 +59,12 @@ class RoomManager {
    */
   roomTimer(key, timer = 1800000) {
     this.clearRoomTimer(key);
-    logger.trace(`Room (${key}) will expire after ${timer} millis`)
+    logger.info(`Room (${key}) will expire after ${timer} millis`)
     const roomTimer = {
       timeout: timer,
       timer: setTimeout(() => {
         this.deleteRoom(key);
-        logger.trace(`Room (${key}) has expired after ${roomTimer.timeout} millis`);
+        logger.info(`Room (${key}) has expired after ${roomTimer.timeout} millis`);
       }, timer)
     }
     this.roomTimers[key] = roomTimer;
@@ -75,7 +74,7 @@ class RoomManager {
     if (this.roomTimers[key]) {
       clearTimeout(this.roomTimers[key].timer);
       delete this.roomTimers[key];
-      logger.trace(`Room (${key}) timer cleared`);
+      logger.info(`Room (${key}) timer cleared`);
     }
   }
   

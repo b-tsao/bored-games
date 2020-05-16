@@ -50,44 +50,7 @@ import {
 } from '@material-ui/icons';
 import NameModal from '../landing/games/NameModal';
 
-import {
-  ClientContext,
-  MainDisplayContext
-} from '../../Contexts';
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-    overflowX: 'auto'
-  },
-  container: {
-    paddingLeft: 0,
-    paddingRight: 0
-  },
-  paper: {
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
-  padding: {
-    padding: theme.spacing(2)
-  },
-  tabs: {
-    backgroundColor: theme.palette.background.paper
-  },
-  heroContent: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(2, 0, 0),
-  },
-  disconnected: {
-    color: 'rgba(0, 0, 0, 0.54)'
-  },
-  footer: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(2),
-  },
-}));
+import {ClientContext} from '../../Contexts';
 
 function TabContainer({children, dir}) {
   return (
@@ -124,15 +87,9 @@ const useToolbarStyles = makeStyles(theme => ({
 }));
 
 const ActionToolbar = ({self, room}) => {
-  const {
-    players,
-    spectators
-  } = room;
+  const {ctx} = room;
   
-  const maxPlayers = room.game.settings.maxPlayers;
-  
-  const [client] = useContext(ClientContext);
-  const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
+  const [client, setClient] = useContext(ClientContext);
   
   const [openNameModal, setOpenNameModal] = useState(false);
   
@@ -156,25 +113,23 @@ const ActionToolbar = ({self, room}) => {
   };
   
   const handleLeave = () => {
-    if (client.connected) {
-      client.emit('leave', () => {
-        client.disconnect();
-        setMainDisplay('home');
-      });
-    } else {
-      setMainDisplay('home');
-    }
+    client.emit('leave');
+    client.disconnect();
+    setClient(null);
   };
   
   const handleStart = () => {
-    client.emit('game', 'start');
+    client.emit('start');
   };
   
-  const board = room.game.settings.selectedBoard;
-  const maxEvils = room.game.settings.static.boards[board].evils;
-  const maxGoods = room.game.settings.maxPlayers - maxEvils;
-  const evils = room.game.settings.selectedCards.evil.length;
-  const goods = room.game.settings.selectedCards.good.length;
+  const selectedBoard = room.ctx.settings.selectedBoard;
+  const board = room.ctx.settings.static.boards[selectedBoard];
+  const maxPlayers = board.maxPlayers;
+  const maxEvils = board.evils;
+  const maxGoods = maxPlayers - maxEvils;
+  const selectedCards = room.ctx.settings.selectedCards;
+  const evils = selectedCards.evil.length;
+  const goods = selectedCards.good.length;
 
   const hostCheck = self && self.host;
   // const playersCheck = players.length === maxPlayers;
@@ -200,7 +155,7 @@ const ActionToolbar = ({self, room}) => {
         <Hidden xsDown>
           <div className={classes.title}>
             <Typography variant="h6" id="tableTitle">
-              Spectators: {spectators.length}
+              Spectators: {Object.keys(ctx.spectators).length}
             </Typography>
           </div>
         </Hidden>
@@ -228,7 +183,6 @@ const ActionToolbar = ({self, room}) => {
             <Tooltip title="Join Game" placement="top">
               <div>
                 <IconButton
-                  disabled={players.length >= maxPlayers}
                   onClick={handleJoin}
                   aria-label="Join Game">
                   <JoinIcon />
@@ -252,11 +206,28 @@ const ActionToolbar = ({self, room}) => {
   );
 };
 
-function PlayersTable({self, maxPlayers, players}) {
-  const classes = useStyles();
+const usePlayersTableStyles = makeStyles(theme => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing(3),
+    overflowX: 'auto'
+  },
+  disconnected: {
+    color: 'rgba(0, 0, 0, 0.54)'
+  }
+}));
+
+function PlayersTable({self, players, settings}) {
+  const classes = usePlayersTableStyles();
   
-  const rows = [...players];
-  while (rows.length < maxPlayers) {
+  const selectedBoard = settings.selectedBoard;
+  const maxPlayers = settings.static.boards[selectedBoard].maxPlayers;
+  
+  const rows = [];
+  for (const id in players) {
+    rows.push({id, ...players[id]});
+  }
+  for (let i = rows.length; i < maxPlayers; i++) {
     rows.push({host: false, name: '', client: {}});
   }
 
@@ -545,11 +516,13 @@ function CardGrid({self, settings}) {
     client.emit('settings', {selectedCards: {[side]: selectedCards}});
   };
   
-  const board = settings.selectedBoard;
-  const maxEvils = settings.static.boards[board].evils;
-  const maxGoods = settings.maxPlayers - maxEvils;
-  const evils = settings.selectedCards.evil.length;
-  const goods = settings.selectedCards.good.length;
+  const selectedBoard = settings.selectedBoard;
+  const board = settings.static.boards[selectedBoard];
+  const maxEvils = board.evils;
+  const maxGoods = board.maxPlayers - maxEvils;
+  const selectedCards = settings.selectedCards;
+  const evils = selectedCards.evil.length;
+  const goods = selectedCards.good.length;
   const disabled = !self || !self.host;
   
   return (
@@ -606,6 +579,32 @@ function CardGrid({self, settings}) {
   );
 }
 
+const useStyles = makeStyles(theme => ({
+  container: {
+    paddingLeft: 0,
+    paddingRight: 0
+  },
+  paper: {
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column',
+  },
+  padding: {
+    padding: theme.spacing(2)
+  },
+  tabs: {
+    backgroundColor: theme.palette.background.paper
+  },
+  heroContent: {
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(2, 0, 0),
+  },
+  footer: {
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(2)
+  },
+}));
+
 export default function Room({room, self}) {
   const [tabValue, setTabValue] = useState(0);
   
@@ -623,10 +622,10 @@ export default function Room({room, self}) {
       <div className={classes.heroContent}>
         <Container className={classes.container} maxWidth="sm">
           <Typography component="h1" variant="h6" align="center" color="textPrimary" gutterBottom>
-            {room.game.title}
+            {room.ctx.name}
           </Typography>
           <Typography variant="overline" display="block" align="center" color="textSecondary" paragraph>
-            Room Key: {room.key}
+            Room Key: {room.ctx.key}
           </Typography>
           <div className={classes.tabs}>
             <AppBar position="static" color="default">
@@ -651,8 +650,8 @@ export default function Room({room, self}) {
               room={room} />
             <PlayersTable
               self={self}
-              maxPlayers={room.game.settings.maxPlayers}
-              players={room.players} />
+              players={room.ctx.players}
+              settings={room.ctx.settings} />
           </TabContainer>}
         {tabValue === 1 &&
           <TabContainer dir={theme.direction}>
@@ -660,17 +659,17 @@ export default function Room({room, self}) {
               {/* Board Stepper */}
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={classes.paper}>
-                  <BoardStepper self={self} settings={room.game.settings} />
+                  <BoardStepper self={self} settings={room.ctx.settings} />
                 </Paper>
               </Grid>
               {/* Extra Settings */}
               <Grid item xs={12} md={6} lg={6}>
                 <Paper className={paddedPaper}>
-                  <ExtraSettings self={self} settings={room.game.settings} />
+                  <ExtraSettings self={self} settings={room.ctx.settings} />
                 </Paper>
               </Grid>
               {/* Cards */}
-              <CardGrid self={self} settings={room.game.settings} />
+              <CardGrid self={self} settings={room.ctx.settings} />
             </Grid>
           </TabContainer>}
       </Container>

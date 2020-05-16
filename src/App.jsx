@@ -24,20 +24,6 @@ export default function App() {
     }
   });
   
-  useEffect(() => {
-    if (client) {
-      const setCookieHandler = cookie => {
-        document.cookie = cookie;
-      };
-      
-      client.on('setCookie', setCookieHandler);
-
-      return () => {
-        client.off('setCookie', setCookieHandler);
-      };
-    }
-  }, [client]);
-  
   const toggleTheme = () => {
     const newPaletteType = theme.palette.type === "light" ? "dark" : "light";
     setTheme({

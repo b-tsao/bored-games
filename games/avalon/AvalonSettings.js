@@ -199,7 +199,7 @@ class AvalonSettings {
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Ffail.png'
       },
       cover: {
-        if: 'quest-cover',
+        id: 'quest-cover',
         label: 'Decision',
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fvote-cover.png'
       },

@@ -30,7 +30,7 @@ class IOServer {
   }
   
   onClientConnect(client) {
-    client.emit('server', "Hello World!");
+    client.emit('server', "Hello, World!");
 
     //Here we listen on a new namespace called "incoming data"
     client.on("incoming data", (data) => {
@@ -40,4 +40,4 @@ class IOServer {
   }
 }
 
-module.exports = IOServer
+module.exports = IOServer;

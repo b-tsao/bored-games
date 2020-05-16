@@ -19,7 +19,10 @@ export default function NameRequestModal(props) {
   }
   
   const handleChange = (event) => {
-    setName(event.target.value);
+    const name = event.target.value;
+    if (name.length <= 20) {
+      setName(name);
+    }
   };
   
   const handleJoin = () => {
@@ -44,6 +47,7 @@ export default function NameRequestModal(props) {
           autoFocus
           fullWidth
           required
+          value={name}
           onChange={handleChange} />
       </DialogContent>
       <DialogActions>

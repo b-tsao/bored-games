@@ -1,0 +1,14 @@
+{
+  "appenders": {
+    "out": {
+      "type": "stdout",
+      "layout": {
+        "type": "pattern",
+        "pattern": "%[[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] [%c] %m (%f:%l:%o)%]"
+      }
+    }
+  },
+  "categories": {
+    "default": {"appenders": ["out"], "level": "all", "enableCallStack": true}
+  }
+}

@@ -21,7 +21,7 @@ class Room {
         this.game = new Game(Avalon);
         break;
       case 'mahjong':
-        this.game = new BGIOWrapper(gameId, 'Mahjong');
+        this.game = new BGIOWrapper(gameId, 'Mahjong', { numPlayers: 4 });
         break;
       default:
         throw new Error("Game not supported");

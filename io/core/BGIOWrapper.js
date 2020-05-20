@@ -11,10 +11,10 @@ const logger = log4js.getLogger('BGIO');
 const SERVER_URL = "http://localhost:8000";
 
 module.exports = class BGIOWrapper {
-    constructor(id, name) {
+    constructor(id, name, settings) {
         this.id = id;
         this.name = name;
-        this.settings = { numPlayers: 4 };
+        this.settings = settings;
         this.state = {};
     }
 

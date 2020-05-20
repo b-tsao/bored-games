@@ -111,8 +111,7 @@ const ActionToolbar = ({ self, room }) => {
   };
 
   const hostCheck = self && self.host;
-  // const playersCheck = players.length === numPlayers;
-  const playersCheck = true; // DEBUG purpose
+  const playersCheck = players.length === room.ctx.settings.numPlayers;
 
   let startDisableReason = null;
   if (!hostCheck) {

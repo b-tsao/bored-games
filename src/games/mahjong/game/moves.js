@@ -448,10 +448,11 @@ function hasWon(tiles) {
                 // Chow.
                 sortedTiles.splice(1, 0, tile);
                 sets.push(sortedTiles);
+                sortedTiles = [];
             }
         }
     }
-    return hasDouble ? sets : null;
+    return sortedTiles.length === 0 && hasDouble ? sets : null;
 }
 
 function isKong(tiles) {

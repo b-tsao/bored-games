@@ -351,8 +351,8 @@ function peekTiles(G, playerID, positions) {
     // Get the tiles from the player hand.
     const tiles = [];
     // Validate the positions as well.
-    const set = new Set(positions);
-    for (const pos of set) {
+    positions = Array.from(new Set(positions));
+    for (const pos of positions) {
         if (pos < 0 || pos >= player.hand.length) {
             return INVALID_MOVE;
         }
@@ -363,9 +363,9 @@ function peekTiles(G, playerID, positions) {
 
 function getTiles(G, playerID, positions) {
     const player = G.players[playerID];
-    // Make sure no dups
+    // Make sure no dups.
     positions = Array.from(new Set(positions));
-    // Sort in descending order
+    // Sort in descending order.
     positions.sort((e1, e2) => { return e2 - e1 });
     // Remove the tiles from player hand and push into concealed.
     const tiles = [];

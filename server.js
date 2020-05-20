@@ -30,8 +30,8 @@ function startServer() {
   // app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
 
   // Enable router to parse json and url-encoded payloads
-  app.use(bodyParser.json({ limit: "2mb" }));
-  app.use(bodyParser.urlencoded({ limit: "2mb", extended: false }));
+  app.use(bodyParser.json({ limit: "2mb" })); // Limit can be lower (10kb?) since there should not be a lot of data per request (helps protect against json expansion attacks I guess)
+  app.use(bodyParser.urlencoded({ limit: "2mb", extended: false })); // (200kb?)
 
   // Logging for each received request
   app.use((req, res, next) => {

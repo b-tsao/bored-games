@@ -8,7 +8,7 @@ This project has two development sides to it:
 
 Setup
 ------------
-npm install
+npm install  
 npm start
 
 

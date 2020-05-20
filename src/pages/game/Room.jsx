@@ -111,7 +111,8 @@ const ActionToolbar = ({ self, room }) => {
   };
 
   const hostCheck = self && self.host;
-  const playersCheck = players.length === room.ctx.settings.numPlayers;
+  const playersCheck = Object.keys(room.ctx.players).length === room.ctx.settings.numPlayers;
+  // const playersCheck = true; // DEBUG purpose
 
   let startDisableReason = null;
   if (!hostCheck) {
@@ -192,16 +193,15 @@ const usePlayersTableStyles = makeStyles(theme => ({
   }
 }));
 
-function PlayersTable({ self, players }) {
+function PlayersTable({ self, room }) {
   const classes = usePlayersTableStyles();
 
-  const maxPlayers = 4;
-
+  const players = room.ctx.players;
   const rows = [];
   for (const id in players) {
     rows.push({ id, ...players[id] });
   }
-  for (let i = rows.length; i < maxPlayers; i++) {
+  for (let i = rows.length; i < room.ctx.settings.numPlayers; i++) {
     rows.push({ host: false, name: '', client: {} });
   }
 
@@ -374,6 +374,7 @@ export default function Room({ room, self }) {
               room={room} />
             <PlayersTable
               self={self}
+              room={room}
               players={room.ctx.players} />
           </TabContainer>}
         {tabValue === 1 &&

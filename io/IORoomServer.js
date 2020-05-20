@@ -2,8 +2,8 @@
 const log4js = require('log4js');
 const cookie = require('cookie');
 const deepExtend = require('deep-extend');
-const {compressChanges} = require('../games/lib/Plugin');
-const RoomManager = require('../games/RoomManager');
+const {compressChanges} = require('./core/lib/ImmerPlugin');
+const RoomManager = require('./core/RoomManager');
 
 const logger = log4js.getLogger('IORoomServer');
 

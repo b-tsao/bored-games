@@ -15,7 +15,7 @@ module.exports = {
     filename: 'bundle.js',
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.js', '.jsx', '.json'],
   },
   module: {
     rules: [
@@ -28,7 +28,7 @@ module.exports = {
             presets: [
               ['@babel/preset-env', {
                 "targets": {
-                "node": "current"
+                  "node": "current"
                 }
               }],
               '@babel/preset-react'
@@ -36,18 +36,18 @@ module.exports = {
             plugins: [
               ['babel-plugin-import', {
                 libraryName: '@material-ui/icons',
-                libraryDirectory: 'esm', // or '' if your bundler does not support ES modules
+                libraryDirectory: 'esm', // or '' if bundler does not support ES modules
                 camel2DashComponentName: false,
               }]
             ]
           }
         }
       },
-      // Tell Webpack how to transform files other than JS files - in this case we tell it what to do with .css files.
+      // Tell Webpack how to transform files other than JS files
       {
         test: /.css$/,
         loader: 'style-loader!css-loader',
-        include: path.join(__dirname, 'src')
+        include: [path.join(__dirname, 'src'), /node_modules/]
       },
       {
         test: /\.(png|jpe?g|gif|svg)$/,

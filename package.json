@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Board games that friends can play together.",
   "scripts": {
+    "compile": "webpack",
     "prestart": "webpack",
     "start": "node server.js"
   },

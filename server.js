@@ -27,7 +27,7 @@ function startServer() {
   const logger = log4js.getLogger("server");
 
   // Redirect HTTP to HTTPS,
-  app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
+  // app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
 
   // Enable router to parse json and url-encoded payloads
   app.use(bodyParser.json({ limit: "2mb" }));

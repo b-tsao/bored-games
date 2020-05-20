@@ -351,8 +351,8 @@ function peekTiles(G, playerID, positions) {
     // Get the tiles from the player hand.
     const tiles = [];
     // Validate the positions as well.
-    positions = Array.from(new Set(positions));
-    for (const pos of positions) {
+    const set = new Set(positions);
+    for (const pos of set) {
         if (pos < 0 || pos >= player.hand.length) {
             return INVALID_MOVE;
         }

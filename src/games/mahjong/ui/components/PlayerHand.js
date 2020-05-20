@@ -150,7 +150,7 @@ export function PlayerHand(props) {
   function claimTile() {
     console.log('PlayerHand:claimTile');
 
-    props.gameMoves.claimTile(selected);
+    props.gameMoves.claimTile(Array.from(selected));
     clearSelected();
   }
 
@@ -207,12 +207,12 @@ export function PlayerHand(props) {
         )}
         {(props.gameStage === constants.GAME_STAGE_DRAW ||
           props.gameStage === constants.GAME_STAGE_CLAIM) && (
-          <div className='action-btn'>
-            <Button variant='contained' onClick={() => claimTile()}>
-              Claim
+            <div className='action-btn'>
+              <Button variant='contained' onClick={() => claimTile()}>
+                Claim
             </Button>
-          </div>
-        )}
+            </div>
+          )}
         {props.gameStage === constants.GAME_STAGE_CLAIM && (
           <div className='action-btn'>
             <Button variant='contained' onClick={() => skipTile()}>
@@ -222,20 +222,20 @@ export function PlayerHand(props) {
         )}
         {(props.gameStage === constants.GAME_STAGE_DISCARD ||
           props.gameStage === constants.GAME_STAGE_CLAIM) && (
-          <div className='action-btn'>
-            <Button variant='contained' onClick={() => claimVictory()}>
-              Win
+            <div className='action-btn'>
+              <Button variant='contained' onClick={() => claimVictory()}>
+                Win
             </Button>
-          </div>
-        )}
+            </div>
+          )}
         {(props.gameStage === constants.GAME_STAGE_DISCARD ||
           props.gameStage === constants.GAME_STAGE_CLAIM) && (
-          <div className='action-btn'>
-            <Button variant='contained' onClick={() => clearSelected()}>
-              Clear
+            <div className='action-btn'>
+              <Button variant='contained' onClick={() => clearSelected()}>
+                Clear
             </Button>
-          </div>
-        )}
+            </div>
+          )}
       </div>
     </div>
   );

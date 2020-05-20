@@ -164,7 +164,11 @@ export function PlayerHand(props) {
   function claimVictory() {
     console.log('PlayerHand:claimVictory');
 
-    props.gameMoves.claimVictory();
+    if (props.gameStage === constants.GAME_STAGE_DISCARD) {
+      props.gameMoves.claimVictory();
+    } else if (props.gameStage === constants.GAME_STAGE_CLAIM) {
+      props.gameMoves.claimTile([]);
+    }
     clearSelected();
   }
 

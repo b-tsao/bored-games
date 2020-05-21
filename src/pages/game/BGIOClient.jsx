@@ -3,6 +3,7 @@ import { Client } from 'boardgame.io/react';
 import { SocketIO } from 'boardgame.io/multiplayer';
 
 export default function BGIOClient({ room, self, game, board }) {
+    // Memoize the game client so every player doesn't reconnect when props are updated.
     const GameClient = useMemo(() => Client({
         game,
         board,

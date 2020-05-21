@@ -70,11 +70,11 @@ export function PlayerHand(props) {
     );
   }, [props.revealed]);
 
-  useEffect(() => {
-    if (props.gameStage === constants.GAME_STAGE_CLAIM) {
-      setTimeout(() => skipTile(), constants.CLAIM_TIME_LIMIT);
-    }
-  }, [props.gameStage]);
+  // useEffect(() => {
+  //   if (props.gameStage === constants.GAME_STAGE_CLAIM) {
+  //     setTimeout(() => skipTile(), constants.CLAIM_TIME_LIMIT);
+  //   }
+  // }, [props.gameStage]);
 
   useEffect(() => {
     console.log('PlayerHand:useEffect:[props.hand,selected]');

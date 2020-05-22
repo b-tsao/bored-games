@@ -1,5 +1,5 @@
 # Compiled directory and file
-public/
+public/*
 # Don't ignore public/index.html
 !public/index.html
 # Dependency directories

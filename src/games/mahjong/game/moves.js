@@ -273,10 +273,14 @@ function resolveClaims(G, ctx) {
         // If kong, replace from dead wall.
         stage = (claimer.tiles.length === 3) ? 'replace' : 'discard';
     }
-    // Set the stage of the next player.
-    ctx.events.setActivePlayers({
-        value: { [claimer.pid]: stage }
-    });
+    if (stage === 'draw' && G.wall.length === 0) {
+        ctx.events.endGame('Draw!');
+    } else {
+        // Set the stage of the next player.
+        ctx.events.setActivePlayers({
+            value: { [claimer.pid]: stage }
+        });
+    }
 }
 
 /**

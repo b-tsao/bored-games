@@ -28,7 +28,7 @@ export function MahjongTable(props) {
     props.ctx.phase === constants.GAME_PHASE_SETUP
   );
   var reactDice = useRef();
-  const [activePlayers, setActivePlayers] = useState(props.ctx.activePlayers);
+  const [activePlayers, setActivePlayers] = useState(null);
 
   function rollDice() {
     props.moves.rollDice();
@@ -45,13 +45,13 @@ export function MahjongTable(props) {
   }, [props.G.dice]);
 
   useEffect(() => {
-    if (props.ctx.activePlayers !== null) {
+    if (props.gameMetadata && props.ctx.activePlayers !== null) {
       let temp = [];
       for (let pid in props.ctx.activePlayers) {
         temp.push(
           <div>
             {/* Note: This won't work locally because gameMetadata comes from the Lobby. */}
-            Waiting for {props.gameMetadata.players[pid].name} to{' '}
+            Waiting for {props.gameMetadata[pid].name} to{' '}
             {props.ctx.activePlayers[pid]}
           </div>
         );
@@ -75,96 +75,98 @@ export function MahjongTable(props) {
                 Roll Dice
               </Button>
             ) : (
-              <h1>Waiting for dice roll...</h1>
-            )
+                <h1>Waiting for dice roll...</h1>
+              )
           ) : (
-            <ReactDice
-              numDice={3}
-              faceColor={'#FFFFFF'}
-              dotColor={'#000000'}
-              rollDone={rollDoneCallback}
-              disableIndividual={true}
-              rollTime={1}
-              ref={(dice) => (reactDice = dice)}
-            />
-          )}
+              <ReactDice
+                numDice={3}
+                faceColor={'#FFFFFF'}
+                dotColor={'#000000'}
+                rollDone={rollDoneCallback}
+                disableIndividual={true}
+                rollTime={1}
+                ref={(dice) => (reactDice = dice)}
+              />
+            )}
         </div>
       ) : (
-        // Play game phase.
-        <div className='mj-grid'>
-          {/* This is a simple way to show player's name. Will improve UI when refactoring with Material UI.*/}
-          {/* Note: This won't work locally because gameMetadata comes from the Lobby. */}
-          <div className='top-left'>
-            You are {props.gameMetadata.players[props.playerID].name}
-            <br />
-            <br />
-            East = {props.gameMetadata.players[0].name}
-            <br />
-            South = {props.gameMetadata.players[1].name}
-            <br />
-            West = {props.gameMetadata.players[2].name}
-            <br />
-            North = {props.gameMetadata.players[3].name}
+          // Play game phase.
+          <div className='mj-grid'>
+            {/* This is a simple way to show player's name. Will improve UI when refactoring with Material UI.*/}
+            {/* Note: This won't work locally because gameMetadata comes from the Lobby. */}
+            {props.gameMetadata ?
+              <div className='top-left'>
+                You are {props.gameMetadata[props.playerID].name}
+                <br />
+                <br />
+            East = {props.gameMetadata[0].name}
+                <br />
+            South = {props.gameMetadata[1].name}
+                <br />
+            West = {props.gameMetadata[2].name}
+                <br />
+            North = {props.gameMetadata[3].name}
+              </div>
+              : null}
+            <div className='top-right'>
+              Tiles Left: {props.G.wall.live}
+              <br />
+              <br />
+              {activePlayers}
+            </div>
+            <div className='bottom'>
+              <PlayerHand
+                bonus={props.G.players[props.playerID].bonus}
+                concealed={props.G.players[props.playerID].concealed}
+                hand={props.G.players[props.playerID].hand}
+                revealed={props.G.players[props.playerID].revealed}
+                gameMoves={props.moves}
+                gameStage={props.ctx.activePlayers[props.playerID]}
+              />
+            </div>
+            <div className='right'>
+              <OpponentHand
+                bonus={props.G.players[playerRightID].bonus}
+                concealed={props.G.players[playerRightID].concealed}
+                hand={props.G.players[playerRightID].hand}
+                revealed={props.G.players[playerRightID].revealed}
+              />
+            </div>
+            <div className='top'>
+              <OpponentHand
+                bonus={props.G.players[playerTopID].bonus}
+                concealed={props.G.players[playerTopID].concealed}
+                hand={props.G.players[playerTopID].hand}
+                revealed={props.G.players[playerTopID].revealed}
+              />
+            </div>
+            <div className='left'>
+              <OpponentHand
+                bonus={props.G.players[playerLeftID].bonus}
+                concealed={props.G.players[playerLeftID].concealed}
+                hand={props.G.players[playerLeftID].hand}
+                revealed={props.G.players[playerLeftID].revealed}
+              />
+            </div>
+            {/* I know it's ugly, but I don't want to spend too much time on this since the layout will be revamped later */}
+            <div
+              className={
+                'middle ' +
+                (props.ctx.currentPlayer == props.playerID
+                  ? 'current-bottom'
+                  : props.ctx.currentPlayer == playerRightID
+                    ? 'current-right'
+                    : props.ctx.currentPlayer == playerTopID
+                      ? 'current-top'
+                      : props.ctx.currentPlayer == playerLeftID
+                        ? 'current-left'
+                        : '')
+              }
+            >
+              <DiscardPile discard={props.G.discard} />
+            </div>
           </div>
-          <div className='top-right'>
-            Tiles Left: {props.G.wall.live}
-            <br />
-            <br />
-            {activePlayers}
-          </div>
-          <div className='bottom'>
-            <PlayerHand
-              bonus={props.G.players[props.playerID].bonus}
-              concealed={props.G.players[props.playerID].concealed}
-              hand={props.G.players[props.playerID].hand}
-              revealed={props.G.players[props.playerID].revealed}
-              gameMoves={props.moves}
-              gameStage={props.ctx.activePlayers[props.playerID]}
-            />
-          </div>
-          <div className='right'>
-            <OpponentHand
-              bonus={props.G.players[playerRightID].bonus}
-              concealed={props.G.players[playerRightID].concealed}
-              hand={props.G.players[playerRightID].hand}
-              revealed={props.G.players[playerRightID].revealed}
-            />
-          </div>
-          <div className='top'>
-            <OpponentHand
-              bonus={props.G.players[playerTopID].bonus}
-              concealed={props.G.players[playerTopID].concealed}
-              hand={props.G.players[playerTopID].hand}
-              revealed={props.G.players[playerTopID].revealed}
-            />
-          </div>
-          <div className='left'>
-            <OpponentHand
-              bonus={props.G.players[playerLeftID].bonus}
-              concealed={props.G.players[playerLeftID].concealed}
-              hand={props.G.players[playerLeftID].hand}
-              revealed={props.G.players[playerLeftID].revealed}
-            />
-          </div>
-          {/* I know it's ugly, but I don't want to spend too much time on this since the layout will be revamped later */}
-          <div
-            className={
-              'middle ' +
-              (props.ctx.currentPlayer == props.playerID
-                ? 'current-bottom'
-                : props.ctx.currentPlayer == playerRightID
-                ? 'current-right'
-                : props.ctx.currentPlayer == playerTopID
-                ? 'current-top'
-                : props.ctx.currentPlayer == playerLeftID
-                ? 'current-left'
-                : '')
-            }
-          >
-            <DiscardPile discard={props.G.discard} />
-          </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }

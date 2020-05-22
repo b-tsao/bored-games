@@ -1,4 +1,6 @@
 # Compiled directory and file
 public/
+# Don't ignore public/index.html
+!public/index.html
 # Dependency directories
 node_modules/

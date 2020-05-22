@@ -304,7 +304,11 @@ function claimVictory(G, ctx) {
 function dealTile(G, ctx, playerID, dead = false) {
     const player = G.players[playerID];
     const tile = G.wall.draw(dead);
-    if (isBonusTile(tile)) {
+    if (tile === null) {
+        // TODO end the game in resolveClaims if live wall has ran out?
+        console.log("Out of live wall! The game should have ended.");
+        return INVALID_MOVE;
+    } else if (isBonusTile(tile)) {
         player.bonus.push(tile);
     } else {
         player.hand.push(tile);
@@ -393,6 +397,11 @@ function canKong(G) {
     return G.wall.deadLength > 0;
 }
 
+/**
+ * TODO Rethink winning hand approach because right now it's ass and
+ *      I'm not confident it handles all the cases.
+ * @param {*} tiles 
+ */
 function hasWon(tiles) {
     const sortedTiles = [...tiles];
     sortedTiles.sort(sortTilesComparator);
@@ -403,12 +412,28 @@ function hasWon(tiles) {
     // Prune out all the sets of pong, chow, and one double.
     let length = sortedTiles.length;
     while (length > 1) {
-        let next = Math.min(3, length);
+        let next =
+            length >= 12 ? 12 :
+                length >= 6 ? 6 :
+                    length >= 3 ? 3 :
+                        length;
         let set = sortedTiles.slice(length - next, length);
+        // Check if 111122223333:
+        if (next === 12 && !isChow(set)) {
+            next -= 6;
+            set = sortedTiles.slice(length - next, length);
+        }
+        // Check if 112233:
+        if (next === 6 && !isChow(set)) {
+            next -= 3;
+            set = sortedTiles.slice(length - next, length);
+        }
+        // Check if 111 || 123:
         if (next === 3 && !isPong(set) && !isChow(set)) {
             next--;
             set = sortedTiles.slice(length - next, length);
         }
+        // Check if 11:
         if (next === 2) {
             if (isDouble(set)) {
                 if (hasDouble) {
@@ -431,24 +456,63 @@ function hasWon(tiles) {
     // It's possible the tiles were sorted as (suit) 12223 and pong took out 222 leaving 13,
     // thus check if sets contain the (suit) pong and if the value will make a chow.
     if (!hasDouble && sortedTiles.length === 2 &&
-        sortedTiles[0].suit === sortedTiles[1].suit && sortedTiles[1].value - sortedTiles[0].value === 2) {
-        // The tiles are split.
-        // This means they could be (suit) {2, 0}, {3, 1}, {4, 2}, ...
-        // It's possible the tiles were sorted as (suit) 12223 and pong took out 222 leaving 13,
-        // thus check if sets contain the (suit) pong and if the value will make a chow.
-        for (const set of sets) {
-            if (isPong(set) &&
-                sortedTiles[0].suit === set[0].suit &&
-                sortedTiles[0].value < set[0].value &&
-                sortedTiles[1].value > set[0].value) {
-                // Swap the tile over
-                const tile = set.splice(set.length - 1, 1)[0];
-                hasDouble = true;
+        sortedTiles[0].suit === sortedTiles[1].suit) {
+        if (sortedTiles[1].value - sortedTiles[0].value === 2) {
+            // The tiles are split.
+            // This means they could be (suit) {2, 0}, {3, 1}, {4, 2}, ...
+            // It's possible the tiles were sorted as (suit) 12223 and pong took out 222 leaving 13,
+            // thus check if sets contain the (suit) pong and if the value will make a chow.
+            for (const set of sets) {
+                if (isPong(set) &&
+                    sortedTiles[0].suit === set[0].suit &&
+                    sortedTiles[0].value < set[0].value &&
+                    sortedTiles[1].value > set[0].value) {
+                    // Swap the tile over
+                    const tile = set.splice(set.length - 1, 1)[0];
+                    hasDouble = true;
 
-                // Chow.
-                sortedTiles.splice(1, 0, tile);
-                sets.push(sortedTiles);
-                sortedTiles = [];
+                    // Insert the tile between to make the chow.
+                    sortedTiles.splice(1, 0, tile);
+                    // Push the last remaining set.
+                    sets.push(sortedTiles.splice(0, sortedTiles.length));
+                    break;
+                }
+            }
+        } else if (sortedTiles[1].value - sortedTiles[0].value === 1) {
+            // The tiles are only 1 value apart.
+            // This means they could be (suit) {1, 2}, {2, 3}, ...
+            // It's possible the tiles were sorted as (suit) 12222333 and pong took out 222 and 333 leaving 12,
+            // thus check if sets contain the (suit) pong and if the value will make a chow.
+            for (const set of sets) {
+                if (isPong(set) && sortedTiles[0].suit === set[0].suit) {
+                    if (
+                        // If the set value is smaller (1) < (23):
+                        sortedTiles[0].value - set[0].value === 1 &&
+                        sortedTiles[1].value - set[0].value === 2) {
+                        // Swap the tile over
+                        const tile = set.splice(set.length - 1, 1)[0];
+                        hasDouble = true;
+
+                        // Insert the tile between to make the chow.
+                        sortedTiles.splice(0, 0, tile);
+                        // Push the last remaining set.
+                        sets.push(sortedTiles.splice(0, sortedTiles.length));
+                        break;
+                    } else if (
+                        // If the set value is greater (3) > (12):
+                        set[0].value - sortedTiles[0].value === 2 &&
+                        set[0].value - sortedTiles[1].value === 1) {
+                        // Swap the tile over
+                        const tile = set.splice(set.length - 1, 1)[0];
+                        hasDouble = true;
+
+                        // Insert the tile between to make the chow.
+                        sortedTiles.push(tile);
+                        // Push the last remaining set.
+                        sets.push(sortedTiles.splice(0, sortedTiles.length));
+                        break;
+                    }
+                }
             }
         }
     }
@@ -472,17 +536,18 @@ function isPong(tiles) {
 }
 
 function isChow(tiles) {
-    if (tiles.length !== 3) {
+    if (tiles.length % 3 !== 0) {
         return false;
     }
+
     const sortedTiles = [...tiles];
     sortedTiles.sort(sortTilesComparator);
-    const tile = sortedTiles[0];
-    if (!constants.EDIBLE.includes(tile.suit)) {
+    const firstTile = sortedTiles[0];
+    if (!constants.EDIBLE.includes(firstTile.suit)) {
         return false;
     }
-    let next = tile.value + 1;
-    return sortedTiles.every(({ suit, value }, i) => i === 0 || (suit === tile.suit && value === next++));
+    const scale = tiles.length / 3;
+    return sortedTiles.every((({ suit, value }, idx) => suit === firstTile.suit && value === firstTile.value + Math.floor(idx / scale)));
 }
 
 function isDouble(tiles) {
@@ -514,5 +579,8 @@ module.exports = {
     claimTile,
     skipTile,
     resolveClaims,
-    claimVictory
+    claimVictory,
+
+    // private methods (exported for testing)
+    hasWon
 };

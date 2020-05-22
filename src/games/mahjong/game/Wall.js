@@ -5,7 +5,7 @@ class Wall {
         // Head of wall = end. Tail of wall = head.
         // Simple reason: pop() is faster than shift().
         this.tiles = [];
-        this.deadLength = 14;
+        this.deadLength = 16;
         this.deadTop = true;
 
         for (const suit in constants.TILES) {

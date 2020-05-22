@@ -271,7 +271,7 @@ function resolveClaims(G, ctx) {
         // If claimer is not skipping:
         revealAndClaim(G, ctx, claimer);
         // If kong, replace from dead wall.
-        stage = (claimer.tiles.length === 4) ? 'replace' : 'discard';
+        stage = (claimer.tiles.length === 3) ? 'replace' : 'discard';
     }
     // Set the stage of the next player.
     ctx.events.setActivePlayers({

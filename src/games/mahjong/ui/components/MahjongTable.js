@@ -16,6 +16,8 @@ import ReactDice from 'react-dice-complete';
 // TODO: allow player to claim if its their turn and haven't drawn
 // TODO: Warning: Each child in a list should have a unique "key" prop.
 // TODO: separate exposed groups
+// TODO: animation and sound
+// TODO: top player - switch concealed and revealed
 
 export function MahjongTable(props) {
   const playerRightID = (parseInt(props.playerID) + 1) % props.ctx.numPlayers;
@@ -26,12 +28,13 @@ export function MahjongTable(props) {
     props.ctx.phase === constants.GAME_PHASE_SETUP
   );
   var reactDice = useRef();
+  const [activePlayers, setActivePlayers] = useState(props.ctx.activePlayers);
 
   function rollDice() {
     props.moves.rollDice();
   }
 
-  function rollDoneCallback(num) {
+  function rollDoneCallback() {
     setTimeout(() => setShowDice(false), 2000);
   }
 
@@ -40,6 +43,22 @@ export function MahjongTable(props) {
       reactDice.rollAll(props.G.dice);
     }
   }, [props.G.dice]);
+
+  useEffect(() => {
+    if (props.ctx.activePlayers !== null) {
+      let temp = [];
+      for (let pid in props.ctx.activePlayers) {
+        temp.push(
+          <div>
+            {/* Note: This won't work locally because gameMetadata comes from the Lobby. */}
+            Waiting for {props.gameMetadata.players[pid].name} to{' '}
+            {props.ctx.activePlayers[pid]}
+          </div>
+        );
+      }
+      setActivePlayers(temp);
+    }
+  }, [props.ctx.activePlayers]);
 
   return (
     <div className='mj-table'>
@@ -73,6 +92,26 @@ export function MahjongTable(props) {
       ) : (
         // Play game phase.
         <div className='mj-grid'>
+          {/* This is a simple way to show player's name. Will improve UI when refactoring with Material UI.*/}
+          {/* Note: This won't work locally because gameMetadata comes from the Lobby. */}
+          <div className='top-left'>
+            You are {props.gameMetadata.players[props.playerID].name}
+            <br />
+            <br />
+            East = {props.gameMetadata.players[0].name}
+            <br />
+            South = {props.gameMetadata.players[1].name}
+            <br />
+            West = {props.gameMetadata.players[2].name}
+            <br />
+            North = {props.gameMetadata.players[3].name}
+          </div>
+          <div className='top-right'>
+            Tiles Left: {props.G.wall.live}
+            <br />
+            <br />
+            {activePlayers}
+          </div>
           <div className='bottom'>
             <PlayerHand
               bonus={props.G.players[props.playerID].bonus}
@@ -107,7 +146,21 @@ export function MahjongTable(props) {
               revealed={props.G.players[playerLeftID].revealed}
             />
           </div>
-          <div className='middle'>
+          {/* I know it's ugly, but I don't want to spend too much time on this since the layout will be revamped later */}
+          <div
+            className={
+              'middle ' +
+              (props.ctx.currentPlayer == props.playerID
+                ? 'current-bottom'
+                : props.ctx.currentPlayer == playerRightID
+                ? 'current-right'
+                : props.ctx.currentPlayer == playerTopID
+                ? 'current-top'
+                : props.ctx.currentPlayer == playerLeftID
+                ? 'current-left'
+                : '')
+            }
+          >
             <DiscardPile discard={props.G.discard} />
           </div>
         </div>

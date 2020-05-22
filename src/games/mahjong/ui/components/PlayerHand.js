@@ -70,6 +70,7 @@ export function PlayerHand(props) {
     );
   }, [props.revealed]);
 
+  // TODO: implement client-side timer
   // useEffect(() => {
   //   if (props.gameStage === constants.GAME_STAGE_CLAIM) {
   //     setTimeout(() => skipTile(), constants.CLAIM_TIME_LIMIT);
@@ -100,6 +101,7 @@ export function PlayerHand(props) {
     // Allow selection only during discard and claim stage.
     if (
       props.gameStage === constants.GAME_STAGE_DISCARD ||
+      props.gameStage === constants.GAME_STAGE_DRAW ||
       props.gameStage === constants.GAME_STAGE_CLAIM
     ) {
       let temp = new Set(selected);
@@ -132,8 +134,14 @@ export function PlayerHand(props) {
   function kongTile() {
     console.log('PlayerHand:kongTile');
 
-    if (selected.size !== 4) return;
-    props.gameMoves.declareKong(Array.from(selected));
+    if (selected.size === 1) {
+      props.gameMoves.declareKong(selected.values().next().value);
+    } else if (selected.size === 4) {
+      props.gameMoves.declareKong(Array.from(selected));
+    } else {
+      console.log('Cannot kong with', selected.size, 'selected tiles');
+    }
+
     clearSelected();
   }
 
@@ -211,12 +219,12 @@ export function PlayerHand(props) {
         )}
         {(props.gameStage === constants.GAME_STAGE_DRAW ||
           props.gameStage === constants.GAME_STAGE_CLAIM) && (
-            <div className='action-btn'>
-              <Button variant='contained' onClick={() => claimTile()}>
-                Claim
+          <div className='action-btn'>
+            <Button variant='contained' onClick={() => claimTile()}>
+              Claim
             </Button>
-            </div>
-          )}
+          </div>
+        )}
         {props.gameStage === constants.GAME_STAGE_CLAIM && (
           <div className='action-btn'>
             <Button variant='contained' onClick={() => skipTile()}>
@@ -226,20 +234,20 @@ export function PlayerHand(props) {
         )}
         {(props.gameStage === constants.GAME_STAGE_DISCARD ||
           props.gameStage === constants.GAME_STAGE_CLAIM) && (
-            <div className='action-btn'>
-              <Button variant='contained' onClick={() => claimVictory()}>
-                Win
+          <div className='action-btn'>
+            <Button variant='contained' onClick={() => claimVictory()}>
+              Win
             </Button>
-            </div>
-          )}
+          </div>
+        )}
         {(props.gameStage === constants.GAME_STAGE_DISCARD ||
           props.gameStage === constants.GAME_STAGE_CLAIM) && (
-            <div className='action-btn'>
-              <Button variant='contained' onClick={() => clearSelected()}>
-                Clear
+          <div className='action-btn'>
+            <Button variant='contained' onClick={() => clearSelected()}>
+              Clear
             </Button>
-            </div>
-          )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -38,7 +38,7 @@
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
   grid-template-areas:
-    '. top .'
+    'top-left top top-right'
     'left middle right'
     '. bottom .';
 }
@@ -77,6 +77,19 @@
 
 .middle {
   grid-area: middle;
+}
+
+.top-left {
+  grid-area: top-left;
+  padding-top: 1em;
+  padding-left: 1em;
+}
+
+.top-right {
+  grid-area: top-right;
+  padding-top: 1em;
+  padding-right: 1em;
+  text-align: right;
 }
 
 /* Player's hand */
@@ -169,7 +182,27 @@
 }
 
 /* Discard */
+.middle {
+  padding: 1em;
+}
+
 .middle .tile-wrapper {
   display: inline-block;
   width: 40px;
+}
+
+.current-bottom {
+  border-bottom: 2px dotted black;
+}
+
+.current-right {
+  border-right: 2px dotted black;
+}
+
+.current-top {
+  border-top: 2px dotted black;
+}
+
+.current-left {
+  border-left: 2px dotted black;
 }

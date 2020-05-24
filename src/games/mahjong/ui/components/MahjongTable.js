@@ -99,18 +99,18 @@ export function MahjongTable(props) {
                 You are {props.gameMetadata[props.playerID].name}
                 <br />
                 <br />
-                Wind = {props.G.wind}
+            East = {props.gameMetadata[props.G.east].name}
                 <br />
-            East = {props.gameMetadata[0].name}
+            South = {props.gameMetadata[(props.G.east + 1) % props.ctx.numPlayers].name}
                 <br />
-            South = {props.gameMetadata[1].name}
+            West = {props.gameMetadata[(props.G.east + 2) % props.ctx.numPlayers].name}
                 <br />
-            West = {props.gameMetadata[2].name}
-                <br />
-            North = {props.gameMetadata[3].name}
+            North = {props.gameMetadata[(props.G.east + 3) % props.ctx.numPlayers].name}
               </div>
               : null}
             <div className='top-right'>
+              Wind = {props.G.wind}
+              <br />
               Tiles Left: {props.G.wall.live}
               <br />
               <br />

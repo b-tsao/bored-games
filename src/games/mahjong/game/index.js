@@ -146,7 +146,7 @@ const MahjongGame = {
             onEnd: (G, ctx) => {
                 const newG = { wind: G.wind, east: G.east };
                 // Rotate east if necessary:
-                if (G.winner != G.east) {
+                if (G.winner !== null && G.winner != G.east) {
                     newG.east = (newG.east + 1) % ctx.numPlayers;
                     // If east is player 0 again, rotate wind:
                     if (newG.east === 0) {

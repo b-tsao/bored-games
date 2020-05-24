@@ -99,6 +99,8 @@ export function MahjongTable(props) {
                 You are {props.gameMetadata[props.playerID].name}
                 <br />
                 <br />
+                Wind = {props.G.wind}
+                <br />
             East = {props.gameMetadata[0].name}
                 <br />
             South = {props.gameMetadata[1].name}
@@ -121,7 +123,9 @@ export function MahjongTable(props) {
                 hand={props.G.players[props.playerID].hand}
                 revealed={props.G.players[props.playerID].revealed}
                 gameMoves={props.moves}
-                gameStage={props.ctx.activePlayers[props.playerID]}
+                gameStage={props.ctx.activePlayers && props.ctx.activePlayers[props.playerID]}
+                gamePhase={props.ctx.phase}
+                isActive={props.isActive}
               />
             </div>
             <div className='right'>

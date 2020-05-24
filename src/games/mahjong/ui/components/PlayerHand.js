@@ -248,6 +248,13 @@ export function PlayerHand(props) {
             </Button>
           </div>
         )}
+        {(props.gamePhase === 'break' && props.isActive) && (
+          <div className='action-btn'>
+            <Button variant='contained' onClick={() => skipTile()}>
+              Ready
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

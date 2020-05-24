@@ -16,5 +16,6 @@
         "PONG": 2,
         "CHOW": 1,
         "SKIP": 0
-    }
+    },
+    "WIND": ["EAST", "SOUTH", "WEST", "NORTH"]
 }

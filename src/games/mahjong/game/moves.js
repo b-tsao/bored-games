@@ -247,6 +247,9 @@ function skipTile(G, ctx) {
  * @param {*} ctx 
  */
 function resolveClaims(G, ctx) {
+    if (G.claims.length === 0) {
+        return;
+    }
     // Compare in order of priority, if priority is same, sort in order of turn order from current player.
     const comp = (e1, e2) => {
         if (e1.priority === e2.priority) {
@@ -268,18 +271,20 @@ function resolveClaims(G, ctx) {
     let stage = 'draw';
     // If claimer is not skipping:
     if (claimer.priority > 0) {
-        // If claimer is not skipping:
         revealAndClaim(G, ctx, claimer);
         // If kong, replace from dead wall.
         stage = (claimer.tiles.length === 3) ? 'replace' : 'discard';
     }
-    if (stage === 'draw' && G.wall.length === 0) {
-        ctx.events.endGame('Draw!');
-    } else {
-        // Set the stage of the next player.
-        ctx.events.setActivePlayers({
-            value: { [claimer.pid]: stage }
-        });
+    if (G.winner === null) {
+        if (stage === 'draw' && G.wall.length === 0) {
+            setWinner(G, ctx, null);
+            G.winner = null;
+        } else {
+            // Set the stage of the next player.
+            ctx.events.setActivePlayers({
+                value: { [claimer.pid]: stage }
+            });
+        }
     }
 }
 
@@ -296,7 +301,7 @@ function claimVictory(G, ctx) {
         // Reveal the remaining hand.
         player.revealed = player.revealed.concat(sets);
         player.hand = [];
-        revealWinner(G, ctx, ctx.playerID);
+        setWinner(G, ctx, ctx.playerID);
     } else {
         console.log("player", ctx.playerID, "wants to check hu (won), but don't worry about it, no one won yet.");
         return INVALID_MOVE;
@@ -309,7 +314,6 @@ function dealTile(G, ctx, playerID, dead = false) {
     const player = G.players[playerID];
     const tile = G.wall.draw(dead);
     if (tile === null) {
-        // TODO end the game in resolveClaims if live wall has ran out?
         console.log("Out of live wall! The game should have ended.");
         return INVALID_MOVE;
     } else if (isBonusTile(tile)) {
@@ -329,7 +333,7 @@ function revealAndClaim(G, ctx, claimer) {
             // Reveal the remaining hand.
             player.revealed = player.revealed.concat(sets);
             player.hand = [];
-            revealWinner(G, ctx, claimer.pid);
+            setWinner(G, ctx, claimer.pid);
         } else {
             throw new Error("Invalid game state");
         }
@@ -342,16 +346,18 @@ function revealAndClaim(G, ctx, claimer) {
     }
 }
 
-function revealWinner(G, ctx, playerID) {
-    const player = G.players[playerID];
+function setWinner(G, ctx, playerID) {
+    if (playerID !== null) {
+        const player = G.players[playerID];
 
-    // Reveal any concealed kongs.
-    player.revealed = player.revealed.concat(player.concealed);
-    player.concealed = [];
+        // Reveal any concealed kongs.
+        player.revealed = player.revealed.concat(player.concealed);
+        player.concealed = [];
 
-
-    console.log(`Congratulations ${playerID}, mahjong!`);
-    ctx.events.endGame(`Congratulations ${playerID}, mahjong!`);
+        console.log(`Congratulations ${playerID}, mahjong!`);
+    }
+    G.winner = playerID;
+    ctx.events.endPhase();
 }
 
 function peekTiles(G, playerID, positions) {

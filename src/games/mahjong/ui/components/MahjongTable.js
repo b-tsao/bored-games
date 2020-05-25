@@ -24,9 +24,7 @@ export function MahjongTable(props) {
   const playerTopID = (parseInt(props.playerID) + 2) % props.ctx.numPlayers;
   const playerLeftID = (parseInt(props.playerID) + 3) % props.ctx.numPlayers;
 
-  const [showDice, setShowDice] = useState(
-    props.ctx.phase === constants.GAME_PHASE_SETUP
-  );
+  const [showDice, setShowDice] = useState(false);
   var reactDice = useRef();
   const [activePlayers, setActivePlayers] = useState(null);
 
@@ -59,6 +57,12 @@ export function MahjongTable(props) {
       setActivePlayers(temp);
     }
   }, [props.ctx.activePlayers]);
+
+  useEffect(() => {
+    if (props.ctx.phase === 'setup') {
+      setShowDice(true);
+    }
+  }, [props.ctx.phase]);
 
   return (
     <div className='mj-table'>

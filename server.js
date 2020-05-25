@@ -62,7 +62,7 @@ function startServer() {
   const sio = new IOServer(server);
 
   // Start the server
-  server.listen(provess.env.port || 3000, () => {
+  server.listen(process.env.port || 3000, () => {
     logger.info('Your app is listening on port ' + server.address().port);
   });
 

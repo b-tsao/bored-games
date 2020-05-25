@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd .. && \
+npm run prestart && \
 mkdir -p tmp/src && \
 cp log4js.config.json tmp && \
 cp -r public tmp && \

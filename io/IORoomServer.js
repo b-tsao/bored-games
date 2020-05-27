@@ -2,7 +2,7 @@
 const log4js = require('log4js');
 const cookie = require('cookie');
 const deepExtend = require('deep-extend');
-const {compressChanges} = require('./core/lib/ImmerPlugin');
+const { compressChanges } = require('./core/lib/ImmerPlugin');
 const RoomManager = require('./core/RoomManager');
 
 const logger = log4js.getLogger('IORoomServer');
@@ -12,11 +12,11 @@ class IORoomServer {
     this.ioServer = ioServer;
 
     this.roomManager = new RoomManager();
-    
+
     this.ioRoomServer = this.ioServer.of('/room');
     this.ioRoomServer.on('connection', (client) => {
       this.initializeClient(client);
-      
+
       this.attachCreateListener(client);
       this.attachJoinListener(client);
       this.attachLeaveListener(client);
@@ -28,7 +28,7 @@ class IORoomServer {
       this.attachGameListener(client);
     });
   }
-  
+
   initializeClient(client) {
     if (client.handshake.headers.cookie) {
       const cookies = cookie.parse(client.handshake.headers.cookie);
@@ -44,71 +44,71 @@ class IORoomServer {
       client.userId = client.id;
     }
   }
-  
+
   attachCreateListener(client) {
     client.on('create', (gameId) => {
       logger.trace(`User (${client.userId}) requesting create game (${gameId}) room`);
-      
-      client.emit('create', {status: 'creating', message: 'Creating room'});
+
+      client.emit('create', { status: 'creating', message: 'Creating room' });
       this.roomManager.createRoom(gameId, (err, room) => {
         if (err) {
           logger.error(`User (${client.userId}) create game (${gameId}) room request denied: ${err}`);
-          client.emit('create', {status: 'error', message: err});
+          client.emit('create', { status: 'error', message: err });
           client.disconnect();
           return;
         }
         const key = room.key;
         client.roomKey = key;
-        client.emit('create', {status: 'complete', key});
+        client.emit('create', { status: 'complete', key });
       });
     });
   }
-  
+
   attachJoinListener(client) {
     client.on('join', (key) => {
       logger.trace(`User (${client.userId}) requesting join room (${key})`);
-      
+
       if (key == null) {
         logger.error(`User (${client.userId}) join room (${key}) request denied: Invalid key`);
-        client.emit('join', {status: 'error', message: 'Invalid key'});
+        client.emit('join', { status: 'error', message: 'Invalid key' });
         client.disconnect();
         return;
       } else {
         key = key.toUpperCase();
       }
-      
-      client.emit('join', {status: 'joining', message: 'Joining room'});
+
+      client.emit('join', { status: 'joining', message: 'Joining room' });
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) failed to join room (${key}): Room does not exist`);
-        client.emit('join', {status: 'error', message: "Room does not exist"});
+        client.emit('join', { status: 'error', message: "Room does not exist" });
         client.disconnect();
         return;
       }
-      
+
       if (room.contains(client.userId)) {
         const err = "Already in the room";
         logger.error(`User (${client.userId}) failed to join room (${key}): ${err}`);
-        client.emit('join', {status: 'error', message: err});
+        client.emit('join', { status: 'error', message: err });
         client.disconnect();
         return;
       }
       client.roomKey = key;
-      client.emit('join', {status: 'complete'});
+      client.emit('join', { status: 'complete' });
     });
-    
+
     client.on('joinSpectate', () => {
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) requesting to join spectate in room (${key})`);
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) failed to join room (${key}): Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         return client.disconnect();
       }
-      room.addSpectator({id: client.userId, client: client.id}, (err, ctxChanges) => {
+      room.addSpectator({ id: client.userId, client: client.id }, (err, ctxChanges) => {
         if (err) {
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
           client.disconnect();
         } else {
           client.join(`${key}#spectators`);
@@ -116,19 +116,19 @@ class IORoomServer {
         }
       });
     });
-    
+
     client.on('joinGame', (name) => {
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) requesting to join game in room (${key}) as name (${name})`);
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) failed to join game (${key}): Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         return client.disconnect();
       }
-      const err = room.addPlayer({id: client.userId, client: client.id}, name, (err, ctxChanges) => {
+      const err = room.addPlayer({ id: client.userId, client: client.id }, name, (err, ctxChanges) => {
         if (err) {
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
         } else {
           client.leave(`${key}#spectators`);
           this.ioRoomServer.to(key).emit('changes', ctxChanges);
@@ -136,11 +136,11 @@ class IORoomServer {
       });
     });
   }
-  
+
   attachLeaveListener(client) {
     client.on('leave', () => {
       client.disconnect();
-      
+
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) leaving room (${key})`);
       const room = this.roomManager.getRoom(key);
@@ -156,7 +156,7 @@ class IORoomServer {
       }
     });
   }
-  
+
   attachConnectListener(client) {
     client.on('connected', (reason) => {
       logger.trace(`User (${client.userId}) requesting connect with client (${client.id}) to room (${client.roomKey})`);
@@ -164,13 +164,13 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) connect with client (${client.id}) to room (${client.roomKey}) failed: Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         client.disconnect();
         return;
       }
       room.connect(client.userId, client.id, (err, ctxChanges) => {
         if (err) {
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
           client.disconnect();
           return;
         } else if (room.spectators.hasOwnProperty(client.userId)) {
@@ -178,8 +178,9 @@ class IORoomServer {
           client.join(`${key}#spectators`);
           // END HACK
         }
-        client.emit('setCookie', cookie.serialize('userId', client.userId));
-        client.emit('setCookie', cookie.serialize('roomKey', key));
+        const cookieOptions = { sameSite: true };
+        client.emit('setCookie', cookie.serialize('userId', client.userId, cookieOptions));
+        client.emit('setCookie', cookie.serialize('roomKey', key, cookieOptions));
         client.join(key);
         this.roomManager.clearRoomTimer(key);
         const [filteredState] = room.getState(client.userId);
@@ -188,7 +189,7 @@ class IORoomServer {
       });
     });
   }
-  
+
   attachDisconnectListener(client) {
     client.on('disconnect', (reason) => {
       const key = client.roomKey;
@@ -205,7 +206,7 @@ class IORoomServer {
       }
     });
   }
-  
+
   attachHostActionListener(client) {
     client.on('hostAction', (action, id, data) => {
       const key = client.roomKey;
@@ -213,19 +214,19 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) failed to do host action (${action}) against user (${id}) in room (${key}): Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         return client.disconnect();
       }
       room.hostAction(action, client.userId, id, data, (err, ctxChanges) => {
         if (err) {
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
         } else {
           this.ioRoomServer.to(key).emit('changes', ctxChanges);
         }
       });
     });
   }
-  
+
   attachSettingsListener(client) {
     client.on('settings', (settings) => {
       const key = client.roomKey;
@@ -233,19 +234,19 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) change settings in room (${key}) failed: Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         return client.disconnect();
       }
       room.changeSettings(client.userId, settings, (err, ctxChanges) => {
         if (err) {
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
         } else {
           this.ioRoomServer.to(key).emit('changes', ctxChanges);
         }
       });
     });
   }
-  
+
   attachStartListener(client) {
     client.on('start', () => {
       const key = client.roomKey;
@@ -253,14 +254,14 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) start game in room (${key}) failed: Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         client.disconnect();
         return;
       }
       room.startGame(client.userId, (err, ctxChanges, stateChanges, prevState) => {
         if (err) {
           logger.error(`User (${client.userId}) start game in room (${key}) failed: ${err}`);
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
         } else {
           for (const id in room.players) {
             const player = room.players[id];
@@ -277,7 +278,7 @@ class IORoomServer {
       });
     });
   }
-  
+
   attachGameListener(client) {
     client.on('game', (action, data) => {
       const key = client.roomKey;
@@ -285,13 +286,13 @@ class IORoomServer {
       const room = this.roomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) game action (${action}) in room (${key}) failed: Room does not exist`);
-        client.emit('message', {status: 'error', text: "Room does not exist"});
+        client.emit('message', { status: 'error', text: "Room does not exist" });
         client.disconnect();
         return;
       }
       room.gameAction(client.userId, action, data, (err, changes, options) => {
         if (err) {
-          client.emit('message', {status: 'error', text: err});
+          client.emit('message', { status: 'error', text: err });
         }
         this.broadcastChanges(room, changes, options);
       });

@@ -70,8 +70,13 @@ function startServer() {
 }
 
 function startBGServer() {
-  const server = Server({ games: [Mahjong] });
-  server.run(8000);
+  const logger = log4js.getLogger("BGIO");
+  const server = Server({
+    games: [Mahjong]
+  });
+  server.run(8000, () => {
+    logger.info('Server started.');
+  });
 }
 
 startServer();

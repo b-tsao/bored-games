@@ -7,10 +7,14 @@ export default function BGIOClient({ room, self, game, board }) {
     const GameClient = useMemo(() => Client({
         game,
         board,
-        multiplayer: SocketIO({ server: `${window.location.hostname}:8000` })
+        multiplayer: SocketIO({ server: `${window.location.hostname}:8443` })
     }), []);
     const gameID = room.ctx.gameID;
-    const { id, name, credentials } = room.state.players[self.id];
+    if (self) {
+        const { id, name, credentials } = room.state.players[self.id];
 
-    return <GameClient gameID={gameID} playerID={id} credentials={credentials} debug={false} />
+        return <GameClient gameID={gameID} playerID={id} credentials={credentials} />
+    } else {
+        return null;
+    }
 }

@@ -7,7 +7,7 @@ export default function BGIOClient({ room, self, game, board }) {
     const GameClient = useMemo(() => Client({
         game,
         board,
-        multiplayer: SocketIO({ server: `${window.location.hostname}:8443` })
+        multiplayer: SocketIO({ server: `${window.location.origin}:8443` })
     }), []);
     const gameID = room.ctx.gameID;
     if (self) {

@@ -29,7 +29,7 @@ const useStyles = makeStyles({
     },
 });
 
-export function PlayerInfoCard(props) {
+export function PlayerProfileBar(props) {
     const classes = useStyles(props);
 
     return (

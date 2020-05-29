@@ -9,7 +9,7 @@ import { Box, Button, Grid, Typography } from "@material-ui/core";
 import constants from "../constants.json";
 import { DiscardPile } from "./DiscardPile";
 import { PlayerHand } from "./PlayerHand";
-import { PlayerInfoCard } from "./PlayerInfoCard";
+import { PlayerProfileBar } from "./PlayerProfileBar";
 import { OpponentHand } from "./OpponentHand";
 
 const useStyles = makeStyles({
@@ -156,7 +156,7 @@ export function MahjongTable(props) {
                 <Grid item xs={2} className={classes.outerColumn}>
                     {/* Left Opponent */}
                     <Box className={classes.playerLeftInfo}>
-                        <PlayerInfoCard
+                        <PlayerProfileBar
                             current={isCurrentPlayer(playerLeftID)}
                             dealer={isDealer(playerLeftID)}
                             dice={isDiceHolder(playerLeftID)}
@@ -185,7 +185,7 @@ export function MahjongTable(props) {
                         className={classes.topWrapper}
                     >
                         <Box>
-                            <PlayerInfoCard
+                            <PlayerProfileBar
                                 current={isCurrentPlayer(playerTopID)}
                                 dealer={isDealer(playerTopID)}
                                 dice={isDiceHolder(playerTopID)}
@@ -298,7 +298,7 @@ export function MahjongTable(props) {
                             )}
                         </Box>
                         <Box alignSelf="center">
-                            <PlayerInfoCard
+                            <PlayerProfileBar
                                 current={isCurrentPlayer(playerID)}
                                 dealer={isDealer(playerID)}
                                 dice={isDiceHolder(playerID)}
@@ -312,7 +312,7 @@ export function MahjongTable(props) {
                 <Grid item xs={2} className={classes.outerColumn}>
                     {/* Right Opponent */}
                     <Box className={classes.playerRightInfo}>
-                        <PlayerInfoCard
+                        <PlayerProfileBar
                             current={isCurrentPlayer(playerRightID)}
                             dealer={isDealer(playerRightID)}
                             dice={isDiceHolder(playerRightID)}

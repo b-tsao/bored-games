@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Button, Typography } from "@material-ui/core";
+import { Box, Button, Tooltip, Typography } from "@material-ui/core";
 
 import constants from "../constants.json";
 import { Tile } from "./Tile";
@@ -31,6 +31,18 @@ const useStyles = makeStyles({
     },
 });
 
+/**
+ * Player's hand in three row format.
+ * @param {string} props.gamePhase - From boardgame.io - props.ctx.phase
+ * @param {object} props.gameMoves - From boardgame.io - props.moves.
+ * @param {string} props.gameStage - From boardgame.io - props.ctx.activePlayers[id].
+ * @param {boolean} props.isActive - From boardgame.io - props.isActive.
+ * @param {object} props.hand - Object representing player's hand.
+ * @param {array} props.hand.bonus - List of bonus tiles.
+ * @param {array} props.hand.concealed - List of concealed groups.
+ * @param {array} props.hand.hand - List of tiles in hand.
+ * @param {array} props.hand.revealed - List of revealed groups.
+ */
 export function PlayerHand(props) {
     const classes = useStyles(props);
 
@@ -125,6 +137,7 @@ export function PlayerHand(props) {
             }
         }
 
+        // Action buttons during stages.
         switch (props.gameStage) {
             case constants.STAGES.claim:
                 return [claimBtn, skipBtn, winBtn];
@@ -229,9 +242,9 @@ export function PlayerHand(props) {
 
     useEffect(() => {
         setBonus(
-            props.hand.bonus.map((tile, index) => {
+            props.hand.bonus.map((tile) => {
                 return (
-                    <Box key={index}>
+                    <Box key={tile.suit + tile.value}>
                         <Tile suit={tile.suit} value={tile.value} />
                     </Box>
                 );
@@ -240,20 +253,50 @@ export function PlayerHand(props) {
     }, [props.hand.bonus]);
 
     useEffect(() => {
-        // TODO: unique key for each
         setConcealed(
-            props.hand.concealed.map((set) => {
-                return new Array(set.length).fill(<TileBack />);
+            props.hand.concealed.map((set, setIndex) => {
+                // List of tiles to show on tooltip.
+                let listOfTiles = set.map((tile, tileIndex) => {
+                    return (
+                        <Box key={tileIndex + tile.suit + tile.value}>
+                            <Tile suit={tile.suit} value={tile.value} />
+                        </Box>
+                    );
+                });
+                // List of back of tiles to show on exposed row.
+                let listofTileBack = set.map((_, tileIndex) => {
+                    return (
+                        <Box key={tileIndex}>
+                            <TileBack />
+                        </Box>
+                    );
+                });
+                return (
+                    <Box key={setIndex}>
+                        <Tooltip
+                            arrow={true}
+                            placement="top"
+                            title={<Box display="flex">{listOfTiles}</Box>}
+                        >
+                            <Box display="flex">
+                                {listofTileBack}
+                            </Box>
+                        </Tooltip>
+                    </Box>
+                );
             })
         );
     }, [props.hand.concealed]);
 
     useEffect(() => {
-        // TODO: unique key for each
         setRevealed(
-            props.hand.revealed.map((set) => {
-                return set.map((tile) => {
-                    return <Tile suit={tile.suit} value={tile.value} />;
+            props.hand.revealed.map((set, setIndex) => {
+                return set.map((tile, tileIndex) => {
+                    return (
+                        <Box key={setIndex + tileIndex + tile.suit + tile.value}>
+                            <Tile suit={tile.suit} value={tile.value} />
+                        </Box>
+                    );
                 });
             })
         );
@@ -281,12 +324,12 @@ export function PlayerHand(props) {
         }
 
         setHand(
-            props.hand.hand.map((tile, index) => {
+            props.hand.hand.map((tile, tileIndex) => {
                 return (
                     <Box
-                        key={index}
-                        className={selected.has(index) ? classes.selected : ""}
-                        onClick={() => selectTile(index)}
+                        key={tileIndex}
+                        className={selected.has(tileIndex) ? classes.selected : ""}
+                        onClick={() => selectTile(tileIndex)}
                     >
                         <Tile suit={tile.suit} value={tile.value} large={true} />
                     </Box>

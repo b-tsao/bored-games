@@ -29,6 +29,15 @@ const useStyles = makeStyles({
     },
 });
 
+/**
+ * Profile bar displaying player's information.
+ * @param {boolean} props.current - Flag indicating current player.
+ * @param {boolean} props.dealer - Flag indicating first dealer.
+ * @param {boolean} props.dice - Flag indicating current dice holder.
+ * @param {string} props.name - Name of the player.
+ * @param {string} props.points - Points held by the player.
+ * @param {string} props.wind - Wind position of player.
+ */
 export function PlayerProfileBar(props) {
     const classes = useStyles(props);
 

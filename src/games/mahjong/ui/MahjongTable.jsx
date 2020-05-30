@@ -16,12 +16,14 @@ const useStyles = makeStyles({
     root: {
         height: "100vh",
         minWidth: 1280,
-        marginRight: "310px", // TODO: remove when not debugging
+        // DEBUG: Give extra space for debug pnael.
+        // marginRight: "310px",
         background:
             "radial-gradient(circle, rgba(2, 228, 34, 1) 0%, rgba(9, 121, 86, 1) 100%)",
-        "& div": {
-            // border: "1px solid black",
-        },
+        // DEBUG: Useful for visualizing layering of components.
+        // "& div": {
+        //     border: "1px solid black",
+        // },
     },
     grid: {
         height: "inherit",
@@ -80,6 +82,10 @@ const useStyles = makeStyles({
 });
 
 // TODO: replace player name and points with metadata
+/**
+ * Main UI component for displaying Mahjong table.
+ * @param {object} props - Check boardgame.io documentation - https://boardgame.io/documentation/#/api/Client
+ */
 export function MahjongTable(props) {
     const classes = useStyles();
 
@@ -91,6 +97,9 @@ export function MahjongTable(props) {
     const [showDicePhase, setShowDicePhase] = useState(false);
     var reactDice = useRef();
 
+    // TODO: remove
+    console.log(props);
+
     /**
      * Check if player is the current player.
      * @param {integer} pid player ID
@@ -100,19 +109,20 @@ export function MahjongTable(props) {
     }
 
     /**
-     * Check if player was the first East in the beginning.
-     * @param {integer} pid player ID
-     */
-    function isDealer(pid) {
-        return parseInt(props.ctx.playOrder[0]) === pid;
-    }
-
-    /**
      * Get current dice holder of the round.
      * @param {integer} pid player ID
      */
     function isDiceHolder(pid) {
         return props.G.east === pid;
+    }
+
+
+    /**
+     * Check if player is the first dealer (first East in the beginning).
+     * @param {integer} pid player ID
+     */
+    function isFirstDealer(pid) {
+        return parseInt(props.ctx.playOrder[0]) === pid;
     }
 
     /**
@@ -151,14 +161,14 @@ export function MahjongTable(props) {
     }, [props.G.dice, showDicePhase]);
 
     return (
-        <Box className={classes.root}>
+        props.playerID !== null && <Box className={classes.root}>
             <Grid container className={classes.grid}>
                 <Grid item xs={2} className={classes.outerColumn}>
                     {/* Left Opponent */}
                     <Box className={classes.playerLeftInfo}>
                         <PlayerProfileBar
                             current={isCurrentPlayer(playerLeftID)}
-                            dealer={isDealer(playerLeftID)}
+                            dealer={isFirstDealer(playerLeftID)}
                             dice={isDiceHolder(playerLeftID)}
                             name="Player 3"
                             points="100.00"
@@ -187,7 +197,7 @@ export function MahjongTable(props) {
                         <Box>
                             <PlayerProfileBar
                                 current={isCurrentPlayer(playerTopID)}
-                                dealer={isDealer(playerTopID)}
+                                dealer={isFirstDealer(playerTopID)}
                                 dice={isDiceHolder(playerTopID)}
                                 name="Player 2"
                                 points="100.00"
@@ -300,7 +310,7 @@ export function MahjongTable(props) {
                         <Box alignSelf="center">
                             <PlayerProfileBar
                                 current={isCurrentPlayer(playerID)}
-                                dealer={isDealer(playerID)}
+                                dealer={isFirstDealer(playerID)}
                                 dice={isDiceHolder(playerID)}
                                 name="Pikachu"
                                 points="100.00"
@@ -314,7 +324,7 @@ export function MahjongTable(props) {
                     <Box className={classes.playerRightInfo}>
                         <PlayerProfileBar
                             current={isCurrentPlayer(playerRightID)}
-                            dealer={isDealer(playerRightID)}
+                            dealer={isFirstDealer(playerRightID)}
                             dice={isDiceHolder(playerRightID)}
                             name="Player 1"
                             points="100.00"

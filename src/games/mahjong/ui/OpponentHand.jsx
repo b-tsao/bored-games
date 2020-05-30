@@ -15,6 +15,16 @@ const useStyles = makeStyles({
     },
 });
 
+/**
+ * Opponent's hand in a two row format.
+ * @param {object} props.hand - Object representing opponent's hand.
+ * @param {array} props.hand.bonus - List of bonus tiles.
+ * @param {array} props.hand.concealed - List of concealed groups.
+ * @param {integer} props.hand.hand - Number of tiles in hand.
+ * @param {array} props.hand.revealed - List of revealed groups.
+ * @param {string} props.seat - Location of opponent's seat. This determines how tiles are arranged.
+ *                              Possible values are "top", "left", and "right".
+ */
 export function OpponentHand(props) {
     const classes = useStyles();
 
@@ -25,9 +35,9 @@ export function OpponentHand(props) {
 
     useEffect(() => {
         setBonus(
-            props.hand.bonus.map((tile, index) => {
+            props.hand.bonus.map((tile) => {
                 return (
-                    <Box key={index}>
+                    <Box key={tile.suit + tile.value}>
                         <Tile suit={tile.suit} value={tile.value} />
                     </Box>
                 );
@@ -36,20 +46,28 @@ export function OpponentHand(props) {
     }, [props.hand.bonus]);
 
     useEffect(() => {
-        // TODO: unique key for each
         setConcealed(
-            props.hand.concealed.map((set) => {
-                return new Array(4).fill(<TileBack />);
+            props.hand.concealed.map((_, setIndex) => {
+                return new Array(4).fill().map((_, tileIndex) => {
+                    return (
+                        <Box key={setIndex + tileIndex}>
+                            <TileBack />
+                        </Box>
+                    );
+                });
             })
         );
     }, [props.hand.concealed]);
 
     useEffect(() => {
-        // TODO: unique key for each
         setRevealed(
-            props.hand.revealed.map((set) => {
-                return set.map((tile) => {
-                    return <Tile suit={tile.suit} value={tile.value} />;
+            props.hand.revealed.map((set, setIndex) => {
+                return set.map((tile, tileIndex) => {
+                    return (
+                        <Box key={setIndex + tileIndex + tile.suit + tile.value}>
+                            <Tile suit={tile.suit} value={tile.value} />
+                        </Box>
+                    );
                 });
             })
         );
@@ -57,9 +75,9 @@ export function OpponentHand(props) {
 
     useEffect(() => {
         setHand(
-            [...Array(props.hand.hand).keys()].map((index) => {
+            new Array(props.hand.hand).fill().map((_, tileIndex) => {
                 return (
-                    <Box key={index}>
+                    <Box key={tileIndex}>
                         <TileBack />
                     </Box>
                 );

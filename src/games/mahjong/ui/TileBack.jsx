@@ -18,7 +18,10 @@ const useStyles = makeStyles({
     },
 });
 
-export function TileBack(props) {
+/**
+ * Back of the tile.
+ */
+export function TileBack() {
     const classes = useStyles();
 
     return <Box display="flex" className={classes.root}></Box>;

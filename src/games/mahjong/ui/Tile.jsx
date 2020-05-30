@@ -19,6 +19,12 @@ const useStyles = makeStyles({
     },
 });
 
+/**
+ * Tile with SVG image.
+ * @param {boolean} props.large - Flag to indicate rendering large tile.
+ * @param {string} props.suit - Tile suit to render.
+ * @param {string} props.value - Tile value to render.
+ */
 export function Tile(props) {
     const classes = useStyles(props);
 

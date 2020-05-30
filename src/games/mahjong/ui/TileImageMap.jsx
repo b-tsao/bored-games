@@ -41,6 +41,7 @@ import MJh6 from "../images/MJh6-.svg";
 import MJh7 from "../images/MJh7-.svg";
 import MJh8 from "../images/MJh8-.svg";
 
+// Properties in the format of <suit><value>.
 export const TILE_IMAGE_MAP = {
     circle1: MJt1,
     circle2: MJt2,

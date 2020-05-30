@@ -34,9 +34,9 @@ const useStyles = makeStyles({
 /**
  * Player's hand in three row format.
  * @param {string} props.gamePhase - From boardgame.io - props.ctx.phase
- * @param {object} props.gameMoves - From boardgame.io - props.moves.
- * @param {string} props.gameStage - From boardgame.io - props.ctx.activePlayers[id].
- * @param {boolean} props.isActive - From boardgame.io - props.isActive.
+ * @param {object} props.gameMoves - From boardgame.io - props.moves
+ * @param {string} props.gameStage - From boardgame.io - props.ctx.activePlayers[id]
+ * @param {boolean} props.isActive - From boardgame.io - props.isActive
  * @param {object} props.hand - Object representing player's hand.
  * @param {array} props.hand.bonus - List of bonus tiles.
  * @param {array} props.hand.concealed - List of concealed groups.
@@ -198,7 +198,6 @@ export function PlayerHand(props) {
      * GAME MOVE: Discard tile.
      */
     function discardTile() {
-        console.log(selected.size);
         if (selected.size !== 1) {
             // TODO: show error on UI
             console.log("Need to select one tile to discard");

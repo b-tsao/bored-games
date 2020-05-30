@@ -16,10 +16,10 @@ const useStyles = makeStyles({
     root: {
         height: "100vh",
         minWidth: 1280,
-        // DEBUG: Give extra space for debug pnael.
-        // marginRight: "310px",
         background:
             "radial-gradient(circle, rgba(2, 228, 34, 1) 0%, rgba(9, 121, 86, 1) 100%)",
+        // DEBUG: Give extra space for debug pnael.
+        // marginRight: "310px",
         // DEBUG: Useful for visualizing layering of components.
         // "& div": {
         //     border: "1px solid black",
@@ -81,7 +81,6 @@ const useStyles = makeStyles({
     },
 });
 
-// TODO: replace player name and points with metadata
 /**
  * Main UI component for displaying Mahjong table.
  * @param {object} props - Check boardgame.io documentation - https://boardgame.io/documentation/#/api/Client
@@ -96,9 +95,6 @@ export function MahjongTable(props) {
 
     const [showDicePhase, setShowDicePhase] = useState(false);
     var reactDice = useRef();
-
-    // TODO: remove
-    console.log(props);
 
     /**
      * Check if player is the current player.
@@ -116,13 +112,34 @@ export function MahjongTable(props) {
         return props.G.east === pid;
     }
 
-
     /**
      * Check if player is the first dealer (first East in the beginning).
      * @param {integer} pid player ID
      */
     function isFirstDealer(pid) {
         return parseInt(props.ctx.playOrder[0]) === pid;
+    }
+
+    /**
+     * Get player's name.
+     * @param {integer} pid player ID
+     */
+    function getPlayerName(pid) {
+        // Return default name if no name defined.
+        return props.gameMetadata[pid].name
+            ? props.gameMetadata[pid].name
+            : "Player" + pid;
+    }
+
+    /**
+     * Get player's points.
+     * @param {integer} pid player ID
+     */
+    function getPlayerPoints(pid) {
+        // TODO: Get points from props.gameMetadata when implemented.
+        // return props.gameMetadata[pid].points ? props.gameMetadata[pid].points : "?"
+
+        return 100.0;
     }
 
     /**
@@ -161,186 +178,188 @@ export function MahjongTable(props) {
     }, [props.G.dice, showDicePhase]);
 
     return (
-        props.playerID !== null && <Box className={classes.root}>
-            <Grid container className={classes.grid}>
-                <Grid item xs={2} className={classes.outerColumn}>
-                    {/* Left Opponent */}
-                    <Box className={classes.playerLeftInfo}>
-                        <PlayerProfileBar
-                            current={isCurrentPlayer(playerLeftID)}
-                            dealer={isFirstDealer(playerLeftID)}
-                            dice={isDiceHolder(playerLeftID)}
-                            name="Player 3"
-                            points="100.00"
-                            wind={getPlayerWind(playerLeftID)}
-                        />
-                    </Box>
-                    <Box pt={3} className={classes.playerLeftHand}>
-                        {!showDicePhase && (
-                            <OpponentHand
-                                seat="left"
-                                hand={props.G.players[playerLeftID]}
-                            />
-                        )}
-                    </Box>
-                </Grid>
-                <Grid item xs={8} className={classes.innerColumn}>
-                    {/* Top Opponent */}
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        mb={3}
-                        className={classes.topWrapper}
-                    >
-                        <Box>
+        props.playerID !== null && (
+            <Box className={classes.root}>
+                <Grid container className={classes.grid}>
+                    <Grid item xs={2} className={classes.outerColumn}>
+                        {/* Left Opponent */}
+                        <Box className={classes.playerLeftInfo}>
                             <PlayerProfileBar
-                                current={isCurrentPlayer(playerTopID)}
-                                dealer={isFirstDealer(playerTopID)}
-                                dice={isDiceHolder(playerTopID)}
-                                name="Player 2"
-                                points="100.00"
-                                wind={getPlayerWind(playerTopID)}
+                                current={isCurrentPlayer(playerLeftID)}
+                                dealer={isFirstDealer(playerLeftID)}
+                                dice={isDiceHolder(playerLeftID)}
+                                name={getPlayerName(playerLeftID)}
+                                points={getPlayerPoints(playerLeftID)}
+                                wind={getPlayerWind(playerLeftID)}
                             />
                         </Box>
-                        <Box display="flex">
+                        <Box pt={3} className={classes.playerLeftHand}>
                             {!showDicePhase && (
                                 <OpponentHand
-                                    seat="top"
-                                    hand={props.G.players[playerTopID]}
+                                    seat="left"
+                                    hand={props.G.players[playerLeftID]}
                                 />
                             )}
                         </Box>
-                    </Box>
-                    {/* Center - dice, discard, game information */}
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="space-between"
-                        p={2}
-                        className={classes.middleWrapper}
-                    >
-                        {/* Discard and dice */}
-                        {showDicePhase ? (
-                            <Box
-                                display="flex"
-                                flexDirection="column"
-                                justifyContent="center"
-                                alignItems="center"
-                                className={classes.diceWrapper}
-                            >
-                                {props.ctx.phase === constants.PHASES.setup ? (
-                                    // Show dice for starting player and show waiting text for others.
-                                    props.ctx.currentPlayer === props.playerID ? (
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            size="large"
-                                            onClick={() => rollDice()}
-                                        >
-                                            Roll Dice
-                                        </Button>
-                                    ) : (
-                                        <Typography variant="h4">
-                                            Waiting for dice roll...
-                                        </Typography>
-                                    )
-                                ) : (
-                                    <ReactDice
-                                        numDice={3}
-                                        faceColor={"#FFFFFF"}
-                                        dotColor={"#000000"}
-                                        rollDone={rollDoneCallback}
-                                        disableIndividual={true}
-                                        rollTime={1}
-                                        ref={(dice) => (reactDice = dice)}
+                    </Grid>
+                    <Grid item xs={8} className={classes.innerColumn}>
+                        {/* Top Opponent */}
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            mb={3}
+                            className={classes.topWrapper}
+                        >
+                            <Box>
+                                <PlayerProfileBar
+                                    current={isCurrentPlayer(playerTopID)}
+                                    dealer={isFirstDealer(playerTopID)}
+                                    dice={isDiceHolder(playerTopID)}
+                                    name={getPlayerName(playerTopID)}
+                                    points={getPlayerPoints(playerTopID)}
+                                    wind={getPlayerWind(playerTopID)}
+                                />
+                            </Box>
+                            <Box display="flex">
+                                {!showDicePhase && (
+                                    <OpponentHand
+                                        seat="top"
+                                        hand={props.G.players[playerTopID]}
                                     />
                                 )}
                             </Box>
-                        ) : (
-                            <DiscardPile discard={props.G.discard} />
-                        )}
-                        {/* Game Information */}
+                        </Box>
+                        {/* Center - dice, discard, game information */}
                         <Box
                             display="flex"
+                            flexDirection="column"
                             justifyContent="space-between"
-                            alignItems="flex-end"
+                            p={2}
+                            className={classes.middleWrapper}
                         >
-                            <Box component="div" display="inline" p={1}>
-                                <Typography>Wind: {props.G.wind}</Typography>
-                            </Box>
-                            <Box component="div" display="inline" p={1}>
-                                {props.ctx.phase === constants.PHASES.break && (
-                                    <Typography variant="h5">Game Over</Typography>
-                                )}
-                            </Box>
-                            <Box component="div" display="inline" p={1}>
-                                {!showDicePhase && (
-                                    <Typography>
-                                        Tiles Left: {props.G.wall.live}
-                                    </Typography>
-                                )}
+                            {/* Discard and dice */}
+                            {showDicePhase ? (
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    className={classes.diceWrapper}
+                                >
+                                    {props.ctx.phase === constants.PHASES.setup ? (
+                                        // Show dice for starting player and show waiting text for others.
+                                        props.ctx.currentPlayer === props.playerID ? (
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                size="large"
+                                                onClick={() => rollDice()}
+                                            >
+                                                Roll Dice
+                                            </Button>
+                                        ) : (
+                                            <Typography variant="h4">
+                                                Waiting for dice roll...
+                                            </Typography>
+                                        )
+                                    ) : (
+                                        <ReactDice
+                                            numDice={3}
+                                            faceColor={"#FFFFFF"}
+                                            dotColor={"#000000"}
+                                            rollDone={rollDoneCallback}
+                                            disableIndividual={true}
+                                            rollTime={1}
+                                            ref={(dice) => (reactDice = dice)}
+                                        />
+                                    )}
+                                </Box>
+                            ) : (
+                                <DiscardPile discard={props.G.discard} />
+                            )}
+                            {/* Game Information */}
+                            <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems="flex-end"
+                            >
+                                <Box component="div" display="inline" p={1}>
+                                    <Typography>Wind: {props.G.wind}</Typography>
+                                </Box>
+                                <Box component="div" display="inline" p={1}>
+                                    {props.ctx.phase === constants.PHASES.break && (
+                                        <Typography variant="h5">Game Over</Typography>
+                                    )}
+                                </Box>
+                                <Box component="div" display="inline" p={1}>
+                                    {!showDicePhase && (
+                                        <Typography>
+                                            Tiles Left: {props.G.wall.live}
+                                        </Typography>
+                                    )}
+                                </Box>
                             </Box>
                         </Box>
-                    </Box>
-                    {/* Player */}
-                    <Box
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="space-between"
-                        alignItems="flex-start"
-                        mt={3}
-                        className={classes.bottomWrapper}
-                    >
-                        <Box display="flex">
+                        {/* Player */}
+                        <Box
+                            display="flex"
+                            flexDirection="column"
+                            justifyContent="space-between"
+                            alignItems="flex-start"
+                            mt={3}
+                            className={classes.bottomWrapper}
+                        >
+                            <Box display="flex">
+                                {!showDicePhase && (
+                                    <PlayerHand
+                                        hand={props.G.players[playerID]}
+                                        gamePhase={props.ctx.phase}
+                                        gameMoves={props.moves}
+                                        gameStage={
+                                            props.ctx.activePlayers &&
+                                            props.ctx.activePlayers[playerID]
+                                        }
+                                        isActive={props.isActive}
+                                    />
+                                )}
+                            </Box>
+                            <Box alignSelf="center">
+                                <PlayerProfileBar
+                                    current={isCurrentPlayer(playerID)}
+                                    dealer={isFirstDealer(playerID)}
+                                    dice={isDiceHolder(playerID)}
+                                    name={getPlayerName(playerID)}
+                                    points={getPlayerPoints(playerID)}
+                                    wind={getPlayerWind(playerID)}
+                                />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={2} className={classes.outerColumn}>
+                        {/* Right Opponent */}
+                        <Box className={classes.playerRightInfo}>
+                            <PlayerProfileBar
+                                current={isCurrentPlayer(playerRightID)}
+                                dealer={isFirstDealer(playerRightID)}
+                                dice={isDiceHolder(playerRightID)}
+                                name={getPlayerName(playerRightID)}
+                                points={getPlayerPoints(playerRightID)}
+                                wind={getPlayerWind(playerRightID)}
+                            />
+                        </Box>
+                        <Box pt={3} className={classes.playerRightHand}>
                             {!showDicePhase && (
-                                <PlayerHand
-                                    hand={props.G.players[playerID]}
-                                    gamePhase={props.ctx.phase}
-                                    gameMoves={props.moves}
-                                    gameStage={
-                                        props.ctx.activePlayers &&
-                                        props.ctx.activePlayers[playerID]
-                                    }
-                                    isActive={props.isActive}
+                                <OpponentHand
+                                    seat="right"
+                                    hand={props.G.players[playerRightID]}
                                 />
                             )}
                         </Box>
-                        <Box alignSelf="center">
-                            <PlayerProfileBar
-                                current={isCurrentPlayer(playerID)}
-                                dealer={isFirstDealer(playerID)}
-                                dice={isDiceHolder(playerID)}
-                                name="Pikachu"
-                                points="100.00"
-                                wind={getPlayerWind(playerID)}
-                            />
-                        </Box>
-                    </Box>
+                    </Grid>
                 </Grid>
-                <Grid item xs={2} className={classes.outerColumn}>
-                    {/* Right Opponent */}
-                    <Box className={classes.playerRightInfo}>
-                        <PlayerProfileBar
-                            current={isCurrentPlayer(playerRightID)}
-                            dealer={isFirstDealer(playerRightID)}
-                            dice={isDiceHolder(playerRightID)}
-                            name="Player 1"
-                            points="100.00"
-                            wind={getPlayerWind(playerRightID)}
-                        />
-                    </Box>
-                    <Box pt={3} className={classes.playerRightHand}>
-                        {!showDicePhase && (
-                            <OpponentHand
-                                seat="right"
-                                hand={props.G.players[playerRightID]}
-                            />
-                        )}
-                    </Box>
-                </Grid>
-            </Grid>
-        </Box>
+            </Box>
+        )
     );
 }

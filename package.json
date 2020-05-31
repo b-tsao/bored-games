@@ -51,6 +51,7 @@
     "start:server": "npx ts-node --compiler-options=\"{\\\"module\\\": \\\"commonjs\\\"}\" server",
     "start:server:watch": "nodemon --config \"./nodemon.json\"/",
     "//2": "PRODUCTION",
+    "prestart": "[ ! -d 'build' ] && echo 'Missing production build. Run `npm run build` or did you mean to run `npm run start:app` and `npm run start:server` for development mode?' && exit 1",
     "start": "node -r esm build/server",
     "//3": "BUILD",
     "build:app": "react-scripts build",

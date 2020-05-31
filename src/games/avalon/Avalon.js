@@ -2,7 +2,7 @@
 
 const log4js = require('log4js');
 
-const AvalonSettings = require('./AvalonSettings');
+const AvalonSettings = require('./AvalonSettings-deprecated');
 const PeopleManager = require('../PeopleManager');
 
 const logger = log4js.getLogger('Avalon');

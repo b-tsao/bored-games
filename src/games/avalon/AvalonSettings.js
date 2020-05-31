@@ -1,6 +1,6 @@
 'use strict';
 
-const deepExtend = require('deep-extend');
+import deepExtend from 'deep-extend';
 
 class AvalonSettings {
   constructor() {
@@ -11,11 +11,11 @@ class AvalonSettings {
         minPlayers: 5,
         maxPlayers: 5,
         evils: 2,
-        quests: [{team: 2, fails: 1},
-                 {team: 3, fails: 1},
-                 {team: 2, fails: 1},
-                 {team: 3, fails: 1},
-                 {team: 3, fails: 1}],
+        quests: [{ team: 2, fails: 1 },
+        { team: 3, fails: 1 },
+        { team: 2, fails: 1 },
+        { team: 3, fails: 1 },
+        { team: 3, fails: 1 }],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F5-players.png',
       },
       {
@@ -24,11 +24,11 @@ class AvalonSettings {
         minPlayers: 6,
         maxPlayers: 6,
         evils: 2,
-        quests: [{team: 2, fails: 1},
-                 {team: 3, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 3, fails: 1},
-                 {team: 4, fails: 1}],
+        quests: [{ team: 2, fails: 1 },
+        { team: 3, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 3, fails: 1 },
+        { team: 4, fails: 1 }],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F6-players.png'
       },
       {
@@ -37,11 +37,11 @@ class AvalonSettings {
         minPlayers: 7,
         maxPlayers: 7,
         evils: 3,
-        quests: [{team: 2, fails: 1},
-                 {team: 3, fails: 1},
-                 {team: 3, fails: 1},
-                 {team: 4, fails: 2},
-                 {team: 4, fails: 1}],
+        quests: [{ team: 2, fails: 1 },
+        { team: 3, fails: 1 },
+        { team: 3, fails: 1 },
+        { team: 4, fails: 2 },
+        { team: 4, fails: 1 }],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F7-players.png'
       },
       {
@@ -50,11 +50,11 @@ class AvalonSettings {
         minPlayers: 8,
         maxPlayers: 8,
         evils: 3,
-        quests: [{team: 3, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 5, fails: 2},
-                 {team: 5, fails: 1}],
+        quests: [{ team: 3, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 5, fails: 2 },
+        { team: 5, fails: 1 }],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F8-players.png'
       },
       {
@@ -63,11 +63,11 @@ class AvalonSettings {
         minPlayers: 9,
         maxPlayers: 9,
         evils: 3,
-        quests: [{team: 3, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 5, fails: 2},
-                 {team: 5, fails: 1}],
+        quests: [{ team: 3, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 5, fails: 2 },
+        { team: 5, fails: 1 }],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F9-players.png'
       },
       {
@@ -76,11 +76,11 @@ class AvalonSettings {
         minPlayers: 10,
         maxPlayers: 10,
         evils: 4,
-        quests: [{team: 3, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 4, fails: 1},
-                 {team: 5, fails: 2},
-                 {team: 5, fails: 1}],
+        quests: [{ team: 3, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 4, fails: 1 },
+        { team: 5, fails: 2 },
+        { team: 5, fails: 1 }],
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2F10-players.png'
       }
     ];
@@ -224,7 +224,7 @@ class AvalonSettings {
         img: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Fround.png'
       }
     };
-    
+
     this.selectedBoard = 0;
     this.selectedCards = {
       good: [
@@ -243,10 +243,10 @@ class AvalonSettings {
       evilClarivoyance: false
     };
   }
-  
-  get minPlayers () {return this.boards[this.selectedBoard].minPlayers};
-  get maxPlayers () {return this.boards[this.selectedBoard].maxPlayers};
-  
+
+  get minPlayers() { return this.boards[this.selectedBoard].minPlayers };
+  get maxPlayers() { return this.boards[this.selectedBoard].maxPlayers };
+
   toJSON() {
     return {
       static: {
@@ -262,13 +262,13 @@ class AvalonSettings {
       extra: this.extra
     };
   }
-  
-  change(settings, callback = () => {}) {
+
+  change(settings, callback = () => { }) {
     const reason = this.check(settings);
     if (reason) {
       return callback(reason);
     }
-    
+
     const changes = {};
     deepExtend(this, settings);
     deepExtend(changes, settings);
@@ -279,7 +279,7 @@ class AvalonSettings {
       return callback(null, changes);
     });
   }
-  
+
   check(settings) {
     for (const setting in settings) {
       let reason;
@@ -300,8 +300,8 @@ class AvalonSettings {
     }
     return null;
   }
-  
-  changed(settings, callback = () => {}) {
+
+  changed(settings, callback = () => { }) {
     for (const setting in settings) {
       switch (setting) {
         case 'selectedBoard':
@@ -311,13 +311,13 @@ class AvalonSettings {
       }
     }
   }
-  
+
   selectedBoardCheck(selectedBoard) {
     if (selectedBoard < 0 || selectedBoard >= this.boards.length) {
       return "Invalid board";
     }
   }
-  
+
   selectedCardsCheck(selectedCards) {
     const maxEvils = this.boards[this.selectedBoard].evils;
     const maxGoods = this.maxPlayers - maxEvils;
@@ -327,7 +327,7 @@ class AvalonSettings {
       return "Too many characters chosen for the evil side; max " + maxEvils;
     }
   }
-  
+
   extraCheck(extraSettings) {
     const keys = Object.keys(extraSettings);
     for (let i = 0; i < keys.length; i++) {
@@ -336,8 +336,8 @@ class AvalonSettings {
       }
     }
   }
-  
-  selectedBoardChanged(callback = () => {}) {
+
+  selectedBoardChanged(callback = () => { }) {
     const selectedBoard = this.boards[this.selectedBoard];
     const maxPlayers = selectedBoard.maxPlayers;
     const maxEvils = selectedBoard.evils;

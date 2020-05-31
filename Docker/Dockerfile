@@ -4,7 +4,10 @@ USER node
 WORKDIR /home/node
 
 COPY package.json .
-RUN npm install
+RUN npm install --only=production
 
-COPY tmp .
-ENTRYPOINT ["node", "server.js"]
+COPY . .
+
+ENTRYPOINT ["npm", "start"]
+
+ENV NODE_ENV production

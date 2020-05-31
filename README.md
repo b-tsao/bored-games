@@ -4,18 +4,23 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm run start:app`
 
-Runs the app in the development mode.<br />
+Runs the app in development mode.<br />
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br />
 You will also see any lint errors in the console.
 
-### `npm test`
+### `npm run start:server`
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the server in development mode.<br />
+
+### `npm run start:server:watch`
+
+Runs the server in development mode.<br />
+
+The server will reload if you make edits.<br />
 
 ### `npm run build`
 
@@ -23,9 +28,39 @@ Builds the app for production to the `build` folder.<br />
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
 The build is minified and the filenames include the hashes.<br />
+
+The build includes both React and server files.<br />
+The React bundle is located under `build/public`.
+
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm start`
+
+Runs the app in production mode.<br />
+Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
+
+### `npm test:app`
+
+Launches the test runner in the interactive watch mode.<br />
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run lint`
+
+Runs tslint against the server.<br />
+
+### `npm pack`
+
+Builds the app for production if the `build` folder does not exist.<br />
+See the section `npm run build` for more details.
+
+Packages the minimal necessities for production deployment.<br />
+The npm package is ready for publishing!
+
+The package can be deployed after unpacking and running `npm install` and `npm start`.
+
+Alternatively, the Docker directory contains build and update scripts for docker deployment.
 
 ### `npm run eject`
 

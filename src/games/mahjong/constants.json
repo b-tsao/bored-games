@@ -10,12 +10,23 @@
     },
     "EDIBLE": ["circle", "bamboo", "character"],
     "BONUS": ["season", "flower"],
+    "PHASES": {
+        "break": "break",
+        "main": "main",
+        "setup": "setup"
+    },
     "PRIORITY": {
         "WIN": 3,
         "KONG": 2,
         "PONG": 2,
         "CHOW": 1,
         "SKIP": 0
+    },
+    "STAGES": {
+        "claim": "claim",
+        "discard": "discard",
+        "draw": "draw",
+        "replace": "replace"
     },
     "WIND": ["EAST", "SOUTH", "WEST", "NORTH"]
 }

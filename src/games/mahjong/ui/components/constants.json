@@ -1,9 +1,0 @@
-{
-  "GAME_PHASE_MAIN": "main",
-  "GAME_PHASE_SETUP": "setup",
-  "GAME_STAGE_CLAIM": "claim",
-  "GAME_STAGE_DISCARD": "discard",
-  "GAME_STAGE_DRAW": "draw",
-  "GAME_STAGE_REPLACE": "replace",
-  "CLAIM_TIME_LIMIT": "5000"
-}

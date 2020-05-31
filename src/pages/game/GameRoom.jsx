@@ -12,7 +12,7 @@ import Maintenance from '../Maintenance';
 import Room from './Room';
 import BGIOClient from './BGIOClient';
 
-import { MahjongTable } from '../../games/mahjong/ui/components/MahjongTable';
+import { MahjongTable } from '../../games/mahjong/ui/MahjongTable';
 import { MahjongGame } from '../../games/mahjong/game';
 
 import { ClientContext, MainDisplayContext } from '../../Contexts';

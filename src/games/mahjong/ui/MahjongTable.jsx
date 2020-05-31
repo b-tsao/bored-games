@@ -101,7 +101,7 @@ export function MahjongTable(props) {
      * @param {integer} pid player ID
      */
     function isCurrentPlayer(pid) {
-        return parseInt(props.ctx.currentPlayer) === pid;
+        return props.ctx.currentPlayer === pid.toString();
     }
 
     /**
@@ -117,7 +117,7 @@ export function MahjongTable(props) {
      * @param {integer} pid player ID
      */
     function isFirstDealer(pid) {
-        return parseInt(props.ctx.playOrder[0]) === pid;
+        return props.ctx.playOrder[0] === pid.toString();
     }
 
     /**
@@ -125,10 +125,12 @@ export function MahjongTable(props) {
      * @param {integer} pid player ID
      */
     function getPlayerName(pid) {
+        if (props.gameMetadata) {
+            return props.gameMetadata[pid].name;
+        }
+
         // Return default name if no name defined.
-        return props.gameMetadata[pid].name
-            ? props.gameMetadata[pid].name
-            : "Player" + pid;
+        return "Player " + pid;
     }
 
     /**
@@ -137,9 +139,11 @@ export function MahjongTable(props) {
      */
     function getPlayerPoints(pid) {
         // TODO: Get points from props.gameMetadata when implemented.
-        // return props.gameMetadata[pid].points ? props.gameMetadata[pid].points : "?"
+        // if (props.gameMetadata) {
+        //     return props.gameMetadata[pid].points;
+        // }
 
-        return 100.0;
+        return 100;
     }
 
     /**
@@ -147,7 +151,7 @@ export function MahjongTable(props) {
      * @param {integer} pid player ID
      */
     function getPlayerWind(pid) {
-        let windPosition = (pid - props.G.east + 4) % 4;
+        let windPosition = (pid - props.G.east + constants.WIND.length) % constants.WIND.length;
         return constants.WIND[windPosition];
     }
 

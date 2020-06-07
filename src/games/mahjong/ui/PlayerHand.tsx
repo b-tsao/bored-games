@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Button, Tooltip, Typography } from "@material-ui/core";
+import { Box, Button, Slide, Tooltip, Typography } from "@material-ui/core";
 
 import constants from "../constants.json";
 import { Tile } from "./Tile";
@@ -28,6 +28,9 @@ const useStyles = makeStyles({
     },
     winButton: {
         background: "rgba(200,200,0,1)",
+    },
+    lastTile: {
+        marginLeft: 10,
     },
 });
 
@@ -239,6 +242,13 @@ export function PlayerHand(props) {
         clearSelected();
     }
 
+    // TODO: remove, simulates automatic draw from server
+    useEffect(() => {
+        if (props.gameStage === constants.STAGES.draw) {
+            props.gameMoves.drawTile();
+        }
+    }, [props.gameStage, props.gameMoves]);
+
     useEffect(() => {
         setBonus(
             props.hand.bonus.map((tile) => {
@@ -277,9 +287,7 @@ export function PlayerHand(props) {
                             placement="top"
                             title={<Box display="flex">{listOfTiles}</Box>}
                         >
-                            <Box display="flex">
-                                {listofTileBack}
-                            </Box>
+                            <Box display="flex">{listofTileBack}</Box>
                         </Tooltip>
                     </Box>
                 );
@@ -322,9 +330,36 @@ export function PlayerHand(props) {
             }
         }
 
+        /**
+         * Renders drawn tile with sliding animation.
+         * @param tileComponent tile component
+         * @param tileIndex index of tile (used for key)
+         */
+        function renderDrawnTile(tileComponent, tileIndex) {
+            return (
+                <Slide direction="up" in={true} mountOnEnter key={tileIndex}>
+                    {tileComponent}
+                </Slide>
+            );
+        }
+
         setHand(
             props.hand.hand.map((tile, tileIndex) => {
-                return (
+                const isDrawnTile = tileIndex === props.hand.hand.length - 1;
+                return props.gameStage === constants.STAGES.discard && isDrawnTile ? (
+                    renderDrawnTile(
+                        <Box
+                            key={tileIndex}
+                            className={`${classes.lastTile} ${
+                                selected.has(tileIndex) ? classes.selected : ""
+                            }`}
+                            onClick={() => selectTile(tileIndex)}
+                        >
+                            <Tile suit={tile.suit} value={tile.value} large={true} />
+                        </Box>,
+                        tileIndex
+                    )
+                ) : (
                     <Box
                         key={tileIndex}
                         className={selected.has(tileIndex) ? classes.selected : ""}
@@ -335,7 +370,7 @@ export function PlayerHand(props) {
                 );
             })
         );
-    }, [classes.selected, props.gameStage, props.hand.hand, selected]);
+    }, [classes.lastTile, classes.selected, props.gameStage, props.hand.hand, selected]);
 
     return (
         <Box display="flex" alignItems="flex-start" className={classes.root}>

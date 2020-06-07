@@ -105,8 +105,7 @@ const ActionToolbar = ({ self, room }) => {
   };
 
   const hostCheck = self && self.host;
-  // const playersCheck = Object.keys(room.ctx.players).length === room.ctx.settings.numPlayers;
-  const playersCheck = true; // DEBUG purpose
+  const playersCheck = process.env.NODE_ENV === 'production' ? Object.keys(room.ctx.players).length === room.ctx.settings.numPlayers : true;
 
   let startDisableReason: string | null = null;
   if (!hostCheck) {

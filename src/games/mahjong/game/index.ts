@@ -5,8 +5,6 @@ import {
     claimVictory,
     declareKong,
     discardTile,
-    drawTile,
-    replaceTile,
     rollDice,
     setup,
     skipTile,
@@ -111,27 +109,15 @@ export const Mahjong = {
                 onEnd: resolveClaims,
                 endIf: (G, ctx) => G.claims.length === ctx.numPlayers - 1,
                 stages: {
-                    draw: {
+                    discard: {
                         moves: {
-                            drawTile: {
-                                move: drawTile,
+                            discardTile,
+                            declareKong: {
+                                move: declareKong,
                                 client: false
                             },
-                            claimTile
-                        },
-                        next: 'discard'
-                    },
-                    replace: {
-                        moves: {
-                            replaceTile: {
-                                move: replaceTile,
-                                client: false
-                            }
-                        },
-                        next: 'discard'
-                    },
-                    discard: {
-                        moves: { discardTile, declareKong, claimVictory }
+                            claimVictory
+                        }
                     },
                     claim: {
                         moves: { claimTile, skipTile }

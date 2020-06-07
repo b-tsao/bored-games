@@ -128,7 +128,7 @@ export default function GameRoom() {
     };
   }, [client]);
 
-  let display = <LoadingRoom />;
+  let display = !client ? <Redirect to='/' /> : <LoadingRoom />;
 
   if (room) {
     console.log("room", room);

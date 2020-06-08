@@ -39,6 +39,7 @@ const useStyles = makeStyles({
  * @param {string} props.gamePhase - From boardgame.io - props.ctx.phase
  * @param {object} props.gameMoves - From boardgame.io - props.moves
  * @param {string} props.gameStage - From boardgame.io - props.ctx.activePlayers[id]
+ * @param {integer} props.gameTurn - From boardgame.io - props.ctx.turn
  * @param {boolean} props.isActive - From boardgame.io - props.isActive
  * @param {object} props.hand - Object representing player's hand.
  * @param {array} props.hand.bonus - List of bonus tiles.
@@ -75,21 +76,6 @@ export function PlayerHand(props) {
             onClick={() => discardTile()}
         >
             Discard
-        </Button>
-    );
-    const drawBtn = (
-        <Button variant="contained" color="primary" key="draw" onClick={() => drawTile()}>
-            Draw
-        </Button>
-    );
-    const drawEndBtn = (
-        <Button
-            variant="contained"
-            color="primary"
-            key="drawEnd"
-            onClick={() => replaceTile()}
-        >
-            Draw From End
         </Button>
     );
     const kongBtn = (
@@ -146,10 +132,6 @@ export function PlayerHand(props) {
                 return [claimBtn, skipBtn, winBtn];
             case constants.STAGES.discard:
                 return [discardBtn, kongBtn, winBtn];
-            case constants.STAGES.draw:
-                return [drawBtn, claimBtn];
-            case constants.STAGES.replace:
-                return [drawEndBtn];
             default:
                 return [];
         }
@@ -191,13 +173,6 @@ export function PlayerHand(props) {
     }
 
     /**
-     * GAME MOVE: Draw tile.
-     */
-    function drawTile() {
-        props.gameMoves.drawTile();
-    }
-
-    /**
      * GAME MOVE: Discard tile.
      */
     function discardTile() {
@@ -228,26 +203,12 @@ export function PlayerHand(props) {
     }
 
     /**
-     * GAME MOVE: Draw tile from end of wall.
-     */
-    function replaceTile() {
-        props.gameMoves.replaceTile();
-    }
-
-    /**
      * GAME MOVE: Skip tile for claims. Also used for readying next round.
      */
     function skipTile() {
         props.gameMoves.skipTile();
         clearSelected();
     }
-
-    // TODO: remove, simulates automatic draw from server
-    useEffect(() => {
-        if (props.gameStage === constants.STAGES.draw) {
-            props.gameMoves.drawTile();
-        }
-    }, [props.gameStage, props.gameMoves]);
 
     useEffect(() => {
         setBonus(
@@ -317,8 +278,7 @@ export function PlayerHand(props) {
         function selectTile(position) {
             if (
                 props.gameStage === constants.STAGES.claim ||
-                props.gameStage === constants.STAGES.discard ||
-                props.gameStage === constants.STAGES.draw
+                props.gameStage === constants.STAGES.discard
             ) {
                 let temp = new Set(selected);
                 if (selected.has(position)) {
@@ -346,7 +306,8 @@ export function PlayerHand(props) {
         setHand(
             props.hand.hand.map((tile, tileIndex) => {
                 const isDrawnTile = tileIndex === props.hand.hand.length - 1;
-                return props.gameStage === constants.STAGES.discard && isDrawnTile ? (
+                // Show draw animation of last tile except for first discard of the game.
+                return isDrawnTile && props.gameStage === constants.STAGES.discard && props.gameTurn > 2 ? (
                     renderDrawnTile(
                         <Box
                             key={tileIndex}
@@ -370,7 +331,7 @@ export function PlayerHand(props) {
                 );
             })
         );
-    }, [classes.lastTile, classes.selected, props.gameStage, props.hand.hand, selected]);
+    }, [classes.lastTile, classes.selected, props.gameStage, props.hand.hand, props.gameTurn, selected]);
 
     return (
         <Box display="flex" alignItems="flex-start" className={classes.root}>

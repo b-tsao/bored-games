@@ -325,6 +325,7 @@ export function MahjongTable(props) {
                                             props.ctx.activePlayers &&
                                             props.ctx.activePlayers[playerID]
                                         }
+                                        gameTurn={props.ctx.turn}
                                         isActive={props.isActive}
                                     />
                                 )}

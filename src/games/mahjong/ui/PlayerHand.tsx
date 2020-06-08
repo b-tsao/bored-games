@@ -40,6 +40,7 @@ const useStyles = makeStyles({
  * @param {object} props.gameMoves - From boardgame.io - props.moves
  * @param {string} props.gameStage - From boardgame.io - props.ctx.activePlayers[id]
  * @param {integer} props.gameTurn - From boardgame.io - props.ctx.turn
+ * @param {integer} props.numMoves - From boardgame.io - props.ctx.numMoves
  * @param {boolean} props.isActive - From boardgame.io - props.isActive
  * @param {object} props.hand - Object representing player's hand.
  * @param {array} props.hand.bonus - List of bonus tiles.
@@ -305,9 +306,14 @@ export function PlayerHand(props) {
 
         setHand(
             props.hand.hand.map((tile, tileIndex) => {
-                const isDrawnTile = tileIndex === props.hand.hand.length - 1;
-                // Show draw animation of last tile except for first discard of the game.
-                return isDrawnTile && props.gameStage === constants.STAGES.discard && props.gameTurn > 2 ? (
+                // Last tile is the drawn tile.
+                const isLastTile = tileIndex === props.hand.hand.length - 1;
+                // Show draw animation of last tile except for the first move of the game.
+                // If player kongs on first move, show animation for drawn tile.
+                return isLastTile &&
+                    props.gameStage === constants.STAGES.discard &&
+                    (props.gameTurn > 2 ||
+                        (props.gameTurn === 2 && props.numMoves > 0)) ? (
                     renderDrawnTile(
                         <Box
                             key={tileIndex}
@@ -331,7 +337,14 @@ export function PlayerHand(props) {
                 );
             })
         );
-    }, [classes.lastTile, classes.selected, props.gameStage, props.hand.hand, props.gameTurn, selected]);
+    }, [
+        classes.lastTile,
+        classes.selected,
+        props.gameStage,
+        props.hand.hand,
+        props.gameTurn,
+        selected,
+    ]);
 
     return (
         <Box display="flex" alignItems="flex-start" className={classes.root}>

@@ -327,6 +327,7 @@ export function MahjongTable(props) {
                                         }
                                         gameTurn={props.ctx.turn}
                                         isActive={props.isActive}
+                                        numMoves={props.ctx.numMoves}
                                     />
                                 )}
                             </Box>

@@ -13,12 +13,6 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     background: fade(theme.palette.background.default, .9)
   },
-  rounding: {
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomLeftRadius: 12,
-  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
@@ -37,8 +31,8 @@ function SidePanel({ width, game }: SidePanel) {
   const classes = useStyles();
 
   return (
-    <Box width={width} margin={1} marginLeft={0} marginRight={0}>
-      <Paper className={classes.panel} classes={{ rounded: classes.rounding }} elevation={0}>
+    <Box width={width}>
+      <Paper className={classes.panel} square elevation={0}>
         {/* header */}
         <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
           {/* TODO: Swap with brand image. */}

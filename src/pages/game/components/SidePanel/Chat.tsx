@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
   },
   rounding: {
-    borderRadius: 12,
+    borderRadius: 8,
   },
   roundingNoTop: {
     borderTopLeftRadius: 0,

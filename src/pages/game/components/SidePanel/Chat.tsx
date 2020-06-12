@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   roundingNoTop: {
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
-    borderTop: "1px solid #e0decb"
+    borderTop: "1px solid " + theme.palette.divider
   },
   divider: {
     height: 28,

@@ -22,6 +22,9 @@ const useStyles = makeStyles({
         // Adjust radial gradient with side panel offset.
         background: `radial-gradient(circle at calc(100% - ${SIDE_PANEL_WIDTH}px - (100% - ${SIDE_PANEL_WIDTH}px) / 2) center, rgb(2, 228, 34) 0%, rgb(9, 121, 86) 100%)`
     },
+    panel: {
+        width: SIDE_PANEL_WIDTH
+    },
     "@global": {
         ".bgio-client": {
             height: "100%"
@@ -49,7 +52,7 @@ export default function BGIOClient({ room, self, game, board }) {
                     <Box flexGrow={1}>
                         <GameClient gameID={gameID} playerID={id} credentials={credentials} />
                     </Box>
-                    <SidePanel width={SIDE_PANEL_WIDTH} game={room.ctx.id} />
+                    <SidePanel className={classes.panel} game={room.ctx.id} />
                 </Box>
             </div >
         );

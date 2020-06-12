@@ -23,15 +23,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type SidePanel = {
-  width: number
+  className: string,
   game: string
 }
 
-function SidePanel({ width, game }: SidePanel) {
+function SidePanel({ className, game }: SidePanel) {
   const classes = useStyles();
 
   return (
-    <Box width={width}>
+    <Box className={className}>
       <Paper className={classes.panel} square elevation={0}>
         {/* header */}
         <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">

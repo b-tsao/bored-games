@@ -72,41 +72,6 @@ export function rollDice(G, ctx) {
 }
 
 /**
- * Draw a tile for the player caller.
- * If bonus tile is drawn, stage is set to 'replace', else ends stage.
- * @param {*} G state
- * @param {*} ctx context
- */
-export function drawTile(G, ctx) {
-    const player = G.players[ctx.playerID];
-    const bonusTiles = player.bonus.length;
-    dealTile(G, ctx, ctx.playerID);
-
-    // If player drew another bonus tile:
-    if (player.bonus.length > bonusTiles) {
-        ctx.events.setStage('replace');
-    } else {
-        ctx.events.endStage();
-    }
-}
-
-/**
- * Draw a replacement tile from the dead wall for the player caller.
- * If bonus tile is drawn, stage is kept, else ended.
- * @param {*} G state
- * @param {*} ctx context
- */
-export function replaceTile(G, ctx) {
-    const player = G.players[ctx.playerID];
-    const bonusTiles = player.bonus.length;
-    dealTile(G, ctx, ctx.playerID, true);
-
-    if (player.bonus.length === bonusTiles) {
-        ctx.events.endStage();
-    }
-}
-
-/**
  * Discard a tile for the player caller.
  * @param {*} G state
  * @param {*} ctx context
@@ -150,7 +115,7 @@ export function declareKong(G, ctx, pos) {
         if (isKong(tiles)) {
             player.concealed.push(getTiles(G, ctx.playerID, pos));
             logger.info('player', ctx.playerID, 'declares a concealed kong;', JSON.stringify(tiles));
-            ctx.events.setStage('replace');
+            drawTile(G, ctx, ctx.playerID, true);
             return;
         }
     } else {
@@ -179,7 +144,7 @@ export function declareKong(G, ctx, pos) {
                 // Meld kong.
                 reveal.push(player.hand.splice(pos, 1)[0]);
                 logger.info('player', ctx.playerID, 'declares a melded kong;', JSON.stringify(reveal));
-                ctx.events.setStage('replace');
+                drawTile(G, ctx, ctx.playerID, true);
                 return;
             }
         }
@@ -229,11 +194,10 @@ export function claimTile(G, ctx, poss) {
 
     if (ctx.playerID === ctx.currentPlayer) {
         revealAndClaim(G, ctx, claimer);
-        ctx.events.endStage();
     } else {
         G.claims.push(claimer);
-        ctx.events.endStage();
     }
+    ctx.events.endStage();
 }
 
 /**
@@ -275,23 +239,22 @@ export function resolveClaims(G, ctx) {
     };
     G.claims.sort(comp);
     const claimer = G.claims[0];
-    let stage = 'draw';
     // If claimer is not skipping:
     if (claimer.priority > 0) {
         revealAndClaim(G, ctx, claimer);
         // If kong, replace from dead wall.
-        stage = (claimer.tiles.length === 3) ? 'replace' : 'discard';
+        if (claimer.tiles.length === 3) {
+            drawTile(G, ctx, claimer.pid, true);
+        }
+    } else if (G.wall.length === 0) {
+        setWinner(G, ctx, null);
+    } else {
+        drawTile(G, ctx, claimer.pid);
     }
     if (G.winner === null) {
-        if (stage === 'draw' && G.wall.length === 0) {
-            setWinner(G, ctx, null);
-            G.winner = null;
-        } else {
-            // Set the stage of the next player.
-            ctx.events.setActivePlayers({
-                value: { [claimer.pid]: stage }
-            });
-        }
+        ctx.events.setActivePlayers({
+            value: { [claimer.pid]: 'discard' }
+        });
     }
 }
 
@@ -329,6 +292,24 @@ function dealTile(G, ctx, playerID, dead = false) {
         player.hand.push(tile);
     }
     logger.info('player', playerID, 'dealt', tile.suit, tile.value);
+}
+
+/**
+ * Draw a tile for the player, if the player draws a bonus tile, they draw again repeatedly.
+ * @param G state
+ * @param playerID player ID to draw
+ * @param dead draw the initial tile from the dead wall.
+ */
+function drawTile(G, ctx, playerID, dead = false) {
+    const player = G.players[playerID];
+    let bonusTiles = player.bonus.length;
+    dealTile(G, ctx, playerID, dead);
+
+    // While player drew bonus tile:
+    while (player.bonus.length > bonusTiles) {
+        dealTile(G, ctx, playerID, true);
+        bonusTiles = player.bonus.length;
+    }
 }
 
 function revealAndClaim(G, ctx, claimer) {

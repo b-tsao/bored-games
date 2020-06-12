@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Button, Tooltip, Typography } from "@material-ui/core";
+import { Box, Button, Slide, Tooltip, Typography } from "@material-ui/core";
 
 import constants from "../constants.json";
 import { Tile } from "./Tile";
@@ -29,6 +29,9 @@ const useStyles = makeStyles({
     winButton: {
         background: "rgba(200,200,0,1)",
     },
+    lastTile: {
+        marginLeft: 10,
+    },
 });
 
 /**
@@ -36,6 +39,8 @@ const useStyles = makeStyles({
  * @param {string} props.gamePhase - From boardgame.io - props.ctx.phase
  * @param {object} props.gameMoves - From boardgame.io - props.moves
  * @param {string} props.gameStage - From boardgame.io - props.ctx.activePlayers[id]
+ * @param {integer} props.gameTurn - From boardgame.io - props.ctx.turn
+ * @param {integer} props.numMoves - From boardgame.io - props.ctx.numMoves
  * @param {boolean} props.isActive - From boardgame.io - props.isActive
  * @param {object} props.hand - Object representing player's hand.
  * @param {array} props.hand.bonus - List of bonus tiles.
@@ -72,21 +77,6 @@ export function PlayerHand(props) {
             onClick={() => discardTile()}
         >
             Discard
-        </Button>
-    );
-    const drawBtn = (
-        <Button variant="contained" color="primary" key="draw" onClick={() => drawTile()}>
-            Draw
-        </Button>
-    );
-    const drawEndBtn = (
-        <Button
-            variant="contained"
-            color="primary"
-            key="drawEnd"
-            onClick={() => replaceTile()}
-        >
-            Draw From End
         </Button>
     );
     const kongBtn = (
@@ -143,10 +133,6 @@ export function PlayerHand(props) {
                 return [claimBtn, skipBtn, winBtn];
             case constants.STAGES.discard:
                 return [discardBtn, kongBtn, winBtn];
-            case constants.STAGES.draw:
-                return [drawBtn, claimBtn];
-            case constants.STAGES.replace:
-                return [drawEndBtn];
             default:
                 return [];
         }
@@ -188,13 +174,6 @@ export function PlayerHand(props) {
     }
 
     /**
-     * GAME MOVE: Draw tile.
-     */
-    function drawTile() {
-        props.gameMoves.drawTile();
-    }
-
-    /**
      * GAME MOVE: Discard tile.
      */
     function discardTile() {
@@ -222,13 +201,6 @@ export function PlayerHand(props) {
         }
 
         clearSelected();
-    }
-
-    /**
-     * GAME MOVE: Draw tile from end of wall.
-     */
-    function replaceTile() {
-        props.gameMoves.replaceTile();
     }
 
     /**
@@ -277,9 +249,7 @@ export function PlayerHand(props) {
                             placement="top"
                             title={<Box display="flex">{listOfTiles}</Box>}
                         >
-                            <Box display="flex">
-                                {listofTileBack}
-                            </Box>
+                            <Box display="flex">{listofTileBack}</Box>
                         </Tooltip>
                     </Box>
                 );
@@ -309,8 +279,7 @@ export function PlayerHand(props) {
         function selectTile(position) {
             if (
                 props.gameStage === constants.STAGES.claim ||
-                props.gameStage === constants.STAGES.discard ||
-                props.gameStage === constants.STAGES.draw
+                props.gameStage === constants.STAGES.discard
             ) {
                 let temp = new Set(selected);
                 if (selected.has(position)) {
@@ -322,9 +291,42 @@ export function PlayerHand(props) {
             }
         }
 
+        /**
+         * Renders drawn tile with sliding animation.
+         * @param tileComponent tile component
+         * @param tileIndex index of tile (used for key)
+         */
+        function renderDrawnTile(tileComponent, tileIndex) {
+            return (
+                <Slide direction="up" in={true} mountOnEnter key={tileIndex}>
+                    {tileComponent}
+                </Slide>
+            );
+        }
+
         setHand(
             props.hand.hand.map((tile, tileIndex) => {
-                return (
+                // Last tile is the drawn tile.
+                const isLastTile = tileIndex === props.hand.hand.length - 1;
+                // Show draw animation of last tile except for the first move of the game.
+                // If player kongs on first move, show animation for drawn tile.
+                return isLastTile &&
+                    props.gameStage === constants.STAGES.discard &&
+                    (props.gameTurn > 2 ||
+                        (props.gameTurn === 2 && props.numMoves > 0)) ? (
+                    renderDrawnTile(
+                        <Box
+                            key={tileIndex}
+                            className={`${classes.lastTile} ${
+                                selected.has(tileIndex) ? classes.selected : ""
+                            }`}
+                            onClick={() => selectTile(tileIndex)}
+                        >
+                            <Tile suit={tile.suit} value={tile.value} large={true} />
+                        </Box>,
+                        tileIndex
+                    )
+                ) : (
                     <Box
                         key={tileIndex}
                         className={selected.has(tileIndex) ? classes.selected : ""}
@@ -335,7 +337,14 @@ export function PlayerHand(props) {
                 );
             })
         );
-    }, [classes.selected, props.gameStage, props.hand.hand, selected]);
+    }, [
+        classes.lastTile,
+        classes.selected,
+        props.gameStage,
+        props.hand.hand,
+        props.gameTurn,
+        selected,
+    ]);
 
     return (
         <Box display="flex" alignItems="flex-start" className={classes.root}>

@@ -5,7 +5,6 @@ import Game from './Game';
 // import Avalon from '../../src/games/avalon/Game';
 
 import BGIOWrapper from './BGIOWrapper';
-import IORoomServer from '../io/IORoomServer';
 import { People, Player, AnyFunction } from './types';
 
 export default class Room {

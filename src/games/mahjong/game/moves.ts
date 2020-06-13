@@ -548,7 +548,7 @@ function isChow(tiles) {
         return false;
     }
     const scale = tiles.length / 3;
-    return sortedTiles.every((({ suit, value }, idx) => suit === firstTile.suit && value === firstTile.value + Math.floor(idx / scale)));
+    return sortedTiles.every((({ suit, value }, idx) => suit === firstTile.suit && parseInt(value) === parseInt(firstTile.value) + Math.floor(idx / scale)));
 }
 
 function isDouble(tiles) {

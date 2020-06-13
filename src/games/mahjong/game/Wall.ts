@@ -1,7 +1,7 @@
 import constants from '../constants.json';
 
 export default class Wall {
-    tiles: { suit: string, value: string }[];
+    tiles: { suit: string, value: number }[];
     deadLength: number;
     deadTop: boolean;
 
@@ -16,7 +16,7 @@ export default class Wall {
             const tile = constants.TILES[suit];
             for (let i = 1; i <= tile.values; i++) {
                 for (let j = 0; j < tile.count; j++) {
-                    this.tiles.push({ suit, value: i.toString() });
+                    this.tiles.push({ suit, value: i });
                 }
             }
         }

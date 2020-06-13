@@ -8,10 +8,10 @@ import constants from '../constants.json';
  * @param {*} ctx
  */
 export function setup(G, ctx) {
-    // G.wall.shuffle(ctx.random.Shuffle);
+    G.wall.shuffle(ctx.random.Shuffle);
 
     // Cut the wall, assume the first player always has the first segment of the wall.
-    // G.wall.cut(G.dice.reduce((acc, dice) => acc + dice, 0));
+    G.wall.cut(G.dice.reduce((acc, dice) => acc + dice, 0));
 
     // Each player draws four tiles three times.
     for (let i = 0; i < 3; i++) {

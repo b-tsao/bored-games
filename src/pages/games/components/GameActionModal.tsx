@@ -1,24 +1,19 @@
 import React, { useState, useContext } from 'react';
+import { Redirect } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import socketIOClient from 'socket.io-client';
 import PropTypes from 'prop-types';
+
+import { ClientContext } from '../../../Contexts';
 
 import {
   Button,
   Dialog,
   DialogActions,
-  DialogContent,
-  Typography
+  DialogContent
 } from '@material-ui/core';
 import {
   Send as CreateIcon
 } from '@material-ui/icons';
-import ConnectModal from '../../components/ConnectModal';
-
-import {
-  MainDisplayContext,
-  ClientContext
-} from '../../../Contexts';
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -36,69 +31,62 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function GameActionModal(props) {
-  const [mainDisplay, setMainDisplay] = useContext(MainDisplayContext);
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
 
-  const [connectState, setConnectState]: [any, (...args: any[]) => any] = useState({
-    client: null,
-    data: null,
-    connect: false
-  });
+  const [key, setKey] = useState('');
 
   const classes = useStyles();
 
   const handleCreate = () => {
-    const newClient = socketIOClient('/room');
-    setConnectState({
-      client: newClient,
-      data: props.game.id,
-      connect: true
-    });
+    const req = new XMLHttpRequest();
+    req.onreadystatechange = () => {
+      // Call a function when the state changes.
+      if (req.readyState === XMLHttpRequest.DONE) {
+        // Request finished. Do processing here.
+        if (req.status === 201) {
+          setKey(JSON.parse(req.response).key);
+        } else {
+          // error
+        }
+      }
+    };
+
+    req.open('POST', '/room/create');
+    // Send the proper header information along with the request
+    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    req.send(JSON.stringify({ gameID: props.game.id }));
   };
 
-  const handleConnectClose = () => {
-    setConnectState({ connect: false });
-  };
-
-  const handleComplete = () => {
-    setClient(connectState.client);
-    setConnectState({ connect: false });
-    setMainDisplay('gameroom');
-  };
-
-  return (
-    <div>
-      <ConnectModal
-        connect={connectState.connect}
-        client={connectState.client}
-        event='create'
-        data={connectState.data}
-        onComplete={handleComplete}
-        onClose={handleConnectClose} />
-      <Dialog
-        open={!!props.game}
-        onClose={props.onClose}
-        aria-labelledby="form-dialog-title">
-        <DialogContent className={classes.content}>
-          <div className={classes.card}>
-            {props.game ? props.game.gameCard : null}
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            id="create"
-            variant="contained"
-            color="primary"
-            className={classes.button}
-            disabled={!!client}
-            onClick={handleCreate}>
-            Create
+  if (key !== '') {
+    return <Redirect to={`/room/${key}`} />
+  } else {
+    return (
+      <div>
+        <Dialog
+          open={!!props.game}
+          onClose={props.onClose}
+          aria-labelledby='form-dialog-title'>
+          <DialogContent className={classes.content}>
+            <div className={classes.card}>
+              {props.game ? props.game.gameCard : null}
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              id='create'
+              variant='contained'
+              color='primary'
+              className={classes.button}
+              disabled={!!client}
+              onClick={handleCreate}>
+              Create
             <CreateIcon className={classes.buttonIcon} />
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
+  }
 }
 
 GameActionModal.propTypes = {

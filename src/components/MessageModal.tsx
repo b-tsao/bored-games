@@ -1,5 +1,5 @@
-import React, {useState, useContext} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 
 import {
@@ -23,10 +23,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MessageModal(props) {
-  const [disableClose, setDisableClose] = useState(false);
-  
+  const [disableClose] = useState(false);
+
   const classes = useStyles();
-  
+
   return (
     <Dialog
       open={props.open}
@@ -50,12 +50,12 @@ export default function MessageModal(props) {
       </DialogContent>
       <DialogActions>
         <Button
-          id="create"
+          id="confirm"
           variant="contained"
           color="primary"
           className={classes.button}
           onClick={props.onClose}>
-          Cancel
+          Confirm
         </Button>
       </DialogActions>
     </Dialog>

@@ -58,7 +58,7 @@ See the section `npm run build` for more details.
 Packages the minimal necessities for production deployment.<br />
 The npm package is ready for publishing!
 
-The package can be deployed after unpacking and running `npm install` and `npm start`.
+The package can be deployed after unpacking and running `npm install --only=production` and `npm start`.
 
 Alternatively, the Docker directory contains build and update scripts for docker deployment.
 

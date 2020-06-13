@@ -10,7 +10,7 @@ interface RoomTimer {
   key?: { timeout: number, timer: NodeJS.Timeout };
 }
 
-export default class RoomManager {
+class RoomManager {
   roomTimers: RoomTimer;
   roomTree: PrefixTree;
 
@@ -53,7 +53,7 @@ export default class RoomManager {
     if (key == null) {
       return null;
     }
-    return this.roomTree.get(key.toUpperCase());
+    return this.roomTree.get(key);
   }
 
   /**
@@ -90,7 +90,7 @@ export default class RoomManager {
    */
   deleteRoom(key: string): Room | null {
     this.clearRoomTimer(key);
-    const room = this.roomTree.remove(key.toUpperCase());
+    const room = this.roomTree.remove(key);
     if (room) {
       logger.info(`Room (${key}) deleted`);
       return room;
@@ -99,3 +99,5 @@ export default class RoomManager {
     }
   }
 }
+
+export default new RoomManager();

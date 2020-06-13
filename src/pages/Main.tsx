@@ -1,4 +1,5 @@
 import React from 'react';
+import { Switch, Route } from "react-router-dom";
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -10,8 +11,6 @@ import HelloWorld from './welcome/HelloWorld';
 import Games from './games/Games';
 import GameRoom from './game/GameRoom';
 import Maintenance from './Maintenance';
-
-import { MainDisplayContext } from '../Contexts';
 
 const mobileDrawerWidth = 150;
 const drawerWidth = 225;
@@ -75,8 +74,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Main() {
-  const [mainDisplay, setMainDisplay] = React.useContext(MainDisplayContext);
-
   const classes = useStyles();
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -87,19 +84,6 @@ export default function Main() {
     }
     setDrawerOpen(!drawerOpen);
   };
-
-  const display = (() => {
-    switch (mainDisplay.toLowerCase()) {
-      case 'home':
-        return <HelloWorld />;
-      case 'games':
-        return <Games />;
-      case 'gameroom':
-        return <GameRoom />;
-      default:
-        return <Maintenance />;
-    }
-  })();
 
   return (
     <div className={classes.root}>
@@ -117,13 +101,26 @@ export default function Main() {
             [classes.drawerClose]: !drawerOpen,
           }),
         }}
-        open={drawerOpen}
-        setDisplay={setMainDisplay} />
+        open={drawerOpen} />
       <FloatingActions
         className={classes.fab} />
       <main className={classes.content}>
         <div className={classes.toolbar} />
-        {display}
+
+        <Switch>
+          <Route path='/games'>
+            <Games />
+          </Route>
+          <Route path='/store'>
+            <Maintenance />
+          </Route>
+          <Route path='/room/:id'>
+            <GameRoom />
+          </Route>
+          <Route path='/'>
+            <HelloWorld />
+          </Route>
+        </Switch>
       </main>
     </div>
   );

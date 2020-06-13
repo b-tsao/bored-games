@@ -210,7 +210,7 @@ export default class Room {
           if (nextHost !== undefined) {
             ctx.players[nextHost].host = true;
           } else {
-            // no available players to be host, kick them all
+            // No available players to be host, kick them all
             ctx.players = {};
           }
         }

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box, Paper, IconButton, InputBase, Divider } from '@material-ui/core';
+import { Box, Paper, IconButton, InputBase, Divider, Avatar } from '@material-ui/core';
 import clsx from 'clsx';
 
 import { Send } from '@material-ui/icons';
+
+import { ClientContext } from '../../../../Contexts';
 
 const useStyles = makeStyles((theme) => ({
   chatWindow: {
@@ -15,6 +17,21 @@ const useStyles = makeStyles((theme) => ({
     // Allow messages to scroll properly.
     height: 0,
     overflowY: 'auto'
+  },
+  "@global": {
+    ".messages": {
+      "& div:first-child": {
+        marginTop: "0 !important"
+      }
+    }
+  },
+  avatarBox: {
+    // Width of Avatar picture.
+    minWidth: 40 + theme.spacing(1),
+  },
+  msgText: {
+    wordWrap: "break-word",
+    wordBreak: "break-all"
   },
   form: {
     display: 'flex',
@@ -42,11 +59,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Chat() {
+type Chat = {
+  chatState: Array<Object>
+}
+
+function Chat({ chatState }) {
   const classes = useStyles();
 
   const [text, setText] = useState("")
-  const [chat, setChat] = useState<Array<{ id: number, text: string }>>([])
+  const [client] = useContext(ClientContext);
 
   return (
     <Box display="flex" flexDirection="column" flex={2}>
@@ -55,13 +76,26 @@ function Chat() {
           <Box display="flex" flexDirection="column" flex={1} padding={1}>
             <Box flexGrow={1} />
 
-            {
-              chat.map(msg => (
-                <div key={msg.id}>
-                  {msg.text}
-                </div>
-              ))
-            }
+            <div className="messages">
+              {
+                chatState.map((log, index) => {
+                  // Determine if previous message was sent by current user to chain message.
+                  let chainMsg = index - 1 >= 0 ? chatState[index - 1].userID === log.userID : false;
+
+                  return (
+                    <Box key={index} display="flex" marginTop={1}>
+                      <Box className={classes.avatarBox}>
+                        {!chainMsg && <Avatar>{log.name ? log.name.charAt(0) : "?"}</Avatar>}
+                      </Box>
+                      <Box className={classes.msgText} flexGrow={1}>
+                        {!chainMsg && <><b>{log.name}</b><br /></>}
+                        {log.message}
+                      </Box>
+                    </Box>
+                  );
+                })
+              }
+            </div>
           </Box>
         </Box>
 
@@ -72,7 +106,7 @@ function Chat() {
           elevation={0}
           onSubmit={(evt) => {
             if (text !== '') {
-              setChat([...chat, { id: chat.length + 1, text }])
+              client.emit('chat', text);
               setText('');
             }
 

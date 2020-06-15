@@ -27,10 +27,11 @@ const useStyles = makeStyles((theme) => ({
 
 type SidePanel = {
   className: string,
-  game: string
+  game: string,
+  chatState: Array<Object>
 }
 
-function SidePanel({ className, game }: SidePanel) {
+function SidePanel({ className, game, chatState }: SidePanel) {
   const classes = useStyles();
 
   return (
@@ -69,7 +70,7 @@ function SidePanel({ className, game }: SidePanel) {
           */}
 
           {/* chat */}
-          <Chat />
+          <Chat chatState={chatState} />
         </Box>
       </Paper>
     </Box>

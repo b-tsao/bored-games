@@ -52,7 +52,11 @@ export default function BGIOClient({ room, self, game, board }) {
                     <Box flexGrow={1}>
                         <GameClient gameID={gameID} playerID={id} credentials={credentials} />
                     </Box>
-                    <SidePanel className={classes.panel} game={room.ctx.id} />
+                    <SidePanel
+                        className={classes.panel}
+                        game={room.ctx.id}
+                        chatState={room.ctx.chat.map(log => ({ ...log, name: room.ctx.players[log.userID].name }))}
+                    />
                 </Box>
             </div >
         );

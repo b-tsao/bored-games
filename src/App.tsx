@@ -13,20 +13,10 @@ import GameRoom from './pages/game/GameRoom';
 
 import { ThemeContext, ClientContext, MainDisplayContext } from './Contexts';
 
-// Store default theme to use default theme variables. 
-const defaultTheme = createMuiTheme();
-
 export default function App() {
   const themeMode = localStorage.getItem('themeMode');
 
   const [theme, setTheme]: any = useState({
-    overrides: {
-      MuiIconButton: {
-        root: {
-          padding: defaultTheme.spacing(1),
-        },
-      },
-    },
     palette: {
       type: themeMode ? themeMode : "light"
     }

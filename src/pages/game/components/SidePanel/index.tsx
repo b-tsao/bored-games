@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   menuButton: {
     marginRight: theme.spacing(2),
   },
+  shrinkRipple: {
+    padding: theme.spacing(1),
+  },
   headerGutters: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
@@ -50,7 +53,7 @@ function SidePanel({ className, game }: SidePanel) {
           <Box flexGrow={1} />
 
           <div>
-            <IconButton edge="end" color="inherit" aria-label="Exit game">
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit game">
               <ExitToApp />
             </IconButton>
           </div>

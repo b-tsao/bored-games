@@ -1,10 +1,10 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
   Badge,
-  Button,
   Divider,
   Drawer,
   List,
@@ -21,7 +21,7 @@ import {
   Shop as StoreIcon
 } from '@material-ui/icons';
 
-import {ClientContext} from '../../Contexts';
+import { ClientContext } from '../../Contexts';
 
 const useStyles = makeStyles(theme => ({
   toolbar: {
@@ -34,13 +34,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function SideBar(props) {
-  const [client, setClient] = useContext(ClientContext);
-  
+  const history = useHistory();
+
+  const [client] = useContext(ClientContext);
+
   const classes = useStyles();
-  
+
   return (
     <Drawer
-      variant="permanent"
+      variant='permanent'
       className={props.className}
       classes={props.classes}
       open={props.open}>
@@ -48,7 +50,7 @@ export default function SideBar(props) {
       <List>
         <ListItem
           button
-          onClick={e => props.setDisplay('Games')}
+          onClick={e => history.push('/games')}
           key='Games'>
           <ListItemIcon>
             <GamesIcon />
@@ -60,7 +62,7 @@ export default function SideBar(props) {
       <List>
         <ListItem
           button
-          onClick={e => props.setDisplay('Home')}
+          onClick={e => history.push('/')}
           key='Home'>
           <ListItemIcon>
             <HomeIcon />
@@ -69,7 +71,7 @@ export default function SideBar(props) {
         </ListItem>
         <ListItem
           button
-          onClick={e => props.setDisplay('Store')}
+          onClick={e => history.push('/store')}
           key='Store'>
           <ListItemIcon>
             <StoreIcon />
@@ -79,18 +81,18 @@ export default function SideBar(props) {
         <Zoom in={!!client}>
           <ListItem
             button
-            onClick={e => props.setDisplay('gameroom')}
-            key="Game">
+            onClick={e => history.push(`/room/${client.roomKey}`)}
+            key='Game'>
             <ListItemIcon>
               <Badge
                 invisible={true}
-                variant="dot"
-                color="secondary">
+                variant='dot'
+                color='secondary'>
                 <GameIcon />
               </Badge>
             </ListItemIcon>
             <ListItemText primary='Game' />
-          </ListItem> 
+          </ListItem>
         </Zoom>
       </List>
     </Drawer>
@@ -98,7 +100,6 @@ export default function SideBar(props) {
 }
 
 SideBar.propTypes = {
-  setDisplay: PropTypes.func.isRequired,
   open: PropTypes.bool,
   className: PropTypes.string,
   classes: PropTypes.object

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -6,27 +6,25 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  TextField,
-  Typography
+  TextField
 } from '@material-ui/core';
 
 export default function JoinGameModal(props) {
   const [key, setKey] = useState('');
-  
+
   const handleOpen = () => {
     setKey('');
   }
-  
+
   const handleChange = (event) => {
-    setKey(event.target.value);
+    setKey(event.target.value.toUpperCase());
   };
-  
+
   const handleJoin = () => {
     props.handleClose();
     props.handleJoin(key);
   };
-  
+
   return (
     <Dialog
       open={props.open}
@@ -42,6 +40,7 @@ export default function JoinGameModal(props) {
           autoFocus
           fullWidth
           required
+          value={key}
           onChange={handleChange} />
       </DialogContent>
       <DialogActions>

@@ -1,6 +1,7 @@
 // init project
 import express from 'express';
 // const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS;
+import path from 'path';
 import bodyParser from 'body-parser';
 import { router } from './io/routes';
 
@@ -53,9 +54,10 @@ function startServer(): http.Server {
     // Router setup
     app.use(router);
 
-    // Redirect if nothing else sent a response
+    // Handle every other route with index.html, which will contain a script tag to your application's JavaScript file(s).
+    // This is the catch-all approach for rendering; redirecting to index.html for client-side rendering on routes
     app.get('*', (req, res) => {
-        res.redirect('/');
+        res.sendFile(path.resolve('build', 'public', 'index.html'));
     });
 
     const server = http.createServer(app);

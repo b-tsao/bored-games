@@ -7,8 +7,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  TextField,
-  Typography
+  TextField
 } from '@material-ui/core';
 
 export default function NameRequestModal(props) {

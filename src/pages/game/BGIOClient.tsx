@@ -7,9 +7,9 @@ export default function BGIOClient({ room, self, game, board }) {
     const GameClient = useMemo(() => Client({
         game,
         board,
-        multiplayer: SocketIO({ server: `${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}` }),
+        multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}` }),
         numPlayers: room.ctx.settings.numPlayers
-    }), []);
+    }), []); // eslint-disable-line react-hooks/exhaustive-deps
     const gameID = process.env.NODE_ENV === 'production' ? room.state.gameID : null;
     if (self) {
         const { id, name, credentials } = room.state.players[self.id];

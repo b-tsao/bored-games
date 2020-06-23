@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
@@ -12,7 +12,6 @@ import {
   Brightness4 as DarkModeIcon,
   Brightness7 as LightModeIcon,
   AccountCircle,
-  Menu as MenuIcon,
   MoreVert as MoreIcon,
   Notifications as NotificationsIcon
 } from '@material-ui/icons';
@@ -36,7 +35,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ActionBar() {
   const [theme, toggleTheme] = React.useContext(ThemeContext);
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);

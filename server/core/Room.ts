@@ -5,7 +5,6 @@ import Game from './Game';
 // import Avalon from '../../src/games/avalon/Game';
 
 import BGIOWrapper from './BGIOWrapper';
-import IORoomServer from '../io/IORoomServer';
 import { People, Player, AnyFunction } from './types';
 
 export default class Room {
@@ -210,7 +209,7 @@ export default class Room {
           if (nextHost !== undefined) {
             ctx.players[nextHost].host = true;
           } else {
-            // no available players to be host, kick them all
+            // No available players to be host, kick them all
             ctx.players = {};
           }
         }

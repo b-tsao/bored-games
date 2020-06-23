@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import {
   makeStyles,
   useTheme
@@ -42,7 +42,7 @@ import { ClientContext } from '../../Contexts';
 function TabContainer({ children, dir }) {
   return (
     <Typography
-      component="div"
+      component='div'
       dir={dir}
       style={{ padding: 8 * 3 }}>
       {children}
@@ -71,7 +71,7 @@ const useToolbarStyles = makeStyles(theme => ({
 const ActionToolbar = ({ self, room }) => {
   const { ctx } = room;
 
-  const [client, setClient] = useContext(ClientContext);
+  const [client] = useContext(ClientContext);
 
   const [openNameModal, setOpenNameModal] = useState(false);
 
@@ -96,8 +96,6 @@ const ActionToolbar = ({ self, room }) => {
 
   const handleLeave = () => {
     client.emit('leave');
-    client.disconnect();
-    setClient(null);
   };
 
   const handleStart = () => {
@@ -109,9 +107,9 @@ const ActionToolbar = ({ self, room }) => {
 
   let startDisableReason: string | null = null;
   if (!hostCheck) {
-    startDisableReason = "Waiting for host to start";
+    startDisableReason = 'Waiting for host to start';
   } else if (!playersCheck) {
-    startDisableReason = "Invalid player count";
+    startDisableReason = 'Invalid player count';
   }
 
   return (
@@ -123,48 +121,48 @@ const ActionToolbar = ({ self, room }) => {
       <Toolbar className={classes.toolbar}>
         <Hidden xsDown>
           <div className={classes.title}>
-            <Typography variant="h6" id="tableTitle">
+            <Typography variant='h6' id='tableTitle'>
               Spectators: {Object.keys(ctx.spectators).length}
             </Typography>
           </div>
         </Hidden>
         <div className={classes.spacer} />
         <div className={classes.actions}>
-          <Tooltip title="Leave Room" placement="top">
+          <Tooltip title='Leave Room' placement='top'>
             <div>
               <IconButton
                 onClick={handleLeave}
-                aria-label="Leave Room">
+                aria-label='Leave Room'>
                 <LeaveIcon />
               </IconButton>
             </div>
           </Tooltip>
           {self ?
-            <Tooltip title="Spectate Game" placement="top">
+            <Tooltip title='Spectate Game' placement='top'>
               <div>
                 <IconButton
                   onClick={handleSpectate}
-                  aria-label="Spectate Game">
+                  aria-label='Spectate Game'>
                   <SpectateIcon />
                 </IconButton>
               </div>
             </Tooltip> :
-            <Tooltip title="Join Game" placement="top">
+            <Tooltip title='Join Game' placement='top'>
               <div>
                 <IconButton
                   onClick={handleJoin}
-                  aria-label="Join Game">
+                  aria-label='Join Game'>
                   <JoinIcon />
                 </IconButton>
               </div>
             </Tooltip>
           }
-          <Tooltip title={startDisableReason ? startDisableReason : "Start Game"} placement="top">
+          <Tooltip title={startDisableReason ? startDisableReason : 'Start Game'} placement='top'>
             <div>
               <IconButton
                 disabled={!!startDisableReason}
                 onClick={handleStart}
-                aria-label="Start Game">
+                aria-label='Start Game'>
                 <StartIcon />
               </IconButton>
             </div>
@@ -205,7 +203,7 @@ function PlayersTable({ self, room }) {
           <TableRow>
             <TableCell>Host</TableCell>
             <TableCell>Player</TableCell>
-            <TableCell align="right">Action</TableCell>
+            <TableCell align='right'>Action</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -217,12 +215,12 @@ function PlayersTable({ self, room }) {
                 </Zoom>
               </TableCell>
               <TableCell
-                component="th"
-                scope="row"
+                component='th'
+                scope='row'
                 className={player.client.status === 'disconnected' ? classes.disconnected : undefined}>
                 {player.name}
               </TableCell>
-              <TableCell align="right">
+              <TableCell align='right'>
                 {player.name ?
                   <ActionMenu
                     disabled={!self || !self.host || player.id === self.id}
@@ -260,34 +258,34 @@ function ActionMenu({ disabled, player }) {
     <React.Fragment>
       <div>
         <IconButton
-          aria-label="Show more"
-          aria-controls="action-menu"
-          aria-haspopup="true"
+          aria-label='Show more'
+          aria-controls='action-menu'
+          aria-haspopup='true'
           onClick={handleActionMenuOpen}
           disabled={disabled}
-          color="inherit">
+          color='inherit'>
           <MoreIcon />
         </IconButton>
         <Menu
           anchorEl={actionMenuAnchorEl}
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          id="action-menu"
+          id='action-menu'
           keepMounted
           transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           open={isActionMenuOpen}
           onClose={handleActionMenuClose}>
           <MenuItem onClick={() => { handleAction('transferHost') }}>
             <IconButton
-              aria-label="Transfer host"
-              color="inherit">
+              aria-label='Transfer host'
+              color='inherit'>
               <TransferIcon />
             </IconButton>
             <p>Transfer Host</p>
           </MenuItem>
           <MenuItem onClick={() => { handleAction('kick') }}>
             <IconButton
-              aria-label="Kick player"
-              color="inherit">
+              aria-label='Kick player'
+              color='inherit'>
               <KickIcon />
             </IconButton>
             <p>Kick</p>
@@ -306,7 +304,7 @@ const useStyles = makeStyles(theme => ({
   paper: {
     display: 'flex',
     overflow: 'auto',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   padding: {
     padding: theme.spacing(2)
@@ -322,10 +320,16 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(2)
   },
+  url: {
+    display: 'flex',
+    justifyContent: 'center'
+  }
 }));
 
 export default function Room({ room, self }) {
   const [tabValue, setTabValue] = useState(0);
+  const [copySuccess, setCopySuccess] = useState('');
+  const textAreaRef = useRef(null);
 
   const classes = useStyles();
   const theme = useTheme();
@@ -334,32 +338,67 @@ export default function Room({ room, self }) {
     setTabValue(newValue);
   }
 
+  function highlightAll(e) {
+    textAreaRef.current.select();
+  }
+
+  function copyToClipboard(e) {
+    textAreaRef.current.select();
+    document.execCommand('copy');
+    // This will prevent the whole text area selected.
+    // e.target.focus();
+    setCopySuccess('Copied!');
+    setTimeout(() => setCopySuccess(''), 1000);
+  };
+
   return (
     <React.Fragment>
       <div className={classes.heroContent}>
-        <Container className={classes.container} maxWidth="sm">
-          <Typography component="h1" variant="h6" align="center" color="textPrimary" gutterBottom>
+        <Container className={classes.container} maxWidth='sm'>
+          <Typography component='h1' variant='h6' align='center' color='textPrimary' gutterBottom>
             {room.ctx.name}
           </Typography>
-          <Typography variant="overline" display="block" align="center" color="textSecondary" paragraph>
+          <Typography variant='overline' display='block' align='center' color='textSecondary'>
             Room Key: {room.ctx.key}
           </Typography>
+          <div className={classes.url}>
+            <form>
+              <textarea
+                ref={textAreaRef}
+                readOnly
+                onFocus={highlightAll}
+                style={{ resize: 'none' }}
+                rows={1}
+                cols={window.location.href.length - 2}
+                value={window.location.href}
+              />
+            </form>
+            {
+              /* Logical shortcut for only displaying the 
+                 button if the copy command exists */
+              document.queryCommandSupported('copy') &&
+              <div style={{ 'color': 'green' }}>
+                <button onClick={copyToClipboard}>Copy</button>
+                {copySuccess}
+              </div>
+            }
+          </div>
           <div className={classes.tabs}>
-            <AppBar position="static" color="default">
+            <AppBar position='static' color='default'>
               <Tabs
                 value={tabValue}
                 onChange={handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="fullWidth">
-                <Tab label="Lobby" />
-                <Tab label="Settings" disabled />
+                indicatorColor='primary'
+                textColor='primary'
+                variant='fullWidth'>
+                <Tab label='Lobby' />
+                <Tab label='Settings' disabled />
               </Tabs>
             </AppBar>
           </div>
         </Container>
       </div>
-      <Container className={classes.container} maxWidth="lg">
+      <Container className={classes.container} maxWidth='lg'>
         {tabValue === 0 &&
           <TabContainer dir={theme.direction}>
             <ActionToolbar
@@ -378,16 +417,16 @@ export default function Room({ room, self }) {
       <Hidden xsDown>
         {/* Footer */}
         <footer className={classes.footer}>
-          <Typography variant="h6" align="center" gutterBottom>
+          <Typography variant='h6' align='center' gutterBottom>
             Bored Games
           </Typography>
-          <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
+          <Typography variant='subtitle1' align='center' color='textSecondary' component='p'>
             Feeling bored? Play board games!
           </Typography>
           <Typography
-            variant="body2"
-            color="textSecondary"
-            align="center">
+            variant='body2'
+            color='textSecondary'
+            align='center'>
             Built with Boredom
           </Typography>
         </footer>

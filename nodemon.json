@@ -2,5 +2,5 @@
     "watch": ["src", "server", ".env"],
     "ext": "ts",
     "ignore": ["*.js"],
-    "exec": "npm run start:server"
+    "exec": "npx ts-node --compiler-options=\"{\\\"module\\\": \\\"commonjs\\\"}\" server"
 }

@@ -22,24 +22,28 @@ const useStyles = makeStyles(theme => ({
       position: 'relative'
     }
   },
+  header: {
+    width: '100%'
+  },
   title: {
     fontSize: 14,
   },
   imageHolder: {
-    textAlign: 'center'
+    textAlign: 'center',
+    flexGrow: 1
   },
   image: {
     maxWidth: 120,
     maxHeight: 120
   },
   content: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0
+    width: '100%'
   },
   action: {
-    position: 'static'
+    position: 'static',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column'
   }
 }));
 
@@ -48,23 +52,26 @@ export default function GameCard(props) {
 
   const deadCard = (
     <Card className={classes.card}>
-      <CardHeader
-        subheader={props.title}
-      />
-      <div className={classes.imageHolder}>
-        <img
-          src={props.image}
-          alt={props.title}
-          className={classes.image} />
+      <div className={classes.action}>
+        <CardHeader
+          className={classes.header}
+          subheader={props.title}
+        />
+        <div className={classes.imageHolder}>
+          <img
+            src={props.image}
+            alt={props.title}
+            className={classes.image} />
+        </div>
+        <CardContent className={classes.content}>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p">
+            {props.subtitle}
+          </Typography>
+        </CardContent>
       </div>
-      <CardContent className={classes.content}>
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          component="p">
-          {props.subtitle}
-        </Typography>
-      </CardContent>
     </Card>
   );
 
@@ -74,6 +81,7 @@ export default function GameCard(props) {
         onClick={() => { props.onClick(deadCard) }}
         className={classes.action}>
         <CardHeader
+          className={classes.header}
           subheader={props.title}
         />
         <div className={classes.imageHolder}>

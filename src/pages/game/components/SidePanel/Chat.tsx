@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Paper, IconButton, InputBase, Divider, Avatar } from '@material-ui/core';
 import clsx from 'clsx';
@@ -69,10 +69,38 @@ function Chat({ chatState }) {
   const [text, setText] = useState("")
   const [client] = useContext(ClientContext);
 
+  const scroll = useRef<any>(null);
+
+  // Pair representing the current and max scroll position as well number of chat messages.
+  const [scrollPos, setScrollPos] = useState<Array<number>>([0, 0]);
+
+  /** Monitor user scroll event. */
+  useEffect(() => {
+    const onScroll = () => setScrollPos([scroll.current.scrollTop, scroll.current.scrollHeight - scroll.current.clientHeight]);
+
+    const element = scroll.current;
+
+    if (element !== null) element.addEventListener("scroll", onScroll);
+
+    return () => {
+      if (element !== null) element.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  /** Keep scrollbar anchored if scrolled to the bottom. */
+  useEffect(() => {
+    const element = scroll.current;
+
+    // Browsers inaccurately track scroll position sometimes.
+    if ((scrollPos[0] <= scrollPos[1] + 1 && scrollPos[0] >= scrollPos[1] - 1)) {
+      element.scrollTop = element.scrollHeight - element.clientHeight;
+    }
+  }, [chatState, scrollPos]);
+
   return (
     <Box display="flex" flexDirection="column" flex={2}>
       <Paper className={classes.chatWindow} classes={{ rounded: classes.rounding }} elevation={24}>
-        <Box className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>
+        <Box {...{ ref: scroll } as any} className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>
           <Box display="flex" flexDirection="column" flex={1} padding={1}>
             <Box flexGrow={1} />
 

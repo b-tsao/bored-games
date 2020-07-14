@@ -14,10 +14,7 @@ import { OpponentHand } from "./OpponentHand";
 
 const useStyles = makeStyles({
     root: {
-        height: "100vh",
-        minWidth: 1280,
-        background:
-            "radial-gradient(circle, rgba(2, 228, 34, 1) 0%, rgba(9, 121, 86, 1) 100%)",
+        height: "100%",
         // DEBUG: Give extra space for debug pnael.
         // marginRight: "310px",
         // DEBUG: Useful for visualizing layering of components.
@@ -264,25 +261,25 @@ export function MahjongTable(props) {
                                                 Roll Dice
                                             </Button>
                                         ) : (
-                                            <Typography variant="h4">
-                                                Waiting for dice roll...
-                                            </Typography>
-                                        )
+                                                <Typography variant="h4">
+                                                    Waiting for dice roll...
+                                                </Typography>
+                                            )
                                     ) : (
-                                        <ReactDice
-                                            numDice={3}
-                                            faceColor={"#FFFFFF"}
-                                            dotColor={"#000000"}
-                                            rollDone={rollDoneCallback}
-                                            disableIndividual={true}
-                                            rollTime={1}
-                                            ref={(dice) => (reactDice = dice)}
-                                        />
-                                    )}
+                                            <ReactDice
+                                                numDice={3}
+                                                faceColor={"#FFFFFF"}
+                                                dotColor={"#000000"}
+                                                rollDone={rollDoneCallback}
+                                                disableIndividual={true}
+                                                rollTime={1}
+                                                ref={(dice) => (reactDice = dice)}
+                                            />
+                                        )}
                                 </Box>
                             ) : (
-                                <DiscardPile discard={props.G.discard} />
-                            )}
+                                    <DiscardPile discard={props.G.discard} />
+                                )}
                             {/* Game Information */}
                             <Box
                                 display="flex"

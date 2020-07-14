@@ -25,6 +25,7 @@ export default class IORoomServer {
       this.attachSettingsListener(client);
       this.attachStartListener(client);
       // this.attachGameListener(client);
+      this.attachChatListener(client);
     });
   }
 
@@ -242,4 +243,28 @@ export default class IORoomServer {
   //     });
   //   });
   // }
+
+  attachChatListener(client) {
+    client.on('chat', (message, messageID?) => {
+      const key = client.roomKey;
+      if (messageID == null) {
+        logger.trace(`User (${client.userId}) sending chat in room (${key}): ${JSON.stringify(message)}`);
+      } else {
+        logger.trace(`User (${client.userId}) modifying chat (${messageID}) in room (${key}): ${JSON.stringify(message)}`);
+      }
+      const room = this.roomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`User (${client.userId}) chatting in room (${key}) failed: Room does not exist`);
+        client.emit('message', { status: 'error', text: 'Room does not exist' });
+        return client.disconnect();
+      }
+      room.editChat(client.userId, messageID, message, (err, ctxChanges) => {
+        if (err) {
+          client.emit('message', { status: 'error', text: err });
+        } else {
+          this.ioRoomServer.to(key).emit('changes', ctxChanges);
+        }
+      });
+    });
+  }
 }

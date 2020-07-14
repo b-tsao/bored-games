@@ -6,13 +6,15 @@ import Game from './Game';
 
 import BGIOWrapper from './BGIOWrapper';
 import { People, Player, AnyFunction } from './types';
+import { stringify } from 'querystring';
 
 export default class Room {
   logger: log4js.Logger;
+  id: string | undefined;
   spectators: People;
   players: People;
+  chat: { userID: string, modified: boolean, message: string }[];
   game: Game | BGIOWrapper;
-  id: string | undefined;
 
   constructor(gameId: string) {
     this.logger = log4js.getLogger('Room#undefined');
@@ -20,6 +22,7 @@ export default class Room {
 
     this.spectators = {};
     this.players = {};
+    this.chat = [];
 
     switch (gameId) {
       case 'the-resistance-avalon':
@@ -64,6 +67,7 @@ export default class Room {
       key: this.key,
       players: this.players,
       spectators: this.spectators,
+      chat: this.chat,
       ...this.game.ctx
     };
   }
@@ -75,7 +79,8 @@ export default class Room {
   contextChangeListener(fn: AnyFunction, callback: AnyFunction) {
     const ctx = {
       spectators: this.spectators,
-      players: this.players
+      players: this.players,
+      chat: this.chat
     };
 
     const [err, nextCtx, changes] = errorListener(ctx, fn);
@@ -83,6 +88,7 @@ export default class Room {
     if (err === undefined) {
       this.spectators = nextCtx.spectators;
       this.players = nextCtx.players;
+      this.chat = nextCtx.chat;
       return callback(null, changes);
     } else {
       return callback(err);
@@ -394,4 +400,17 @@ export default class Room {
   //     }
   //   });
   // }
+
+  editChat(id: string, mid: number | undefined | null, message: string, callback: AnyFunction) {
+    if (mid != null && (mid < 0 || mid >= this.chat.length || this.chat[mid].userID !== id)) {
+      return callback('Invalid message to edit');
+    }
+    this.contextChangeListener(ctx => {
+      if (mid == null) {
+        ctx.chat.push({ userID: id, modified: false, message });
+      } else {
+        ctx.chat[mid] = { ...ctx.chat[mid], modified: true, message };
+      }
+    }, callback);
+  }
 }

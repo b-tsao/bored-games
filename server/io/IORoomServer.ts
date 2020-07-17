@@ -252,7 +252,7 @@ export default class IORoomServer {
       } else {
         logger.trace(`User (${client.userId}) modifying chat (${messageID}) in room (${key}): ${JSON.stringify(message)}`);
       }
-      const room = this.roomManager.getRoom(key);
+      const room = RoomManager.getRoom(key);
       if (room == null) {
         logger.error(`User (${client.userId}) chatting in room (${key}) failed: Room does not exist`);
         client.emit('message', { status: 'error', text: 'Room does not exist' });

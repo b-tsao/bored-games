@@ -1,7 +1,7 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## DEPENDENCIES
-Node: v12.16.1
+## Environment Dependencies
+Node: v12.16.1<br />
 npm: 6.13.4
 
 ## Available Scripts

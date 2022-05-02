@@ -1,0 +1,32 @@
+{
+    "TILES": {
+        "circle": { "values": 9, "count": 4 },
+        "bamboo": { "values": 9, "count": 4 },
+        "character": { "values": 9, "count": 4 },
+        "wind": { "values": 4, "count": 4 },
+        "dragon": { "values": 3, "count": 4 },
+        "season": { "values": 4, "count": 1 },
+        "flower": { "values": 4, "count": 1 }
+    },
+    "EDIBLE": ["circle", "bamboo", "character"],
+    "BONUS": ["season", "flower"],
+    "PHASES": {
+        "break": "break",
+        "main": "main",
+        "setup": "setup"
+    },
+    "PRIORITY": {
+        "WIN": 3,
+        "KONG": 2,
+        "PONG": 2,
+        "CHOW": 1,
+        "SKIP": 0
+    },
+    "STAGES": {
+        "claim": "claim",
+        "discard": "discard",
+        "draw": "draw",
+        "replace": "replace"
+    },
+    "WIND": ["EAST", "SOUTH", "WEST", "NORTH"]
+}

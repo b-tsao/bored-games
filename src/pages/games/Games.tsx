@@ -28,6 +28,12 @@ const games = [
     title: 'Mahjong',
     subtitle: 'Strategy',
     image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSx8XvsNSn730b4puD7w2F4FtV0kCtcylFhGI0ZeNuzgDa2WRBB&usqp=CAU'
+  },
+  {
+    id: 'chinese-werewolf',
+    title: '狼人杀',
+    subtitle: 'Social Deduction, Deception, Teamwork, Co-op',
+    image: 'https://shopee.tw/blog/wp-content/uploads/2019/08/%E7%8B%BC%E4%BA%BA%E6%AE%BA.png'
   }
 ];
 

@@ -14,23 +14,23 @@ const logger = log4js.getLogger('BGIO');
 
 export default class BGIOWrapper {
     id: string;
-    name: string;
+    title: string;
     settings: object;
     state: object;
-    context: object | null;
+    context: object;
 
-    constructor(id: string, name: string, settings: object) {
-        this.id = id;
-        this.name = name;
+    constructor(props: any, settings: object) {
+        this.id = props.id;
+        this.title = props.title;
         this.settings = settings;
         this.state = {};
-        this.context = null;
+        this.context = { inProgress: false };
     }
 
     get ctx() {
         return {
             id: this.id,
-            name: this.name,
+            title: this.title,
             settings: this.settings,
             ...this.context
         };
@@ -51,6 +51,27 @@ export default class BGIOWrapper {
         })
             .then(res => res.json()) // expecting a json response
             .then(json => json.gameID);
+
+        // return new Promise((resolve) => {
+        //     const payload = JSON.stringify(this.settings);
+        //     const options = {
+        //         hostname: 'localhost',
+        //         port: process.env.REACT_APP_BGIO_PORT,
+        //         path: `/games/${this.id}/create`,
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         }
+        //     };
+            
+        //     let data = '';
+        //     https.request(options, (res) => {
+        //         res.on('data', (chunk) => { data += chunk });
+        //         res.on('end', () => {
+        //            resolve(data);
+        //         });
+        //     }) 
+        // });
     }
 
     async joinGame(gameID: string, body: object) {

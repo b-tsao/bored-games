@@ -356,7 +356,7 @@ export default function Room({ room, self }) {
       <div className={classes.heroContent}>
         <Container className={classes.container} maxWidth='sm'>
           <Typography component='h1' variant='h6' align='center' color='textPrimary' gutterBottom>
-            {room.ctx.name}
+            {room.ctx.title}
           </Typography>
           <Typography variant='overline' display='block' align='center' color='textSecondary'>
             Room Key: {room.ctx.key}

@@ -46,7 +46,7 @@ export default function GameActionModal(props) {
         if (req.status === 201) {
           setKey(JSON.parse(req.response).key);
         } else {
-          // error
+          // TODO error
         }
       }
     };
@@ -54,7 +54,7 @@ export default function GameActionModal(props) {
     req.open('POST', '/room/create');
     // Send the proper header information along with the request
     req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-    req.send(JSON.stringify({ gameID: props.game.id }));
+    req.send(JSON.stringify({ id: props.game.id, title: props.game.title }));
   };
 
   if (key !== '') {

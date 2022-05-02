@@ -12,6 +12,8 @@ import { PlayerHand } from "./PlayerHand";
 import { PlayerProfileBar } from "./PlayerProfileBar";
 import { OpponentHand } from "./OpponentHand";
 
+const SIDE_PANEL_WIDTH = 375;
+
 const useStyles = makeStyles({
     root: {
         height: "100%",
@@ -21,6 +23,9 @@ const useStyles = makeStyles({
         // "& div": {
         //     border: "1px solid black",
         // },
+
+        // Adjust radial gradient with side panel offset.
+        background: `radial-gradient(circle at calc(100% - ${SIDE_PANEL_WIDTH}px - (100% - ${SIDE_PANEL_WIDTH}px) / 2) center, rgb(2, 228, 34) 0%, rgb(9, 121, 86) 100%)`
     },
     grid: {
         height: "inherit",

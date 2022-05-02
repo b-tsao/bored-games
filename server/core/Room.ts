@@ -6,7 +6,6 @@ import Game from './Game';
 
 import BGIOWrapper from './BGIOWrapper';
 import { People, Player, AnyFunction } from './types';
-import { stringify } from 'querystring';
 
 export default class Room {
   logger: log4js.Logger;
@@ -16,7 +15,7 @@ export default class Room {
   chat: { userID: string, modified: boolean, message: string }[];
   game: Game | BGIOWrapper;
 
-  constructor(gameId: string) {
+  constructor(props: any) {
     this.logger = log4js.getLogger('Room#undefined');
     this.id = undefined;
 
@@ -24,13 +23,16 @@ export default class Room {
     this.players = {};
     this.chat = [];
 
-    switch (gameId) {
+    switch (props.id) {
       case 'the-resistance-avalon':
         throw new Error('Currently unavailable');
         // this.game = new Game(Avalon);
         break;
       case 'mahjong':
-        this.game = new BGIOWrapper(gameId, 'Mahjong', { numPlayers: 4 });
+        this.game = new BGIOWrapper(props, { numPlayers: 4 });
+        break;
+      case 'chinese-werewolf':
+        this.game = new BGIOWrapper(props, { numPlayers: 8 });
         break;
       default:
         throw new Error('Game not supported');

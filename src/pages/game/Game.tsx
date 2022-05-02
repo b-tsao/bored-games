@@ -8,6 +8,8 @@ import Maintenance from '../Maintenance';
 
 import { MahjongTable } from '../../games/mahjong/ui/MahjongTable';
 import { Mahjong } from '../../games/mahjong/game';
+import { ChineseWerewolf } from '../../games/chinese-werewolf/game';
+import { ChineseWerewolfBoard } from '../../games/chinese-werewolf/ui/Board';
 
 export default function Game({ room, self }) {
     switch (room.ctx.id) {
@@ -19,6 +21,8 @@ export default function Game({ room, self }) {
         //   }
         case 'mahjong':
             return <BGIOClient room={room} self={self} game={Mahjong} board={MahjongTable} />
+        case 'chinese-werewolf':
+            return <BGIOClient room={room} self={self} game={ChineseWerewolf} board={ChineseWerewolfBoard} />
         default:
             return <Maintenance />
     }

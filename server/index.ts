@@ -15,6 +15,7 @@ log4js.configure('log4js.config.json');
 // boardgame.io server
 import { Server } from 'boardgame.io/server';
 import { Mahjong } from '../src/games/mahjong/game';
+import { ChineseWerewolf } from '../src/games/chinese-werewolf/game';
 
 import env from 'dotenv';
 env.config();
@@ -79,7 +80,9 @@ function startServer(): http.Server {
 
 function startBGServer() {
     const logger = log4js.getLogger('BGIO');
-    const server = Server({ games: [Mahjong] });
+    const server = Server({
+        games: [Mahjong, ChineseWerewolf]
+    });
     server.run(parseInt(process.env.REACT_APP_BGIO_PORT || '8000', 10), () => {
         logger.info(`Server is listening on ${process.env.REACT_APP_BGIO_PORT || 8000}`);
     });

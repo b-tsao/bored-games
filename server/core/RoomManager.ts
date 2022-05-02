@@ -24,10 +24,10 @@ class RoomManager {
    *
    * @return room if successful, throws an error otherwise.
    */
-  createRoom(gameId: string, callback: AnyFunction) {
-    logger.trace(`Creating game (${gameId}) room`);
+  createRoom(game: any, callback: AnyFunction) {
+    logger.trace(`Creating game (${game.id}) room`);
     try {
-      const room = new Room(gameId);
+      const room = new Room(game);
       let uid = 'default';
       let success = false;
       do {
@@ -35,12 +35,12 @@ class RoomManager {
         success = this.roomTree.add(uid, room);
       } while (!success);
       room.key = uid;
-      logger.info(`Game (${gameId}) room (${room.key}) created`);
+      logger.info(`Game (${game.id}) room (${room.key}) created`);
       this.roomTimer(room.key, 300000); // If no one joins within 5 minutes, expire room
       return callback(null, room);
     } catch (err) {
-      logger.error(`Failed to create game (${gameId}) room: ${err}`);
-      return callback(err.message);
+      logger.error(`Failed to create game (${game.id}) room: ${err}`);
+      return callback(err);
     }
   }
 

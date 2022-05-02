@@ -56,7 +56,7 @@ export default function Games() {
               title={game.title}
               subtitle={game.subtitle}
               image={game.image}
-              onClick={gameCard => { setGame({ id: game.id, gameCard }) }} />
+              onClick={gameCard => { setGame({ id: game.id, title: game.title, gameCard }) }} />
           </Grid>
         )}
       </Grid>

@@ -16,31 +16,18 @@ import {
 import constants from '../constants.json';
 import Player from './player';
 
-// function newHand(ctx) {
-//     return {
-//         players: ctx.playOrder.reduce((acc, pid) => {
-//             acc[pid] = {
-//                 hand: [],
-//                 revealed: [],
-//                 concealed: [], // Used for concealed kongs
-//                 bonus: []
-//             };
-//             return acc;
-//         }, {}),
-//         dice: [],
-//         discard: [],
-//         wall: new Wall(),
-//         claims: [],
-//         winner: null // Used for hand winner
-//     };
-// }
-
 export const ChineseWerewolf = {
     name: 'chinese-werewolf',
 
-    setup: (ctx) => ({
-        players: ctx.playOrder.map(() => new Player())
-    }),
+    // setup: (ctx, setupData) => ({
+    //     players: ctx.playOrder.map(() => new Player())
+    // }),
+    setup: (ctx, setupData) => {
+        console.log('setup', ctx, setupData);
+        return {
+            players: ctx.playOrder.map(() => new Player())
+        };
+    },
 
     playerView: (G, ctx, playerID) => ({
         players: (() => {

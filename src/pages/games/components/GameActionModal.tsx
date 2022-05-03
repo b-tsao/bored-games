@@ -77,7 +77,7 @@ export default function GameActionModal(props) {
               variant='contained'
               color='primary'
               className={classes.button}
-              disabled={!!client}
+              disabled={!!client || props.game && props.game.disabled}
               onClick={handleCreate}>
               Create
             <CreateIcon className={classes.buttonIcon} />

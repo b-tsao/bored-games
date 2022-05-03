@@ -38,6 +38,7 @@ import {
 import NameModal from './components/NameModal';
 
 import { ClientContext } from '../../Contexts';
+import Settings from './Settings';
 
 function TabContainer({ children, dir }) {
   return (
@@ -392,7 +393,7 @@ export default function Room({ room, self }) {
                 textColor='primary'
                 variant='fullWidth'>
                 <Tab label='Lobby' />
-                <Tab label='Settings' disabled />
+                <Tab label='Settings' />
               </Tabs>
             </AppBar>
           </div>
@@ -410,8 +411,10 @@ export default function Room({ room, self }) {
           </TabContainer>}
         {tabValue === 1 &&
           <TabContainer dir={theme.direction}>
-            <Grid container spacing={3}>
-            </Grid>
+            <Settings 
+              self={self}
+              room={room}
+            />
           </TabContainer>}
       </Container>
       <Hidden xsDown>

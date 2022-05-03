@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
@@ -16,31 +16,30 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const games = [
-  {
-    id: 'the-resistance-avalon',
-    title: 'The Resistance: Avalon',
-    subtitle: 'Social Deduction, Deception, Teamwork, Co-op',
-    image: 'https://cdn.glitch.com/d9f05fc8-83a1-4f59-98e2-2ce32c0f849d%2Favalon.jpg?v=1565656821873'
-  },
-  {
-    id: 'mahjong',
-    title: 'Mahjong',
-    subtitle: 'Strategy',
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSx8XvsNSn730b4puD7w2F4FtV0kCtcylFhGI0ZeNuzgDa2WRBB&usqp=CAU'
-  },
-  {
-    id: 'chinese-werewolf',
-    title: '狼人杀',
-    subtitle: 'Social Deduction, Deception, Teamwork, Co-op',
-    image: 'https://shopee.tw/blog/wp-content/uploads/2019/08/%E7%8B%BC%E4%BA%BA%E6%AE%BA.png'
-  }
-];
-
 export default function Games() {
   const classes = useStyles();
 
+  const [games, setGames]: [any[], (...args: any[]) => any] = useState([]);
   const [game, setGame]: [any, (...args: any[]) => any] = useState(null);
+
+  useEffect(() => {
+    const req = new XMLHttpRequest();
+    req.onreadystatechange = () => {
+      // Call a function when the state changes.
+      if (req.readyState === XMLHttpRequest.DONE) {
+        // Request finished. Do processing here.
+        if (req.status === 200) {
+          setGames(JSON.parse(req.response));
+        } else {
+          // TODO error
+        }
+      }
+    };
+
+    req.open('GET', '/games');
+    req.send();
+    return () => {};
+  }, []);
 
   return (
     <Container className={classes.cardGrid} maxWidth="md">
@@ -56,7 +55,7 @@ export default function Games() {
               title={game.title}
               subtitle={game.subtitle}
               image={game.image}
-              onClick={gameCard => { setGame({ id: game.id, title: game.title, gameCard }) }} />
+              onClick={gameCard => { setGame({ id: game.id, title: game.title, disabled: game.disabled, gameCard }) }} />
           </Grid>
         )}
       </Grid>

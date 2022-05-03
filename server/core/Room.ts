@@ -4,6 +4,8 @@ import { errorListener } from './lib/ImmerPlugin';
 import Game from './Game';
 // import Avalon from '../../src/games/avalon/Game';
 
+import * as card from '../games/chinese-werewolf/card';
+
 import BGIOWrapper from './BGIOWrapper';
 import { People, Player, AnyFunction } from './types';
 
@@ -29,10 +31,22 @@ export default class Room {
         // this.game = new Game(Avalon);
         break;
       case 'mahjong':
-        this.game = new BGIOWrapper(props, { numPlayers: 4 });
+        throw new Error('Currently unavailable');
+        this.game = new BGIOWrapper(props, { numPlayers: 4, setupData: {} });
         break;
       case 'chinese-werewolf':
-        this.game = new BGIOWrapper(props, { numPlayers: 8 });
+        this.game = new BGIOWrapper(props, {
+          numPlayers: 8,
+          setupData: {
+            cards: [card.prophet.id, card.witch.id, card.bodyguard.id, card.hunter.id, card.civilian.id, card.werewolf.id, card.werewolf.id, card.werewolf.id]
+          },
+          static: {
+            cards: {
+              town: [card.prophet, card.witch, card.bodyguard, card.hunter, card.civilian],
+              wolves: [card.werewolf]
+            }
+          }
+        });
         break;
       default:
         throw new Error('Game not supported');

@@ -153,8 +153,6 @@ export default function GameRoom() {
 
   let display = <LoadingRoom />;
 
-  console.log('render', client, JSON.stringify(room));
-
   if (room) {
     console.log('room', room);
     const self = client ? getPlayer(room.ctx.players, client.id) : null;

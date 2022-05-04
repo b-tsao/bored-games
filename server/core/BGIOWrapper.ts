@@ -15,11 +15,11 @@ const logger = log4js.getLogger('BGIO');
 export default class BGIOWrapper {
     id: string;
     title: string;
-    settings: object;
+    settings: any;
     state: object;
     context: object;
 
-    constructor(props: any, settings: object) {
+    constructor(props: any, settings: any) {
         this.id = props.id;
         this.title = props.title;
         this.settings = settings;
@@ -138,6 +138,15 @@ export default class BGIOWrapper {
     }
 
     changeSettings(settings, callback: AnyFunction) {
-        return;
+        const ctx = {
+            settings: {
+                setupData: this.settings.setupData
+            }
+        };
+        const [nextCtx, changes] = changeListener(ctx, (draft) => {
+            deepExtend(draft.settings.setupData, settings);
+        });
+        this.settings.setupData = nextCtx.settings.setupData;
+        callback(null, changes);
     }
 }

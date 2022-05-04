@@ -7,6 +7,13 @@ function curryChangeListener(fn: AnyFunction) {
   });
 }
 
+/**
+ * This error listener takes in a function (fn) that if returns a string will throw that string as an error.
+ * Otherwise the fn should return null for a successful change patch.
+ * @param state 
+ * @param fn 
+ * @returns 
+ */
 export function errorListener(state: any, fn: AnyFunction) {
   // Wrapper to modify immer behavior in order to detect errors rather than always check if typeof === 'string',
   // otherwise it's basically changeListener

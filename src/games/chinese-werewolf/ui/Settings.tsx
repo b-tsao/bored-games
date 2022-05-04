@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import clsx from 'clsx';
 import {
   makeStyles,
@@ -14,7 +14,9 @@ import {
   FormGroup,
   FormLabel,
   Grid,
+  MenuItem,
   Paper,
+  TextField,
   Typography,
 } from '@material-ui/core';
 
@@ -41,8 +43,7 @@ function ExtraSettings({ self, settings }) {
     client.emit('settings', { extra: { [name]: event.target.checked } });
   };
 
-//   const { enableHistory, spectatorsSeeIdentity, evilClarivoyance } = settings.extra;
-  const { enableHistory, spectatorsSeeIdentity, evilClarivoyance } = {enableHistory: true, spectatorsSeeIdentity: true, evilClarivoyance: true};
+  const { enableHistory, spectatorsSeeIdentity } = settings.setupData.extra;
   const error = !self || !self.host;
 
   return (
@@ -66,18 +67,53 @@ function ExtraSettings({ self, settings }) {
               control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
               label="Enable spectators to see everyone’s identity"
             />
-            <FormControlLabel
-              control={
-                <Checkbox checked={evilClarivoyance} onChange={handleChange('evilClarivoyance')} value="evilClarivoyance" />
-              }
-              label="Enable evil to see each other’s vote"
-            />
           </FormGroup>
         </FormControl>
       </div>
     </React.Fragment>
   );
 }
+
+const usePresetSettingsStyle = makeStyles(theme => ({
+    presetSettings: {
+      display: 'flex',
+    }
+  }));
+  
+  function PresetSettings({ self, settings }) {
+    const [client] = useContext(ClientContext);
+
+    const classes = usePresetSettingsStyle();
+  
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const cards = JSON.parse(event.target.value);
+        client.emit('settings', { cards });
+    };
+
+    const disabled = !self || !self.host;
+
+    return (
+      <React.Fragment>
+        <div className={classes.presetSettings}>
+            <TextField
+                id="outlined-select-preset"
+                select
+                label="Preset"
+                value=""
+                onChange={handleChange}
+                helperText="Please select a preset"
+                disabled={disabled}
+            >
+            {Object.keys(settings.static.presets).map((preset, idx) => (
+                <MenuItem key={idx} value={JSON.stringify(settings.static.presets[preset])}>
+                    {preset}
+                </MenuItem>
+            ))}
+            </TextField>
+        </div>
+      </React.Fragment>
+    );
+  }
 
 const useCardStyles = makeStyles(theme => ({
   container: {
@@ -115,15 +151,12 @@ function CardGrid({ self, settings }) {
 
   const classes = useCardStyles();
 
-  const handleSelect = (side, cardIdx) => {
-    let selectedCards = settings.selectedCards[side];
-    const idx = selectedCards.indexOf(cardIdx);
-    if (idx < 0) {
-      selectedCards = [...selectedCards, cardIdx];
-    } else {
-      selectedCards = [...selectedCards.slice(0, idx), ...selectedCards.slice(idx + 1)];
-    }
-    client.emit('settings', { selectedCards: { [side]: selectedCards } });
+  const handleChange = (id, value) => {
+      const cards = settings.setupData.cards.filter((cid) => cid !== id);
+      for (let i = 0; i < value; i++) {
+          cards.push(id);
+      }
+      client.emit('settings', { cards });
   };
 
   const disabled = !self || !self.host;
@@ -135,21 +168,27 @@ function CardGrid({ self, settings }) {
           <Typography>Town</Typography>
         </Paper>
         <Grid container spacing={2}>
-          {settings.static.cards.town.map((card, idx) => {
-            const selectedCard = true;
-            const disabledGood = false;
+          {settings.static.cards.town.map((card) => {
+            const value = settings.setupData.cards.filter((cid) => cid === card.id).length;
+            const selectedCard = value > 0;
             return (
               <Grid item key={card.id}>
                 <Card className={classes.card}>
-                  <CardActionArea
-                    disabled={disabledGood}
-                    onClick={() => { handleSelect('good', idx) }}>
+                  <CardActionArea disabled={true}>
                     <img
                       src={card.img}
                       alt={card.label}
                       className={selectedCard ? classes.selectedImage : classes.image} />
                   </CardActionArea>
                 </Card>
+                <TextField
+                    id="outlined-number"
+                    label="Count"
+                    type="number"
+                    value={value}
+                    onChange={(e) => { handleChange(card.id, e.target.value) }}
+                    disabled={disabled}
+                />
               </Grid>
             );
           })}
@@ -158,21 +197,27 @@ function CardGrid({ self, settings }) {
           <Typography>Wolves</Typography>
         </Paper>
         <Grid container spacing={2}>
-          {settings.static.cards.wolves.map((card, idx) => {
-            const selectedCard = false;
-            const disabledEvil = true;
+          {settings.static.cards.wolves.map((card) => {
+            const value = settings.setupData.cards.filter((cid) => cid === card.id).length;
+            const selectedCard = value > 0;
             return (
               <Grid item key={card.id}>
                 <Card className={classes.card}>
-                  <CardActionArea
-                    disabled={disabledEvil}
-                    onClick={() => { handleSelect('evil', idx) }}>
+                  <CardActionArea disabled={true}>
                     <img
                       src={card.img}
                       alt={card.label}
                       className={selectedCard ? classes.selectedImage : classes.image} />
                   </CardActionArea>
                 </Card>
+                <TextField
+                    id="outlined-number"
+                    label="Count"
+                    type="number"
+                    value={value}
+                    onChange={(e) => { handleChange(card.id, e.target.value) }}
+                    disabled={disabled}
+                />
               </Grid>
             );
           })}
@@ -209,8 +254,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export function ChineseWerewolfSettings({ room, self }) {
-  console.log('settings', room, self);
-
   const classes = useStyles();
 
   const paddedPaper = clsx(classes.paper, classes.padding);
@@ -219,9 +262,15 @@ export function ChineseWerewolfSettings({ room, self }) {
     <Grid container spacing={3}>
         {/* Extra Settings */}
         <Grid item xs={12} md={6} lg={6}>
-        <Paper className={paddedPaper}>
-            <ExtraSettings self={self} settings={room.ctx.settings} />
-        </Paper>
+            <Paper className={paddedPaper}>
+                <ExtraSettings self={self} settings={room.ctx.settings} />
+            </Paper>
+        </Grid>
+        {/* Preset Settings */}
+        <Grid item xs={12} md={6} lg={6}>
+            <Paper className={paddedPaper}>
+                <PresetSettings self={self} settings={room.ctx.settings} />
+            </Paper>
         </Grid>
         {/* Cards */}
         <CardGrid self={self} settings={room.ctx.settings} />

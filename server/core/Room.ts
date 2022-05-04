@@ -38,9 +38,19 @@ export default class Room {
         this.game = new BGIOWrapper(props, {
           numPlayers: 8,
           setupData: {
-            cards: [card.prophet.id, card.witch.id, card.bodyguard.id, card.hunter.id, card.civilian.id, card.werewolf.id, card.werewolf.id, card.werewolf.id]
+            cards: [],
+            extra: {
+              enableHistory: true,
+              spectatorsSeeIdentity: true
+            }
           },
           static: {
+            presets: {
+              '预女猎守': [
+                card.prophet.id, card.witch.id, card.hunter.id, card.bodyguard.id, card.civilian.id,
+                card.werewolf.id, card.werewolf.id, card.werewolf.id
+              ]
+            },
             cards: {
               town: [card.prophet, card.witch, card.bodyguard, card.hunter, card.civilian],
               wolves: [card.werewolf]

@@ -75,6 +75,10 @@ export default class Game {
     }
   }
 
+  end(ctx, callback: AnyFunction) {
+    // TODO
+  }
+
   emit(move, data) {
     if (this.moves.hasOwnProperty(move)) {
       const err = this.moves[move](this.state, this.ctx, data);

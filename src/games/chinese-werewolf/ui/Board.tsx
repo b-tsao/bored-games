@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
+import { fade } from '@material-ui/core/styles/colorManipulator';
 import {
     Badge,
+    Box,
     Card,
     CardActionArea,
     CardContent,
@@ -26,6 +28,61 @@ import {
   } from '@material-ui/core';
 
 import constants from "../constants.json";
+import { ExitToApp } from "@material-ui/icons";
+
+import { ClientContext } from '../../../Contexts';
+
+const useActionBarStyles = makeStyles((theme) => ({
+  panel: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    background: fade(theme.palette.background.default, .9)
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  shrinkRipple: {
+    padding: theme.spacing(1),
+  },
+  headerGutters: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
+}));
+
+function ActionBar() {
+  const [client] = useContext(ClientContext);
+
+  const classes = useActionBarStyles();
+
+  const handleClick = () => {
+      client.emit('end');
+  };
+
+  return (
+    <Box>
+      <Paper className={classes.panel} square elevation={0}>
+        {/* header */}
+        <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
+          {/* TODO: Swap with brand image. */}
+          <Typography variant="h6" color="inherit">
+            {'狼人杀'}
+          </Typography>
+
+          <Box flexGrow={1} />
+
+          <div>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit game" onClick={handleClick}>
+              <ExitToApp />
+            </IconButton>
+          </div>
+        </Toolbar>
+      </Paper>
+    </Box>
+  );
+}
 
 const usePlayersTableStyle = makeStyles(theme => ({
     disconnected: {
@@ -239,6 +296,7 @@ export function ChineseWerewolfBoard(props) {
     return (
         <main className={classes.content}>
             <Container maxWidth="lg" className={classes.container}>
+                <ActionBar />
                 {/* Players */}
                 <Grid item xs={12}>
                 <Paper className={paddedPaper}>

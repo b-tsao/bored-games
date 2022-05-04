@@ -24,6 +24,7 @@ export default class IORoomServer {
       this.attachHostActionListener(client);
       this.attachSettingsListener(client);
       this.attachStartListener(client);
+      this.attachEndListener(client);
       // this.attachGameListener(client);
       this.attachChatListener(client);
     });
@@ -206,6 +207,38 @@ export default class IORoomServer {
       room.startGame(client.userId, (err, ctxChanges, stateChanges, prevState) => {
         if (err) {
           logger.error(`User (${client.userId}) start game in room (${key}) failed: ${err}`);
+          client.emit('message', { status: 'error', text: err });
+        } else {
+          for (const id in room.players) {
+            const player = room.players[id];
+            if (player.client.status === 'connected') {
+              const [filteredState, filterChanges]: any = room.getState(id);
+              const [finalState, finalChanges]: any = compressChanges(prevState, stateChanges.concat(filterChanges));
+              this.ioRoomServer.to(player.client.id).emit('changes', ctxChanges, finalChanges);
+            }
+          }
+          const [filteredState, filterChanges]: any = room.getState();
+          const [finalState, finalChanges]: any = compressChanges(prevState, stateChanges.concat(filterChanges));
+          this.ioRoomServer.to(`${room.key}#spectators`).emit('changes', ctxChanges, finalChanges);
+        }
+      });
+    });
+  }
+
+  attachEndListener(client) {
+    client.on('end', () => {
+      const key = client.roomKey;
+      logger.trace(`User (${client.userId}) requesting end game in room (${key})`);
+      const room = RoomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`User (${client.userId}) end game in room (${key}) failed: Room does not exist`);
+        client.emit('message', { status: 'error', text: 'Room does not exist' });
+        client.disconnect();
+        return;
+      }
+      room.endGame(client.userId, (err, ctxChanges, stateChanges, prevState) => {
+        if (err) {
+          logger.error(`User (${client.userId}) end game in room (${key}) failed: ${err}`);
           client.emit('message', { status: 'error', text: err });
         } else {
           for (const id in room.players) {

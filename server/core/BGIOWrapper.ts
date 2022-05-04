@@ -16,7 +16,7 @@ export default class BGIOWrapper {
     id: string;
     title: string;
     settings: any;
-    state: object;
+    state: any;
     context: object;
 
     constructor(props: any, settings: any) {
@@ -86,6 +86,18 @@ export default class BGIOWrapper {
             .then(json => json.playerCredentials);
     }
 
+    async leaveGame(gameID: string, body: object) {
+        await fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/${gameID}/leave`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body)
+        }).then(res => {
+            console.log(res);
+        });
+    }
+
     async getGame(gameID: string) {
         const res = await fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/${gameID}`);
         return await res.json();
@@ -133,6 +145,29 @@ export default class BGIOWrapper {
 
         logger.info(`Room (${ctx.key}) created a game (${gameID})`);
         logger.debug(await this.getGame(gameID));
+
+        return callback(null, ctxChanges, stateChanges, prevState);
+    }
+
+    async end(ctx, callback: AnyFunction) {
+        this.context = { inProgress: false };
+        const [nextCtx, ctxChanges]: any = changeListener(ctx, draft => {
+            deepExtend(draft, this.context);
+        });
+
+        const prevState = this.state;
+        this.state = {};
+        const [nextState, stateChanges]: any = changeListener(prevState, draft => {
+            deepExtend(draft, this.state);
+        });
+
+        for (const pid in ctx.players) {
+            const player = ctx.players[pid];
+            await this.leaveGame(prevState.gameID, { playerID: player.id, credentials: player.credentials });
+        }
+
+        logger.info(`Room (${ctx.key}) ending a game (${prevState.gameID})`);
+        logger.debug(await this.getGame(prevState.gameID));
 
         return callback(null, ctxChanges, stateChanges, prevState);
     }

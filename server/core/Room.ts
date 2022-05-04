@@ -402,6 +402,20 @@ export default class Room {
     }
   }
 
+  endGame(id: string, callback: AnyFunction) {
+    this.logger.trace(`User (${id}) ending game`);
+    const player: Player = this.players[id];
+    if (!this.players.hasOwnProperty(id) || !player.host) {
+      const reason = 'Host only action';
+      this.logger.error(`User (${id}) end game failed: ${reason}`);
+      return callback(reason);
+    } else {
+      this.game.end(this.getContext(), (err, ctxChanges, stateChanges, prevState) => {
+        return callback(err, ctxChanges, stateChanges, prevState);
+      });
+    }
+  }
+
   // gameAction(id, action, data) {
   //   this.logger.trace(`User (${id}) game action (${action})`);
   //   if (action === 'start') {

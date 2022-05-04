@@ -165,7 +165,11 @@ export default function GameRoom() {
         display = <Redirect to={`${url}/game`} />;
       }
     } else {
-      display = <Room room={room} self={self} />;
+      if (window.location.pathname.endsWith('/game')) {
+        display = <Redirect to={url.substring(0, url.length - '/game'.length)} />;
+      } else {
+        display = <Room room={room} self={self} />;
+      }
     }
   }
 

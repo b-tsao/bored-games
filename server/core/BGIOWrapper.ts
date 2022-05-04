@@ -139,14 +139,24 @@ export default class BGIOWrapper {
 
     changeSettings(settings, callback: AnyFunction) {
         const ctx = {
-            settings: {
-                setupData: this.settings.setupData
-            }
+            settings: this.settings
         };
+        if (settings.numPlayers) {
+            const numPlayers = settings.numPlayers;
+            delete settings.numPlayers;
+            settings = {
+                numPlayers,
+                setupData: settings
+            };
+        } else {
+            settings = {
+                setupData: settings
+            };
+        }
         const [nextCtx, changes] = changeListener(ctx, (draft) => {
-            deepExtend(draft.settings.setupData, settings);
+            deepExtend(draft.settings, settings);
         });
-        this.settings.setupData = nextCtx.settings.setupData;
+        this.settings = nextCtx.settings;
         callback(null, changes);
     }
 }

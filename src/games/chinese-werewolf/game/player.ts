@@ -1,18 +1,45 @@
 import constants from '../constants.json';
 
+export enum Status {
+    alive,
+    dead
+}
+
 export enum Role {
+    werewolf,
     prophet,
     witch,
-    bodyguard,
     hunter,
+    bodyguard,
     citizen
 }
 
 export default class Player {
     role: Role;
+    status: Status;
 
-    constructor() {
-        this.role = Role.citizen;
+    constructor(role) {
+        switch (role) {
+            case 'werewolf':
+                this.role = Role.werewolf;
+                break;
+            case 'prophet':
+                this.role = Role.prophet;
+                break;
+            case 'witch':
+                this.role = Role.witch;
+                break;
+            case 'hunter':
+                this.role = Role.hunter;
+                break;
+            case 'bodyguard':
+                this.role = Role.bodyguard;
+                break;
+            default:
+                this.role = Role.citizen;
+        }
+
+        this.status = Status.alive;
     }
 }
 

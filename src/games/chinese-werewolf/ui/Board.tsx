@@ -191,6 +191,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
               {/* At night this will be action */}
               {/* At day/vote this will be vote */}
               {/* At day/reveal this will be reveal */}
+              <TableCell>Role</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>

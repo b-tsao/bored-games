@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import clsx from 'clsx';
 import {
   makeStyles,
@@ -74,46 +74,95 @@ function ExtraSettings({ self, settings }) {
   );
 }
 
+const usePlayerSettingsStyle = makeStyles(theme => ({
+  playerSettings: {
+    display: 'flex',
+  }
+}));
+
+function PlayerSettings({ self, players, settings }) {
+  const [client] = useContext(ClientContext);
+
+  const [error, setError] = useState(null);
+
+  const classes = usePlayerSettingsStyle();
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const numPlayers = Number(event.target.value);
+      if (Object.keys(players).length > numPlayers) {
+        setError("Can not set players below number of currently joined players");
+      } else if (numPlayers > 20) {
+        setError("Too many players");
+      } else {
+        client.emit('settings', { numPlayers });
+      }
+  };
+
+  const handleBlur = () => {
+    setError(null);
+  }
+
+  const disabled = !self || !self.host;
+
+  return (
+    <React.Fragment>
+      <div className={classes.playerSettings}>
+        <TextField
+          error={!!error}
+          id="outlined-number"
+          label="Players"
+          type="number"
+          helperText={error}
+          value={settings.numPlayers}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          disabled={disabled}
+        />
+      </div>
+    </React.Fragment>
+  );
+}
+
 const usePresetSettingsStyle = makeStyles(theme => ({
     presetSettings: {
       display: 'flex',
     }
   }));
   
-  function PresetSettings({ self, settings }) {
-    const [client] = useContext(ClientContext);
+function PresetSettings({ self, settings }) {
+  const [client] = useContext(ClientContext);
 
-    const classes = usePresetSettingsStyle();
-  
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const cards = JSON.parse(event.target.value);
-        client.emit('settings', { cards });
-    };
+  const classes = usePresetSettingsStyle();
 
-    const disabled = !self || !self.host;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const cards = JSON.parse(event.target.value);
+      client.emit('settings', { cards });
+  };
 
-    return (
-      <React.Fragment>
-        <div className={classes.presetSettings}>
-            <TextField
-                id="outlined-select-preset"
-                select
-                label="Preset"
-                value=""
-                onChange={handleChange}
-                helperText="Please select a preset"
-                disabled={disabled}
-            >
-            {Object.keys(settings.static.presets).map((preset, idx) => (
-                <MenuItem key={idx} value={JSON.stringify(settings.static.presets[preset])}>
-                    {preset}
-                </MenuItem>
-            ))}
-            </TextField>
-        </div>
-      </React.Fragment>
-    );
-  }
+  const disabled = !self || !self.host;
+
+  return (
+    <React.Fragment>
+      <div className={classes.presetSettings}>
+        <TextField
+            id="outlined-select-preset"
+            select
+            label="Preset"
+            value=""
+            onChange={handleChange}
+            helperText="Please select a preset"
+            disabled={disabled}
+        >
+        {Object.keys(settings.static.presets).map((preset, idx) => (
+            <MenuItem key={idx} value={JSON.stringify(settings.static.presets[preset])}>
+                {preset}
+            </MenuItem>
+        ))}
+        </TextField>
+      </div>
+    </React.Fragment>
+  );
+}
 
 const useCardStyles = makeStyles(theme => ({
   container: {
@@ -173,6 +222,7 @@ function CardGrid({ self, settings }) {
             const selectedCard = value > 0;
             return (
               <Grid item key={card.id}>
+                <Typography>{card.label}</Typography>
                 <Card className={classes.card}>
                   <CardActionArea disabled={true}>
                     <img
@@ -202,6 +252,7 @@ function CardGrid({ self, settings }) {
             const selectedCard = value > 0;
             return (
               <Grid item key={card.id}>
+                <Typography>{card.label}</Typography>
                 <Card className={classes.card}>
                   <CardActionArea disabled={true}>
                     <img
@@ -269,6 +320,7 @@ export function ChineseWerewolfSettings({ room, self }) {
         {/* Preset Settings */}
         <Grid item xs={12} md={6} lg={6}>
             <Paper className={paddedPaper}>
+                <PlayerSettings self={self} players={room.ctx.players} settings={room.ctx.settings} />
                 <PresetSettings self={self} settings={room.ctx.settings} />
             </Paper>
         </Grid>

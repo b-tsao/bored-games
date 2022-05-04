@@ -24,8 +24,16 @@ export const ChineseWerewolf = {
     // }),
     setup: (ctx, setupData) => {
         console.log('setup', ctx, setupData);
+        const { cards } = setupData;
+        let shuffledCards = cards;
+        for (let i = 0; i < 3; i++) {
+            shuffledCards = ctx.random.Shuffle(cards);
+        }
         return {
-            players: ctx.playOrder.map(() => new Player())
+            players: ctx.playOrder.reduce((player, pid) => {
+                player[pid] = new Player(shuffledCards[pid])
+                return player;
+            }, {}),
         };
     },
 

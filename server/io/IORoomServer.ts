@@ -23,9 +23,7 @@ export default class IORoomServer {
       this.attachDisconnectListener(client);
       this.attachHostActionListener(client);
       this.attachSettingsListener(client);
-      this.attachStartListener(client);
-      this.attachEndListener(client);
-      // this.attachGameListener(client);
+      this.attachGameListener(client);
       this.attachChatListener(client);
     });
   }
@@ -193,7 +191,7 @@ export default class IORoomServer {
     });
   }
 
-  attachStartListener(client) {
+  attachGameListener(client) {
     client.on('start', () => {
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) requesting start game in room (${key})`);
@@ -223,9 +221,7 @@ export default class IORoomServer {
         }
       });
     });
-  }
 
-  attachEndListener(client) {
     client.on('end', () => {
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) requesting end game in room (${key})`);

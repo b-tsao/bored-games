@@ -93,14 +93,16 @@ export default class BGIOWrapper {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body)
-        }).then(res => {
-            console.log(res);
         });
     }
 
     async getGame(gameID: string) {
         const res = await fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/${gameID}`);
-        return await res.json();
+        if (res.status === 200) {
+            return await res.json();
+        } else {
+            throw new Error(res.statusText);
+        }
     }
 
     async start(ctx: { key: string, players: People }, callback: AnyFunction) {
@@ -155,19 +157,19 @@ export default class BGIOWrapper {
             deepExtend(draft, this.context);
         });
 
-        const prevState = this.state;
-        this.state = {};
-        const [nextState, stateChanges]: any = changeListener(prevState, draft => {
-            deepExtend(draft, this.state);
+        const [nextState, stateChanges]: any = await asyncChangeListener(this.state, async state => {
+            for (const id in state.players) {
+                const player = state.players[id];
+                await this.leaveGame(state.gameID, { playerID: player.id, credentials: player.credentials });
+            }
+            for (const key in state) {
+                delete state[key];
+            }
         });
-
-        for (const pid in ctx.players) {
-            const player = ctx.players[pid];
-            await this.leaveGame(prevState.gameID, { playerID: player.id, credentials: player.credentials });
-        }
+        const prevState = this.state;
+        this.state = nextState;
 
         logger.info(`Room (${ctx.key}) ending a game (${prevState.gameID})`);
-        logger.debug(await this.getGame(prevState.gameID));
 
         return callback(null, ctxChanges, stateChanges, prevState);
     }

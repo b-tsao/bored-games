@@ -17,7 +17,7 @@ export const text = {
                         "witch": "女巫",
                         "bodyguard": "守卫",
                         "hunter": "猎人",
-                        "civilian": "平民"
+                        "citizen": "平民"
                     },
                     "wolves": {
                         "werewolf": "狼"

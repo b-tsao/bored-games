@@ -19,9 +19,6 @@ import Player from './player';
 export const ChineseWerewolf = {
     name: 'chinese-werewolf',
 
-    // setup: (ctx, setupData) => ({
-    //     players: ctx.playOrder.map(() => new Player())
-    // }),
     setup: (ctx, setupData) => {
         console.log('setup', ctx, setupData);
         const { cards } = setupData;
@@ -29,11 +26,19 @@ export const ChineseWerewolf = {
         for (let i = 0; i < 3; i++) {
             shuffledCards = ctx.random.Shuffle(cards);
         }
+
+        const players = ctx.playOrder.reduce((player, pid) => {
+            player[pid] = new Player()
+            return player;
+        }, {});
+
+        // distribute out cards to players until it runs out
+        const pids = Object.keys(players);
+        for (let i = 0; i < shuffledCards.length; i++) {
+            players[pids[i % pids.length]].addRole(shuffledCards[i]);
+        }
         return {
-            players: ctx.playOrder.reduce((player, pid) => {
-                player[pid] = new Player(shuffledCards[pid])
-                return player;
-            }, {}),
+            players
         };
     },
 

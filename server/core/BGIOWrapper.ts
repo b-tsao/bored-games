@@ -22,7 +22,10 @@ export default class BGIOWrapper {
     constructor(props: any, settings: any) {
         this.id = props.id;
         this.title = props.title;
-        this.settings = settings;
+        this.settings = {
+            numPlayers: 4,
+            ...settings
+        };
         this.state = {};
         this.context = { inProgress: false };
     }
@@ -41,19 +44,19 @@ export default class BGIOWrapper {
         return changeListener(this.state, state => undefined);
     }
 
-    async createGame() {
+    async createGame(body) {
         return fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(this.settings)
+            body: JSON.stringify(body)
         })
             .then(res => res.json()) // expecting a json response
             .then(json => json.gameID);
 
         // return new Promise((resolve) => {
-        //     const payload = JSON.stringify(this.settings);
+        //     const payload = JSON.stringify(body);
         //     const options = {
         //         hostname: 'localhost',
         //         port: process.env.REACT_APP_BGIO_PORT,
@@ -106,7 +109,8 @@ export default class BGIOWrapper {
     }
 
     async start(ctx: { key: string, players: People }, callback: AnyFunction) {
-        const gameID = await this.createGame();
+        const numPlayers = Object.keys(ctx.players).length;
+        const gameID = await this.createGame({ ...this.settings, numPlayers });
         this.context = { inProgress: true };
 
         const [nextCtx, ctxChanges]: any = changeListener(ctx, draft => {

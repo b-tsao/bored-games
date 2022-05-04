@@ -22,9 +22,9 @@ export const bodyguard = {
     img: 'http://5b0988e595225.cdn.sohucs.com/images/20190212/5d9e45821e0b43c1a94084e8ee4dfd30.jpeg'
 }
 
-export const civilian = {
-    id: 'civilian',
-    label: label.cards.town.civilian,
+export const citizen = {
+    id: 'citizen',
+    label: label.cards.town.citizen,
     img: 'http://5b0988e595225.cdn.sohucs.com/images/20190212/5d9e45821e0b43c1a94084e8ee4dfd30.jpeg'
 }
 

@@ -15,31 +15,35 @@ export enum Role {
 }
 
 export default class Player {
-    role: Role;
+    roles: Role[];
     status: Status;
 
-    constructor(role) {
+    constructor() {
+        this.roles = [];
+        this.status = Status.alive;
+    }
+
+    addRole(role) {
         switch (role) {
             case 'werewolf':
-                this.role = Role.werewolf;
+                this.roles.push(Role.werewolf);
                 break;
             case 'prophet':
-                this.role = Role.prophet;
+                this.roles.push(Role.prophet);
                 break;
             case 'witch':
-                this.role = Role.witch;
+                this.roles.push(Role.witch);
                 break;
             case 'hunter':
-                this.role = Role.hunter;
+                this.roles.push(Role.hunter);
                 break;
             case 'bodyguard':
-                this.role = Role.bodyguard;
+                this.roles.push(Role.bodyguard);
                 break;
-            default:
-                this.role = Role.citizen;
+            case 'citizen':
+                this.roles.push(Role.citizen);
+                break;
         }
-
-        this.status = Status.alive;
     }
 }
 

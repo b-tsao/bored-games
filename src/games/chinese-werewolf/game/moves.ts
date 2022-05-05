@@ -21,6 +21,7 @@ export function next(G, ctx) {
 
 export function transfer(G, ctx, pid: number) {
     G.god = Number(pid);
+    G.players[pid].alive = true;
     ctx.events.setActivePlayers({ currentPlayer: Stage.NULL, value: { [pid]: 'god' } });
 }
 

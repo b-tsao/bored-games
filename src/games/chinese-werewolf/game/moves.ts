@@ -1,3 +1,4 @@
+import { INVALID_MOVE } from 'boardgame.io/core';
 import { Role } from './player';
 
 export function setRole(G, ctx, pid: number, pos: number, role: Role) {
@@ -15,15 +16,7 @@ export function start(G, ctx) {
 export function next(G, ctx) {
     if (G.state === 0) { // night
         G.state = 1; // day
-        const stages = {};
-        for (const pid in G.players) {
-            const player = G.players[pid];
-            if (player.alive) {
-                stages[pid] = 'vote';
-            }
-        }
-        stages[String(G.god)] = 'god';
-        ctx.events.setActivePlayers({ value: stages });
+        ctx.events.setActivePlayers({ all: 'vote', value: { [String(G.god)]: 'god' } });
     } else {
         ctx.events.endTurn();
     }
@@ -36,7 +29,9 @@ export function transfer(G, ctx, pid: number) {
 }
 
 export function kill(G, ctx, pid) {
-    G.players[pid].alive = !G.players[pid].alive;
+    const player = G.players[pid];
+    player.vote = '';
+    player.alive = !player.alive;
 }
 
 export function badge(G, ctx, pid) {
@@ -54,15 +49,7 @@ export function lover(G, ctx, pid: number) {
 export function reveal(G, ctx) {
     if (G.reveal) {
         G.reveal = false;
-        const stages = {};
-        for (const pid in G.players) {
-            const player = G.players[pid];
-            if (player.alive) {
-                stages[pid] = 'vote';
-            }
-        }
-        stages[String(G.god)] = 'god';
-        ctx.events.setActivePlayers({ value: stages });
+        ctx.events.setActivePlayers({ all: 'vote', value: { [String(G.god)]: 'god' } });
     } else if (G.state === 1) {
         G.reveal = true;
         ctx.events.setActivePlayers({ value: { [String(G.god)]: 'god' } });
@@ -70,5 +57,10 @@ export function reveal(G, ctx) {
 }
 
 export function vote(G, ctx, pid) {
-    G.players[ctx.playerID].vote = pid;
+    const player = G.players[ctx.playerID];
+    console.log(player);
+    if (!player.alive) {
+        return INVALID_MOVE;
+    }
+    player.vote = pid;
 }

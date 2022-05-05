@@ -253,7 +253,7 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
                 {action.type !== 'badge' ? 'Badge' : 'Cancel'}
             </IconButton>
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Love" onClick={handleLove}>
-                {action.type !== 'lover' ? 'Love' : 'Cancel'}
+                {action.type !== 'love' ? 'Love' : 'Cancel'}
             </IconButton>
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Reveal" onClick={handleReveal}>
                 {'Reveal'}

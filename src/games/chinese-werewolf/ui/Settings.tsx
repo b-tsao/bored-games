@@ -59,14 +59,14 @@ function ExtraSettings({ self, settings }) {
               Only host can make changes to settings
             </FormLabel> : null}
           <FormGroup>
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox checked={enableHistory} onChange={handleChange('enableHistory')} value="enableHistory" />}
               label="Enable history"
             />
             <FormControlLabel
               control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
               label="Enable spectators to see everyone’s identity"
-            />
+            /> */}
             <FormControlLabel
               control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
               label="Double identity"

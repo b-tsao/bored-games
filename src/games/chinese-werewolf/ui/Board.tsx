@@ -218,6 +218,14 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
       }
   }
 
+  const handleReveal = () => {
+      moves.reveal();
+  };
+
+  const handleNext = () => {
+      moves.next();
+  };
+
   const handleEnd = () => {
       client.emit('end');
   };
@@ -248,6 +256,12 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Love" onClick={handleLove}>
                 {action.type !== 'lover' ? 'Love' : 'Cancel'}
             </IconButton>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Reveal" onClick={handleReveal}>
+                {'Reveal'}
+            </IconButton>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Next" onClick={handleNext}>
+                {'Next'}
+            </IconButton>
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleTransfer}>
                 {action.type !== 'transfer' ? 'Transfer Host' : 'Cancel'}
             </IconButton>
@@ -255,7 +269,7 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
                 <ExitToApp />
             </IconButton>
         </Toolbar>
-      );    
+      );
   }
 }
 
@@ -324,6 +338,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
                     action.update(playerId)
                     break;
             }
+        } else {
+            moves.vote(playerId);
         }
     };
 
@@ -431,14 +447,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
               )}
             </TableCell>
             <TableCell component="th" scope="row">
-              <Zoom in={playerChosen}>
-                <Card className={classes.card}>
-                  <img
-                    className={imgClass}
-                    src={"https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F13%2F2015%2F04%2F05%2Ffeatured.jpg&q=60"}
-                    alt={"woohoo"} />
-                </Card>
-              </Zoom>
+              {player.vote}
             </TableCell>
             <TableCell>
                 {

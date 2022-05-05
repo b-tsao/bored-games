@@ -29,12 +29,16 @@ export function kill(G, ctx, pid) {
     G.players[pid].alive = !G.players[pid].alive;
 }
 
-export function badge(G, ctx) {
-
+export function badge(G, ctx, pid) {
+    if (G.badge === pid) {
+        G.badge = null;
+    } else {
+        G.badge = pid;
+    }
 }
 
-export function link(G, ctx) {
-
+export function lover(G, ctx, pid: number) {
+    G.players[pid].lover = !G.players[pid].lover;
 }
 
 export function reveal(G, ctx) {

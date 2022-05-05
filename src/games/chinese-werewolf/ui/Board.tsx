@@ -94,7 +94,7 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
                         r1: changes
                     };
                     const r = changes.player?.id || changes.discard?.role;
-                    const message = `Select a player or role (${r} <-> ?)`;
+                    const message = `Select roles to swap (${r} <-> ?)`;
                     setAction(action.clone(data, message));
                 } else {
                     const data = {
@@ -180,6 +180,44 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
       }
   };
 
+  const handleBadge = () => {
+    if (action.type !== 'badge') {
+        setAction(new Action(
+            'badge',
+            {},
+            'Select a player to badge',
+            (action, changes) => {
+                const pid = changes;
+                if (pid !== playerID) {
+                    moves.badge(pid);
+                }
+                setAction(new Action());
+            }
+        ));
+      } else {
+        setAction(new Action());
+      }
+  }
+
+  const handleLove = () => {
+    if (action.type !== 'love') {
+        setAction(new Action(
+            'love',
+            {},
+            'Select a player to fall in love',
+            (action, changes) => {
+                const pid = changes;
+                if (pid !== playerID) {
+                    moves.lover(pid);
+                }
+                setAction(new Action());
+            }
+        ));
+      } else {
+        setAction(new Action());
+      }
+  }
+
   const handleEnd = () => {
       client.emit('end');
   };
@@ -203,6 +241,12 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
         <Toolbar variant="dense">
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Kill Player" onClick={handleKill}>
                 {action.type !== 'kill' ? 'Kill' : 'Cancel'}
+            </IconButton>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Badge Player" onClick={handleBadge}>
+                {action.type !== 'badge' ? 'Badge' : 'Cancel'}
+            </IconButton>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Love" onClick={handleLove}>
+                {action.type !== 'lover' ? 'Love' : 'Cancel'}
             </IconButton>
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleTransfer}>
                 {action.type !== 'transfer' ? 'Transfer Host' : 'Cancel'}
@@ -275,6 +319,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
             switch (action.type) {
                 case 'transfer':
                 case 'kill':
+                case 'badge':
+                case 'love':
                     action.update(playerId)
                     break;
             }

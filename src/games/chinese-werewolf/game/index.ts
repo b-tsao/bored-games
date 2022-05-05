@@ -5,7 +5,7 @@ import {
     transfer,
     kill,
     badge,
-    link,
+    lover,
     next,
     vote,
     reveal,
@@ -79,7 +79,7 @@ export const ChineseWerewolf = {
                     const { roles, lover, ...others } = G.players[pid];
                     players[pid] = {
                         roles: [],
-                        lover: lover && G.players[pid].lover,
+                        lover: lover && G.players[playerID].lover,
                         ...others
                     };
                 }
@@ -113,7 +113,7 @@ export const ChineseWerewolf = {
                 },
                 stages: {
                     god: {
-                        moves: { transfer, kill, badge, link, reveal, clear, next }
+                        moves: { transfer, kill, badge, lover, reveal, clear, next }
                     },
                     vote: {
                         moves: { vote }

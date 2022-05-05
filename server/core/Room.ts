@@ -31,17 +31,17 @@ export default class Room {
         // this.game = new Game(Avalon);
         break;
       case 'mahjong':
-        throw new Error('Currently unavailable');
         this.game = new BGIOWrapper(props, { numPlayers: 4, setupData: {} });
         break;
       case 'chinese-werewolf':
         this.game = new BGIOWrapper(props, {
-          numPlayers: 8,
+          numPlayers: 9,
           setupData: {
             cards: [],
             extra: {
               enableHistory: true,
-              spectatorsSeeIdentity: true
+              spectatorsSeeIdentity: true,
+              doubleIdentity: false
             }
           },
           static: {

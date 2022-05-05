@@ -1,139 +1,125 @@
-import { ActivePlayers } from 'boardgame.io/core';
 import {
-    swap,
-    select,
-    link,
-    murder,
-    examine,
-    cure,
-    poison,
-    guard,
-    grant,
+    setRole,
+    setDiscard,
+    start,
+    transfer,
     kill,
     badge,
-    vote
+    link,
+    next,
+    vote,
+    reveal,
+    clear
 } from './moves';
 import constants from '../constants.json';
-import Player from './player';
+import Player, { Role, toRole } from './player';
 
 export const ChineseWerewolf = {
     name: 'chinese-werewolf',
 
     setup: (ctx, setupData) => {
-        console.log('setup', ctx, setupData);
-        const { cards } = setupData;
-        let shuffledCards = cards;
-        for (let i = 0; i < 3; i++) {
-            shuffledCards = ctx.random.Shuffle(cards);
-        }
+        if (setupData) {
+            const { cards, extra } = setupData;
+            let shuffledCards = cards;
+            for (let i = 0; i < 3; i++) {
+                shuffledCards = ctx.random.Shuffle(cards);
+            }
 
-        const players = ctx.playOrder.reduce((player, pid) => {
-            player[pid] = new Player()
-            return player;
-        }, {});
+            const players = ctx.playOrder.reduce((player, pid) => {
+                player[pid] = new Player()
+                return player;
+            }, {});
 
-        // distribute out cards to players until it runs out
-        const pids = Object.keys(players);
-        for (let i = 0; i < shuffledCards.length; i++) {
-            players[pids[i % pids.length]].addRole(shuffledCards[i]);
+            // distribute out cards to players except god (host) until it runs out
+            const pids = Object.keys(players);
+            let roles = extra.doubleIdentity ? 2 : 1;
+            let i = 0;
+            for (let j = 0; j < roles; j++) {
+                let k = 1;
+                while (i < shuffledCards.length && k < pids.length) {
+                    const player = players[pids[k]];
+                    player.addRole(shuffledCards[i]);
+                    i++;
+                    k++;
+                }
+            }
+
+            return {
+                god: Number(ctx.currentPlayer),
+                players,
+                discards: shuffledCards.slice(i).map((card) => toRole(card)),
+                state: 'night',
+                badge: null
+            };
+        } else {
+            // development because BGIO is trash right now
+            const players = ctx.playOrder.reduce((player, pid) => {
+                player[pid] = new Player()
+                return player;
+            }, {});
+
+            return {
+                god: Number(ctx.currentPlayer),
+                players,
+                discards: [0, 1, 2, 3],
+                state: 'night',
+                badge: null
+            }
         }
-        return {
-            players
-        };
     },
 
     playerView: (G, ctx, playerID) => ({
+        ...G,
         players: (() => {
             const players = {};
             for (const pid in G.players) {
-                if (pid === playerID) {
+                if (pid === playerID || playerID === String(G.god)) {
                     players[pid] = G.players[pid];
                 } else {
-                    players[pid] = {};
+                    const { roles, lover, ...others } = G.players[pid];
+                    players[pid] = {
+                        roles: [],
+                        lover: lover && G.players[pid].lover,
+                        ...others
+                    };
                 }
             }
             return players;
         })()
     }),
 
+    turn: {
+        order: {
+            first: (G, ctx) => G.god,
+            next: (G, ctx) => G.god
+        }
+    },
+
     phases: {
         setup: {
-            stages: {
-                roles: {
-                    moves: {
-                        swap
-                    }
-                },
-                setup: {
-                    stage: {
-                        bandit: {
-                            moves: {
-                                select
-                            }
-                        },
-                        cupid: {
-                            moves: {
-                                link
-                            }
-                        }
-                    }
-                }
-            },
-            start: true,
-            next: 'night'
+            moves: { setRole, setDiscard, start },
+            next: 'main',
+            start: true
         },
-        night: {
-            stages: {
-                werewolf: {
-                    moves: {
-                        murder
-                    }
+        main: {
+            turn: {
+                order: {
+                    first: (G, ctx) => G.god,
+                    next: (G, ctx) => G.god,
                 },
-                prophet: {
-                    moves: {
-                        examine
-                    }
+                onBegin: (G, ctx) => {
+                    ctx.events.setActivePlayers({ currentPlayer: 'god' })
+                    G.state = 'night';
                 },
-                witch: {
-                    moves: {
-                        cure,
-                        poison
-                    }
-                },
-                bodyguard: {
-                    moves: {
-                        guard
-                    }
-                },
-                citizen: {
-                    moves: {
-                        // none, nobodies
+                stages: {
+                    god: {
+                        moves: { transfer, kill, badge, link, reveal, clear, next }
+                    },
+                    vote: {
+                        moves: { vote }
                     }
                 }
-            },
-            next: 'day'
-        },
-        day: {
-            stages: {
-                god: {
-                    moves: {
-                        grant,
-                        kill,
-                        badge
-                    }
-                },
-                vote: {
-                    moves: {
-                        vote
-                    }
-                },
-                reveal: {
-                    moves: {
-                        // none
-                    }
-                }
-            },
-            next: 'night'
+            }
         }
     }
 };

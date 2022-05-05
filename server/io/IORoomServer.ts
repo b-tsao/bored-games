@@ -25,6 +25,7 @@ export default class IORoomServer {
       this.attachSettingsListener(client);
       this.attachGameListener(client);
       this.attachChatListener(client);
+      this.attachBgioListener(client);
     });
   }
 
@@ -288,6 +289,48 @@ export default class IORoomServer {
         return client.disconnect();
       }
       room.editChat(client.userId, messageID, message, (err, ctxChanges) => {
+        if (err) {
+          client.emit('message', { status: 'error', text: err });
+        } else {
+          this.ioRoomServer.to(key).emit('changes', ctxChanges);
+        }
+      });
+    });
+  }
+
+  attachBgioListener(client) {
+    client.on('bgioHostAction', (action, id, data) => {
+      const key = client.roomKey;
+      logger.trace(`User (${client.userId}) requesting bgio host action (${action}) against user (${id}) in room (${key})`);
+      const room = RoomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`User (${client.userId}) failed to do bgio host action (${action}) against user (${id}) in room (${key}): Room does not exist`);
+        client.emit('message', { status: 'error', text: 'Room does not exist' });
+        return client.disconnect();
+      }
+
+      const state = room.game.state;
+      if (!state.players) {
+        logger.error(`User (${client.userId}) failed to do bgio host action (${action}) against user (${id}) in room (${key}): Player does not exist`);
+        client.emit('message', { status: 'error', text: 'Player does not exist' });
+        return;
+      }
+
+      let cid: any = null;
+      for (const pid in state.players) {
+        const player = state.players[pid];
+        if (player.id === id) {
+          cid = pid;
+        }
+      }
+
+      if (!cid) {
+        logger.error(`User (${client.userId}) failed to do bgio host action (${action}) against user (${id}) in room (${key}): Player does not exist`);
+        client.emit('message', { status: 'error', text: 'Player does not exist' });
+        return;
+      }
+
+      room.hostAction(action, client.userId, cid, data, (err, ctxChanges) => {
         if (err) {
           client.emit('message', { status: 'error', text: err });
         } else {

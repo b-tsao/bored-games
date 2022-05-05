@@ -43,7 +43,7 @@ function ExtraSettings({ self, settings }) {
     client.emit('settings', { extra: { [name]: event.target.checked } });
   };
 
-  const { enableHistory, spectatorsSeeIdentity } = settings.setupData.extra;
+  const { enableHistory, spectatorsSeeIdentity, doubleIdentity } = settings.setupData.extra;
   const error = !self || !self.host;
 
   return (
@@ -66,6 +66,10 @@ function ExtraSettings({ self, settings }) {
             <FormControlLabel
               control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
               label="Enable spectators to see everyone’s identity"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
+              label="Double identity"
             />
           </FormGroup>
         </FormControl>

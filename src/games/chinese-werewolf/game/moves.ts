@@ -1,18 +1,28 @@
-import { INVALID_MOVE } from 'boardgame.io/core';
+import { INVALID_MOVE, Stage } from 'boardgame.io/core';
 import * as logger from '../../lib/logger';
 import constants from '../constants.json';
 import Player, { Role } from './player';
 
-export function swap(G, ctx, pos1: number, pos2: number) {
-    let p1 = G.players[pos1];
-    let p2 = G.players[pos2];
-    let tmp = p1.role;
-    p1.role = p2.role;
-    p2.role = tmp;
+export function setRole(G, ctx, pid: number, pos: number, role: Role) {
+    G.players[pid].roles[pos] = role;
 }
 
-export function grant(G, ctx) {
+export function setDiscard(G, ctx, pos: number, role: Role) {
+    G.discards[pos] = role;
+}
 
+export function start(G, ctx) {
+    ctx.events.endPhase();
+}
+
+export function next(G, ctx) {
+
+}
+
+export function transfer(G, ctx, pid: number) {
+    console.log('transfer', ctx.playerID, pid);
+    G.god = Number(pid);
+    ctx.events.setActivePlayers({ currentPlayer: Stage.NULL, value: { [pid]: 'god' } });
 }
 
 export function kill(G, ctx) {
@@ -23,40 +33,20 @@ export function badge(G, ctx) {
 
 }
 
-export function select(G, ctx, role: Role) {
-    let p = G.players[ctx.playerID];
-    p.role = role;
-}
-
-export function link(G, ctx, pos1: number, pos2: number) {
-    let p1 = G.players[pos1];
-    let p2 = G.players[pos2];
-    p1.lover = p2;
-    p2.lover = p1;
-}
-
-export function murder(G, ctx) {
+export function link(G, ctx) {
 
 }
 
-export function examine(G, ctx) {
+export function reveal(G, ctx) {
 
 }
 
-export function cure(G, ctx) {
-
-}
-
-export function poison(G, ctx) {
-
-}
-
-export function guard(G, ctx) {
+export function clear(G, ctx) {
 
 }
 
 export function vote(G, ctx) {
-    
+
 }
 
 // /**

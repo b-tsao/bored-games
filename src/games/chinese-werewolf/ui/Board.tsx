@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { useEffect, useRef, useState } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { fade } from '@material-ui/core/styles/colorManipulator';
 import {
     Badge,
     Box,
@@ -32,56 +31,167 @@ import { ExitToApp } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
 
+class Action {
+    private t: string;
+    private d: any;
+    private m: string;
+    private updateFn: (action: Action, changes) => void;
+
+    constructor(type?: string, data = {}, message = '', updateFn = (action: Action, changes) => {}) {
+        this.t = type;
+        this.d = data;
+        this.m = message;
+        this.updateFn = updateFn;
+    }
+
+    get type() {
+        return this.t;
+    }
+
+    get data() {
+        return this.d;
+    }
+
+    get message() {
+        return this.m;
+    }
+
+    getType() {
+        return this.type;
+    }
+
+    update(changes) {
+        this.updateFn(this, changes);
+    }
+
+    clone(data: any, message: string) {
+        return new Action(this.t, data, message, this.updateFn);
+    }
+}
+
 const useActionBarStyles = makeStyles((theme) => ({
-  panel: {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    background: fade(theme.palette.background.default, .9)
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
   shrinkRipple: {
     padding: theme.spacing(1),
   },
-  headerGutters: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-  },
 }));
 
-function ActionBar() {
+function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
   const [client] = useContext(ClientContext);
+
+  const [action, setAction] = actionHandler;
 
   const classes = useActionBarStyles();
 
-  const handleClick = () => {
+  const handleSwap = () => {
+      if (action.type !== 'swap') {
+        setAction(new Action(
+            'swap',
+            {},
+            'Select roles to swap (? <-> ?)',
+            (action, changes) => {
+                if (!action.data.r1) {
+                    const data = {
+                        r1: changes
+                    };
+                    const r = changes.player?.id || changes.discard?.role;
+                    const message = `Select a player or role (${r} <-> ?)`;
+                    setAction(action.clone(data, message));
+                } else {
+                    const data = {
+                        ...action.data,
+                        r2: changes
+                    };
+
+                    // do action
+                    if (data.r1.player) {
+                        const player = data.r1.player;
+                        if (data.r2.player) {
+                            // player swap
+                            const p2 = data.r2.player;
+                            const r2 = G.players[p2.id].roles[p2.pos];
+                            const r1 = G.players[player.id].roles[player.pos];
+                            moves.setRole(player.id, player.pos, r2);
+                            moves.setRole(p2.id, p2.pos, r1);
+                        } else {
+                            // player set
+                            const discard = data.r2.discard;
+                            const role = G.players[player.id].roles[player.pos];
+                            moves.setRole(player.id, player.pos, discard.role);
+                            moves.setDiscard(discard.pos, role);
+                        }
+                    } else if (data.r2.player) {
+                        const player = data.r2.player;
+                        // player set
+                        const discard = data.r2.discard;
+                        const role = G.players[player.id].roles[player.pos];
+                        moves.setRole(player.id, player.pos, discard.role);
+                        moves.setDiscard(discard.pos, role);
+                    }
+                    setAction(new Action());
+                }
+            }
+        ));
+      } else {
+          setAction(new Action());
+      }
+  };
+
+  const handleStart = () => {
+      setAction(new Action());
+      moves.start();
+  };
+
+  const handleTransfer = () => {
+      if (action.type !== 'transfer') {
+        setAction(new Action(
+            'transfer',
+            {},
+            'Select a player to transfer to',
+            (action, changes) => {
+                const pid = changes;
+                if (pid !== playerID) {
+                    console.log('transfer', pid);
+                    moves.transfer(pid);
+                    client.emit('bgioHostAction', 'transferHost', pid);
+                }
+                setAction(new Action());
+            }
+        ));
+      } else {
+        setAction(new Action());
+      }
+  };
+
+  const handleEnd = () => {
       client.emit('end');
   };
 
-  return (
-    <Box>
-      <Paper className={classes.panel} square elevation={0}>
-        {/* header */}
-        <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
-          {/* TODO: Swap with brand image. */}
-          <Typography variant="h6" color="inherit">
-            {'狼人杀'}
-          </Typography>
-
-          <Box flexGrow={1} />
-
-          <div>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit game" onClick={handleClick}>
-              <ExitToApp />
+  if (ctx.phase === 'setup') {
+    return (
+        <Toolbar variant="dense">
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleSwap}>
+                {action.type !== 'swap' ? 'Swap Roles' : 'Cancel'}
             </IconButton>
-          </div>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleStart}>
+                {'Start'}
+            </IconButton>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit game" onClick={handleEnd}>
+                <ExitToApp />
+            </IconButton>
         </Toolbar>
-      </Paper>
-    </Box>
-  );
+      );
+  } else {
+    return (
+        <Toolbar variant="dense">
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleTransfer}>
+            {action.type !== 'transfer' ? 'Transfer Host' : 'Cancel'}
+            </IconButton>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="End game" onClick={handleEnd}>
+                <ExitToApp />
+            </IconButton>
+        </Toolbar>
+      );    
+  }
 }
 
 const usePlayersTableStyle = makeStyles(theme => ({
@@ -118,8 +228,17 @@ const usePlayersTableStyle = makeStyles(theme => ({
     }
   }));
   
-  function PlayersTable({ G, gameMetadata }) {
+  function PlayersTable({
+      G,
+      ctx,
+      gameMetadata,
+      moves,
+      playerID,
+      actionHandler,
+    }) {
     const classes = usePlayersTableStyle();
+
+    const [action] = actionHandler;
 
     const getPlayerName = (pid) => {
         if (gameMetadata && gameMetadata[pid].name) {
@@ -131,6 +250,21 @@ const usePlayersTableStyle = makeStyles(theme => ({
     };
   
     const handleChoose = (event, playerId) => {
+        if (playerID === String(G.god)) {
+            switch (action.type) {
+                case 'transfer':
+                    action.update(playerId)
+                    break;
+            }
+        }
+    };
+
+    const handleRoleClick = (pid, idx) => {
+        switch (action.type) {
+            case 'swap':
+                action.update({player: { id: pid, pos: idx }})
+                break;
+        }
     };
 
     let playersTable = [];
@@ -211,11 +345,22 @@ const usePlayersTableStyle = makeStyles(theme => ({
         playersTable.push(
           <TableRow
             key={pid}
-            onClick={e => handleChoose(e, player.id)}
+            onClick={e => handleChoose(e, pid)}
             className={playerRowClass}>
             <TableCell className={playerCellClass} component="th" scope="row">
-              {/* {G.players[player.id].name} */}
               {getPlayerName(pid)}
+            </TableCell>
+            <TableCell component="th" scope="row">
+              {player.roles.map((role, idx) =>
+                <Zoom key={idx} in={playerChosen}>
+                    <Card className={classes.card} onClick={() => {handleRoleClick(pid, idx)}}>
+                    <img
+                        className={imgClass}
+                        src={"https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F13%2F2015%2F04%2F05%2Ffeatured.jpg&q=60"}
+                        alt={"woohoo"} />
+                    </Card>
+                </Zoom>
+              )}
             </TableCell>
             <TableCell component="th" scope="row">
               <Zoom in={playerChosen}>
@@ -227,13 +372,19 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 </Card>
               </Zoom>
             </TableCell>
-            {/* <Hidden xsDown>
-              {votes}
-            </Hidden>
-            <Hidden smUp>
-              {room.state.quests.length > 0 ?
-                votes[room.state.quests.length - 1] : null}
-            </Hidden> */}
+            <TableCell>
+                {
+                    pid === playerID && playerID === String(G.god) ?
+                        <GodActionBar
+                            G={G}
+                            ctx={ctx}
+                            moves={moves}
+                            playerID={playerID}
+                            actionHandler={actionHandler}
+                        />
+                    : null
+                }
+            </TableCell>
           </TableRow>
         );
     }
@@ -249,7 +400,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
               {/* At day/vote this will be vote */}
               {/* At day/reveal this will be reveal */}
               <TableCell>Role</TableCell>
-              <TableCell>Action</TableCell>
+              <TableCell>Vote</TableCell>
+              <TableCell>{action.message}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -258,6 +410,44 @@ const usePlayersTableStyle = makeStyles(theme => ({
         </Table>
       </React.Fragment>
     );
+  }
+
+  const useDiscardStyles = makeStyles((theme) => ({
+    img: {
+        overflow: 'hidden',
+        display: 'block',
+        width: '100%'
+    },
+    card: {
+        marginRight: 'auto',
+        maxWidth: 40
+    }
+  }));
+  
+  function Discard({ G, playerID, actionHandler }) {
+    const classes = useDiscardStyles();
+  
+    if (playerID === String(G.god)) {
+        return (
+            <Grid container spacing={2}>
+                {G.discards.map((card, idx) => {
+                    return (
+                        <Grid item key={idx}>
+                            <Typography>{card}</Typography>
+                            <Card className={classes.card}>
+                                <img
+                                    className={classes.img}
+                                    src={"https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F13%2F2015%2F04%2F05%2Ffeatured.jpg&q=60"}
+                                    alt={"woohoo"} />
+                            </Card>
+                        </Grid>
+                    );
+                })}
+            </Grid>
+        );
+    } else {
+        return null;
+    }
   }
 
 const useStyles = makeStyles(theme => ({
@@ -279,7 +469,7 @@ const useStyles = makeStyles(theme => ({
     padding: {
       padding: theme.spacing(2)
     }
-  }));
+}));
 
 /**
  * Main UI component.
@@ -287,7 +477,9 @@ const useStyles = makeStyles(theme => ({
  */
 export function ChineseWerewolfBoard(props) {
     console.log("props", props);
-    const { G, gameMetadata } = props;
+    const { G, ctx, gameMetadata, moves, playerID } = props;
+
+    const actionHandler = useState(new Action());
 
     const classes = useStyles();
 
@@ -296,12 +488,19 @@ export function ChineseWerewolfBoard(props) {
     return (
         <main className={classes.content}>
             <Container maxWidth="lg" className={classes.container}>
-                <ActionBar />
                 {/* Players */}
                 <Grid item xs={12}>
-                <Paper className={paddedPaper}>
-                    <PlayersTable G={G} gameMetadata={gameMetadata} />
-                </Paper>
+                    <Paper className={paddedPaper}>
+                        <PlayersTable
+                            G={G}
+                            ctx={ctx}
+                            gameMetadata={gameMetadata}
+                            moves={moves}
+                            playerID={playerID}
+                            actionHandler={actionHandler}
+                        />
+                    </Paper>
+                    <Discard G={G} playerID={playerID} actionHandler={actionHandler}/>
                 </Grid>
             </Container>
         </main>

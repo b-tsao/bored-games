@@ -47,8 +47,13 @@ export const ChineseWerewolf = {
                 players,
                 discards: shuffledCards.slice(i).map((card) => toRole(card)),
                 state: 0,
+                election: false,
                 badge: null,
-                reveal: false
+                reveal: false,
+                log: [
+                    {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
+                    {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
+                ]
             };
         } else {
             // development because BGIO is trash right now
@@ -62,8 +67,13 @@ export const ChineseWerewolf = {
                 players,
                 discards: [0, 1, 2, 3],
                 state: 0,
+                election: false,
                 badge: null,
-                reveal: false
+                reveal: false,
+                log: [
+                    {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
+                    {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
+                ]
             }
         }
     },

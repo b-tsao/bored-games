@@ -30,6 +30,7 @@ import {
 import { ExitToApp } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
+import Log from "./Log";
 
 class Action {
     private t: string;
@@ -236,9 +237,14 @@ const useActionBarStyles = makeStyles((theme) => ({
     const options = (ctx.phase === 'setup') ?
         (
             <React.Fragment>
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap" onClick={handleSwap}>
-                    {action.type !== 'swap' ? 'Swap' : 'Cancel'}
-                </IconButton>
+                <Tooltip
+                    arrow={true}
+                    title={'Swap player roles'}
+                >
+                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap" onClick={handleSwap}>
+                        {action.type !== 'swap' ? 'Swap' : 'Cancel'}
+                    </IconButton>
+                </Tooltip>
             </React.Fragment>
         ) :
         (
@@ -587,7 +593,11 @@ const useStyles = makeStyles(theme => ({
     },
     padding: {
       padding: theme.spacing(2)
-    }
+    },
+    panel: {
+        width: '100%',
+        height: '50vh'
+    },
 }));
 
 /**
@@ -606,29 +616,41 @@ export function ChineseWerewolfBoard(props) {
     return (
         <main className={classes.content}>
             <Container maxWidth="lg" className={classes.container}>
-                {/* Players */}
-                <Grid item xs={12}>
+                <Grid container spacing={1}>
                     {
                         playerID === String(G.god) ?
-                            <ActionBar
-                                G={G}
-                                ctx={ctx}
-                                moves={moves}
-                                actionHandler={actionHandler}
-                            /> :
+                            <Grid item xs={12} md={12} lg={12}>
+                                <ActionBar
+                                    G={G}
+                                    ctx={ctx}
+                                    moves={moves}
+                                    actionHandler={actionHandler}
+                                />
+                            </Grid> :
                             null
                     }
-                    <Paper className={paddedPaper}>
-                        <PlayersTable
-                            G={G}
-                            ctx={ctx}
-                            gameMetadata={gameMetadata}
-                            moves={moves}
-                            playerID={playerID}
-                            actionHandler={actionHandler}
-                        />
-                    </Paper>
-                    <Discard G={G} playerID={playerID} actionHandler={actionHandler}/>
+                    {/* Players */}
+                    <Grid item xs={12} md={6} lg={6}>
+                        <Paper className={paddedPaper}>
+                            <PlayersTable
+                                G={G}
+                                ctx={ctx}
+                                gameMetadata={gameMetadata}
+                                moves={moves}
+                                playerID={playerID}
+                                actionHandler={actionHandler}
+                            />
+                            <Discard G={G} playerID={playerID} actionHandler={actionHandler}/>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={6} lg={6}>
+                        <Paper className={paddedPaper}>
+                            <Log
+                                className={classes.panel}
+                                chatState={G.log}
+                            />
+                        </Paper>
+                    </Grid>
                 </Grid>
             </Container>
         </main>

@@ -26,7 +26,6 @@ import {
     Zoom
   } from '@material-ui/core';
 
-import constants from "../constants.json";
 import { ExitToApp } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
@@ -122,7 +121,7 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
                     } else if (data.r2.player) {
                         const player = data.r2.player;
                         // player set
-                        const discard = data.r2.discard;
+                        const discard = data.r1.discard;
                         const role = G.players[player.id].roles[player.pos];
                         moves.setRole(player.id, player.pos, discard.role);
                         moves.setDiscard(discard.pos, role);
@@ -503,15 +502,25 @@ const usePlayersTableStyle = makeStyles(theme => ({
   
   function Discard({ G, playerID, actionHandler }) {
     const classes = useDiscardStyles();
+
+    const [action] = actionHandler;
+
+    const handleRoleClick = (role, idx) => {
+        switch (action.type) {
+            case 'swap':
+                action.update({discard: { role, pos: idx }})
+                break;
+        }
+    };
   
     if (playerID === String(G.god)) {
         return (
             <Grid container spacing={2}>
-                {G.discards.map((card, idx) => {
+                {G.discards.map((role, idx) => {
                     return (
                         <Grid item key={idx}>
-                            <Typography>{card}</Typography>
-                            <Card className={classes.card}>
+                            <Typography>{role}</Typography>
+                            <Card className={classes.card} onClick={() => {handleRoleClick(role, idx)}}>
                                 <img
                                     className={classes.img}
                                     src={"https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F13%2F2015%2F04%2F05%2Ffeatured.jpg&q=60"}

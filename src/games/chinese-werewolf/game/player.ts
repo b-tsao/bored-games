@@ -1,10 +1,5 @@
 import constants from '../constants.json';
 
-export enum Status {
-    alive,
-    dead
-}
-
 export enum Role {
     werewolf,
     prophet,
@@ -33,12 +28,12 @@ export function toRole(role: string) {
 
 export default class Player {
     roles: Role[];
-    status: Status;
+    alive: boolean;
     lover: boolean;
 
     constructor() {
         this.roles = [];
-        this.status = Status.alive;
+        this.alive = true;
         this.lover = false;
     }
 
@@ -48,6 +43,10 @@ export default class Player {
 
     setLover() {
         this.lover = !this.lover;
+    }
+
+    kill() {
+        this.alive = !this.alive;
     }
 }
 

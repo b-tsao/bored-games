@@ -20,13 +20,12 @@ export function next(G, ctx) {
 }
 
 export function transfer(G, ctx, pid: number) {
-    console.log('transfer', ctx.playerID, pid);
     G.god = Number(pid);
     ctx.events.setActivePlayers({ currentPlayer: Stage.NULL, value: { [pid]: 'god' } });
 }
 
-export function kill(G, ctx) {
-
+export function kill(G, ctx, pid) {
+    G.players[pid].alive = !G.players[pid].alive;
 }
 
 export function badge(G, ctx) {

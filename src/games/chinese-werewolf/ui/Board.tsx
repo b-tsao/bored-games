@@ -150,9 +150,27 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
             (action, changes) => {
                 const pid = changes;
                 if (pid !== playerID) {
-                    console.log('transfer', pid);
                     moves.transfer(pid);
                     client.emit('bgioHostAction', 'transferHost', pid);
+                }
+                setAction(new Action());
+            }
+        ));
+      } else {
+        setAction(new Action());
+      }
+  };
+
+  const handleKill = () => {
+    if (action.type !== 'kill') {
+        setAction(new Action(
+            'kill',
+            {},
+            'Select a player to kill',
+            (action, changes) => {
+                const pid = changes;
+                if (pid !== playerID) {
+                    moves.kill(pid);
                 }
                 setAction(new Action());
             }
@@ -169,13 +187,13 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
   if (ctx.phase === 'setup') {
     return (
         <Toolbar variant="dense">
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleSwap}>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap Roles" onClick={handleSwap}>
                 {action.type !== 'swap' ? 'Swap Roles' : 'Cancel'}
             </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleStart}>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Start Game" onClick={handleStart}>
                 {'Start'}
             </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit game" onClick={handleEnd}>
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit Game" onClick={handleEnd}>
                 <ExitToApp />
             </IconButton>
         </Toolbar>
@@ -183,8 +201,11 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
   } else {
     return (
         <Toolbar variant="dense">
+            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Kill Player" onClick={handleKill}>
+                {action.type !== 'kill' ? 'Kill' : 'Cancel'}
+            </IconButton>
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleTransfer}>
-            {action.type !== 'transfer' ? 'Transfer Host' : 'Cancel'}
+                {action.type !== 'transfer' ? 'Transfer Host' : 'Cancel'}
             </IconButton>
             <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="End game" onClick={handleEnd}>
                 <ExitToApp />
@@ -253,6 +274,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         if (playerID === String(G.god)) {
             switch (action.type) {
                 case 'transfer':
+                case 'kill':
                     action.update(playerId)
                     break;
             }

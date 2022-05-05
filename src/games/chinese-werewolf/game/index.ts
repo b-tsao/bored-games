@@ -68,26 +68,37 @@ export const ChineseWerewolf = {
         }
     },
 
-    playerView: (G, ctx, playerID) => ({
-        ...G,
-        players: (() => {
-            const players = {};
-            for (const pid in G.players) {
-                if (pid === playerID || playerID === String(G.god)) {
-                    players[pid] = G.players[pid];
-                } else {
-                    const { roles, lover, vote, ...others } = G.players[pid];
+    playerView: (G, ctx, playerID) => {
+        const players = {};
+        for (const pid in G.players) {
+            if (playerID === String(G.god)) {
+                players[pid] = G.players[pid];
+            } else if (pid === playerID) {
+                if (ctx.phase === 'setup') {
                     players[pid] = {
-                        roles: [],
-                        lover: lover && G.players[playerID].lover,
-                        vote: G.reveal ? vote : '',
-                        ...others
-                    };
+                        ...G.players[pid],
+                        roles: []
+                    }
+                } else {
+                    players[pid] = G.players[pid];
                 }
+            } else {
+                const { roles, lover, vote, ...others } = G.players[pid];
+                players[pid] = {
+                    roles: [],
+                    lover: lover && G.players[playerID].lover,
+                    vote: G.reveal ? vote : '',
+                    ...others
+                };
             }
-            return players;
-        })()
-    }),
+        }
+
+        return {
+            ...G,
+            players,
+            discard: (ctx.phase === 'setup') ? [] : G.discard
+        }
+    },
 
     turn: {
         order: {
@@ -119,7 +130,7 @@ export const ChineseWerewolf = {
                 },
                 stages: {
                     god: {
-                        moves: { transfer, kill, badge, lover, reveal, next }
+                        moves: { setRole, setDiscard, transfer, kill, badge, lover, reveal, next }
                     },
                     vote: {
                         moves: { vote }

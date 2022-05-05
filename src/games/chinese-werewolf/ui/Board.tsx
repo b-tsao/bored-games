@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from "react";
 
+import { fade } from '@material-ui/core/styles/colorManipulator';
 import { makeStyles } from "@material-ui/core/styles";
 import {
     Badge,
@@ -69,19 +70,30 @@ class Action {
 }
 
 const useActionBarStyles = makeStyles((theme) => ({
-  shrinkRipple: {
-    padding: theme.spacing(1),
-  },
-}));
+    panel: {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: fade(theme.palette.background.default, .9)
+    },
+    shrinkRipple: {
+      padding: theme.spacing(1),
+    },
+    headerGutters: {
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+    },
+  }));
+  
+  function ActionBar({ G, ctx, moves, actionHandler }) {
+    const [client] = useContext(ClientContext);
 
-function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
-  const [client] = useContext(ClientContext);
+    const classes = useActionBarStyles();
 
-  const [action, setAction] = actionHandler;
+    const [action, setAction] = actionHandler;
 
-  const classes = useActionBarStyles();
-
-  const handleSwap = () => {
+    const handleSwap = () => {
       if (action.type !== 'swap') {
         setAction(new Action(
             'swap',
@@ -133,144 +145,177 @@ function GodActionBar({ G, ctx, moves, playerID, actionHandler }) {
       } else {
           setAction(new Action());
       }
-  };
+    };
 
-  const handleStart = () => {
-      setAction(new Action());
-      moves.start();
-  };
+    const handleStart = () => {
+        setAction(new Action());
+        moves.start();
+    };
 
-  const handleTransfer = () => {
-      if (action.type !== 'transfer') {
-        setAction(new Action(
-            'transfer',
-            {},
-            'Select a player to transfer to',
-            (action, changes) => {
-                const pid = changes;
-                if (pid !== playerID) {
+    const handleTransfer = () => {
+        if (action.type !== 'transfer') {
+            setAction(new Action(
+                'transfer',
+                {},
+                'Select a player to transfer to',
+                (action, changes) => {
+                    const pid = changes;
                     moves.transfer(pid);
                     client.emit('bgioHostAction', 'transferHost', pid);
+                    setAction(new Action());
                 }
-                setAction(new Action());
-            }
-        ));
-      } else {
-        setAction(new Action());
-      }
-  };
+            ));
+        } else {
+            setAction(new Action());
+        }
+    };
 
-  const handleKill = () => {
-    if (action.type !== 'kill') {
-        setAction(new Action(
-            'kill',
-            {},
-            'Select a player to kill',
-            (action, changes) => {
-                const pid = changes;
-                if (pid !== playerID) {
+    const handleKill = () => {
+        if (action.type !== 'kill') {
+            setAction(new Action(
+                'kill',
+                {},
+                'Select a player to kill',
+                (action, changes) => {
+                    const pid = changes;
                     moves.kill(pid);
+                    setAction(new Action());
                 }
-                setAction(new Action());
-            }
-        ));
-      } else {
-        setAction(new Action());
-      }
-  };
+            ));
+        } else {
+            setAction(new Action());
+        }
+    };
 
-  const handleBadge = () => {
-    if (action.type !== 'badge') {
-        setAction(new Action(
-            'badge',
-            {},
-            'Select a player to badge',
-            (action, changes) => {
-                const pid = changes;
-                if (pid !== playerID) {
+    const handleBadge = () => {
+        if (action.type !== 'badge') {
+            setAction(new Action(
+                'badge',
+                {},
+                'Select a player to badge',
+                (action, changes) => {
+                    const pid = changes;
                     moves.badge(pid);
+                    setAction(new Action());
                 }
-                setAction(new Action());
-            }
-        ));
-      } else {
-        setAction(new Action());
-      }
-  }
+            ));
+        } else {
+            setAction(new Action());
+        }
+    }
 
-  const handleLove = () => {
-    if (action.type !== 'love') {
-        setAction(new Action(
-            'love',
-            {},
-            'Select a player to fall in love',
-            (action, changes) => {
-                const pid = changes;
-                if (pid !== playerID) {
+    const handleLove = () => {
+        if (action.type !== 'love') {
+            setAction(new Action(
+                'love',
+                {},
+                'Select a player to fall in love',
+                (action, changes) => {
+                    const pid = changes;
                     moves.lover(pid);
+                    setAction(new Action());
                 }
-                setAction(new Action());
+            ));
+        } else {
+            setAction(new Action());
+        }
+    }
+
+    const handleReveal = () => {
+        moves.reveal();
+    };
+
+    const handleNext = () => {
+        moves.next();
+    };
+
+    const handleEnd = () => {
+        client.emit('end');
+    };
+
+    const options = (ctx.phase === 'setup') ?
+        (
+            <React.Fragment>
+                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap" onClick={handleSwap}>
+                    {action.type !== 'swap' ? 'Swap' : 'Cancel'}
+                </IconButton>
+            </React.Fragment>
+        ) :
+        (
+            <React.Fragment>
+                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Kill" onClick={handleKill}>
+                    {action.type !== 'kill' ? 'Kill' : 'Cancel'}
+                </IconButton>
+                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Badge" onClick={handleBadge}>
+                    {action.type !== 'badge' ? 'Badge' : 'Cancel'}
+                </IconButton>
+                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Love" onClick={handleLove}>
+                    {action.type !== 'love' ? 'Love' : 'Cancel'}
+                </IconButton>
+                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap" onClick={handleSwap}>
+                    {action.type !== 'swap' ? 'Swap' : 'Cancel'}
+                </IconButton>
+            </React.Fragment>
+        );
+  
+    return (
+      <Box>
+        <Paper className={classes.panel} square elevation={0}>
+          {/* header */}
+          <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
+            <Typography variant="h6" color="inherit">
+              {"God Panel"}
+            </Typography>
+
+            {options}
+
+            <Box flexGrow={1} />
+
+            {
+                G.state === 1 ?
+                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Reveal" onClick={handleReveal}>
+                        {G.reveal ? 'Unreveal' : 'Reveal'}
+                    </IconButton> :
+                    null
             }
-        ));
-      } else {
-        setAction(new Action());
-      }
+            {
+                ctx.phase === 'main' ?
+                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Next" onClick={handleNext}>
+                        {'Next'}
+                    </IconButton> :
+                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Start" onClick={handleStart}>
+                        {'Start'}
+                    </IconButton>
+            }
+
+            <Box flexGrow={1} />
+
+            <div>
+                {
+                    ctx.phase === 'main' ?
+                        <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer" onClick={handleTransfer}>
+                            {action.type !== 'transfer' ? 'Transfer' : 'Cancel'}
+                        </IconButton> :
+                        null
+                }
+                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="End" onClick={handleEnd}>
+                    <ExitToApp />
+                </IconButton>
+            </div>
+          </Toolbar>
+  
+          {/* content */}
+          <Box display="flex" flexDirection="column" flexGrow={1} padding={1} paddingTop={0}>
+            {/* extra window */}
+            
+            <Box flex={1} bgcolor="wheat" marginBottom={1}>
+              {action.message}
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+    );
   }
-
-  const handleReveal = () => {
-      moves.reveal();
-  };
-
-  const handleNext = () => {
-      moves.next();
-  };
-
-  const handleEnd = () => {
-      client.emit('end');
-  };
-
-  if (ctx.phase === 'setup') {
-    return (
-        <Toolbar variant="dense">
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap Roles" onClick={handleSwap}>
-                {action.type !== 'swap' ? 'Swap Roles' : 'Cancel'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Start Game" onClick={handleStart}>
-                {'Start'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Exit Game" onClick={handleEnd}>
-                <ExitToApp />
-            </IconButton>
-        </Toolbar>
-      );
-  } else {
-    return (
-        <Toolbar variant="dense">
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Kill Player" onClick={handleKill}>
-                {action.type !== 'kill' ? 'Kill' : 'Cancel'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Badge Player" onClick={handleBadge}>
-                {action.type !== 'badge' ? 'Badge' : 'Cancel'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Love" onClick={handleLove}>
-                {action.type !== 'love' ? 'Love' : 'Cancel'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                {'Reveal'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Next" onClick={handleNext}>
-                {'Next'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer Host" onClick={handleTransfer}>
-                {action.type !== 'transfer' ? 'Transfer Host' : 'Cancel'}
-            </IconButton>
-            <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="End game" onClick={handleEnd}>
-                <ExitToApp />
-            </IconButton>
-        </Toolbar>
-      );
-  }
-}
 
 const usePlayersTableStyle = makeStyles(theme => ({
     disconnected: {
@@ -334,7 +379,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 case 'kill':
                 case 'badge':
                 case 'love':
-                    action.update(playerId)
+                    if (playerID !== playerId) {
+                        action.update(playerId);
+                    }
                     break;
             }
         } else {
@@ -448,19 +495,6 @@ const usePlayersTableStyle = makeStyles(theme => ({
             <TableCell component="th" scope="row">
               {player.vote}
             </TableCell>
-            <TableCell>
-                {
-                    pid === playerID && playerID === String(G.god) ?
-                        <GodActionBar
-                            G={G}
-                            ctx={ctx}
-                            moves={moves}
-                            playerID={playerID}
-                            actionHandler={actionHandler}
-                        />
-                    : null
-                }
-            </TableCell>
           </TableRow>
         );
     }
@@ -477,7 +511,6 @@ const usePlayersTableStyle = makeStyles(theme => ({
               {/* At day/reveal this will be reveal */}
               <TableCell>Role</TableCell>
               <TableCell>Vote</TableCell>
-              <TableCell>{action.message}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -562,7 +595,6 @@ const useStyles = makeStyles(theme => ({
  * @param {object} props - Check boardgame.io documentation - https://boardgame.io/documentation/#/api/Client
  */
 export function ChineseWerewolfBoard(props) {
-    console.log("props", props);
     const { G, ctx, gameMetadata, moves, playerID } = props;
 
     const actionHandler = useState(new Action());
@@ -576,6 +608,16 @@ export function ChineseWerewolfBoard(props) {
             <Container maxWidth="lg" className={classes.container}>
                 {/* Players */}
                 <Grid item xs={12}>
+                    {
+                        playerID === String(G.god) ?
+                            <ActionBar
+                                G={G}
+                                ctx={ctx}
+                                moves={moves}
+                                actionHandler={actionHandler}
+                            /> :
+                            null
+                    }
                     <Paper className={paddedPaper}>
                         <PlayersTable
                             G={G}

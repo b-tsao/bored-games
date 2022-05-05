@@ -24,7 +24,6 @@ export function next(G, ctx) {
 
 export function transfer(G, ctx, pid: number) {
     G.god = Number(pid);
-    G.players[pid].alive = true;
     ctx.events.setActivePlayers({ value: { [pid]: 'god' } });
 }
 
@@ -58,7 +57,6 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    console.log(player);
     if (!player.alive) {
         return INVALID_MOVE;
     }

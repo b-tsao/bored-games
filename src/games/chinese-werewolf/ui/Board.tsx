@@ -588,7 +588,7 @@ const useStyles = makeStyles(theme => ({
         backgroundImage: 'url(http://img.yao51.com/jiankangtuku/npmogcocdv.jpeg)',
     },
     night: {
-        backgroundImage: 'url(https://truth.bahamut.com.tw/s01/201708/d681acd50b03a07815103f41543abba8.JPG)',
+        backgroundImage: 'url(http://img.yao51.com/jiankangtuku/wnqhpshssy.jpeg)',
     },
     container: {
       height: '100vh',
@@ -626,7 +626,7 @@ export function ChineseWerewolfBoard(props) {
 
     const paddedPaper = clsx(classes.paper, classes.padding);
 
-    const container = G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day);
+    const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day) : classes.container;
 
     return (
         <main className={classes.content}>

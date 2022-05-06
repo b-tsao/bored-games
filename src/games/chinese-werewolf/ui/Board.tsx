@@ -261,45 +261,48 @@ const useActionBarStyles = makeStyles((theme) => ({
         <Paper className={classes.panel} square elevation={0}>
           {/* header */}
           <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
-            <Typography variant="h6" color="inherit">
-              {'上帝操作'}
-            </Typography>
-
-            {options}
-
-            <Box flexGrow={1} />
-
-            {
-                G.state === 1 ?
-                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                        {G.reveal ? '隐票' : (!G.election ? '上警' : '统票')}
-                    </IconButton> :
-                    null
-            }
-            {
-                ctx.phase === 'main' ?
-                    <IconButton classes={{ root: classes.shrinkRipple }} color="primary" aria-label="Next" onClick={handleNext}>
-                        {G.state === 0 ? '进入白天' : '进入夜晚'}
-                    </IconButton> :
-                    <IconButton classes={{ root: classes.shrinkRipple }} color="primary" aria-label="Start" onClick={handleStart}>
-                        {'开始'}
+            <Grid container spacing={2}>
+                <Grid item>
+                    <Typography variant="h4" color="inherit">
+                        上帝操作
+                    </Typography>
+                </Grid>
+                <Grid item>
+                    {options}
+                </Grid>
+                <Box flexGrow={1} />
+                <Grid item>
+                    {
+                        G.state === 1 ?
+                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
+                                {G.reveal ? '隐票' : (!G.election ? '上警' : '统票')}
+                            </IconButton> :
+                            null
+                    }
+                    {
+                        ctx.phase === 'main' ?
+                            <IconButton classes={{ root: classes.shrinkRipple }} color="primary" aria-label="Next" onClick={handleNext}>
+                                {G.state === 0 ? '进入白天' : '进入夜晚'}
+                            </IconButton> :
+                            <IconButton classes={{ root: classes.shrinkRipple }} color="primary" aria-label="Start" onClick={handleStart}>
+                                {'开始'}
+                            </IconButton>
+                    }
+                </Grid>
+                <Box flexGrow={1} />
+                <Grid item>
+                    {
+                        ctx.phase === 'main' ?
+                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Transfer" onClick={handleTransfer}>
+                                {action.type !== 'transfer' ? '移交上帝' : '取消'}
+                            </IconButton> :
+                            null
+                    }
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="secondary" aria-label="End" onClick={handleEnd}>
+                        {'结束游戏'}
                     </IconButton>
-            }
-
-            <Box flexGrow={1} />
-
-            <div>
-                {
-                    ctx.phase === 'main' ?
-                        <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Transfer" onClick={handleTransfer}>
-                            {action.type !== 'transfer' ? '移交上帝' : '取消'}
-                        </IconButton> :
-                        null
-                }
-                <IconButton classes={{ root: classes.shrinkRipple }} color="secondary" aria-label="End" onClick={handleEnd}>
-                    {'结束游戏'}
-                </IconButton>
-            </div>
+                </Grid>
+            </Grid>
           </Toolbar>
   
           {/* content */}
@@ -472,9 +475,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>玩家</TableCell>
-              <TableCell>角色</TableCell>
-              <TableCell>投票</TableCell>
+              <TableCell><Typography>玩家</Typography></TableCell>
+              <TableCell><Typography>角色</Typography></TableCell>
+              <TableCell><Typography>投票</Typography></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

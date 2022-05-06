@@ -10,18 +10,8 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    background: fade(theme.palette.background.default, .9)
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  shrinkRipple: {
-    padding: theme.spacing(1),
-  },
-  headerGutters: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-  },
+    background: fade(theme.palette.background.default, 0)
+  }
 }));
 
 function Log({ className, chatState }) {
@@ -29,19 +19,8 @@ function Log({ className, chatState }) {
 
   return (
     <Box className={className}>
-      <Paper className={classes.panel} square elevation={0}>
-        {/* header */}
-        <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
-          <Typography variant="h6" color="inherit">
-            {'Log'}
-          </Typography>
-        </Toolbar>
-
-        {/* content */}
-        <Box display="flex" flexDirection="column" flexGrow={1} padding={1} paddingTop={0}>
-          {/* chat */}
+      <Paper className={classes.panel} elevation={0}>
           <Chat chatState={chatState} />
-        </Box>
       </Paper>
     </Box>
   );

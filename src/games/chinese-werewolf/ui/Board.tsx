@@ -73,7 +73,7 @@ const useActionBarStyles = makeStyles((theme) => ({
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: fade(theme.palette.background.default, .9)
+      background: fade(theme.palette.background.default, .5)
     },
     shrinkRipple: {
       padding: theme.spacing(1),
@@ -258,7 +258,7 @@ const useActionBarStyles = makeStyles((theme) => ({
   
     return (
       <Box>
-        <Paper className={classes.panel} square elevation={0}>
+        <Paper className={classes.panel} elevation={0}>
           {/* header */}
           <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
             <Grid container spacing={2}>
@@ -471,20 +471,18 @@ const usePlayersTableStyle = makeStyles(theme => ({
     }
   
     return (
-      <React.Fragment>
         <Table>
-          <TableHead>
+            <TableHead>
             <TableRow>
-              <TableCell><Typography>玩家</Typography></TableCell>
-              <TableCell><Typography>角色</Typography></TableCell>
-              <TableCell><Typography>投票</Typography></TableCell>
+                <TableCell><Typography>玩家</Typography></TableCell>
+                <TableCell><Typography>角色</Typography></TableCell>
+                <TableCell><Typography>投票</Typography></TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
+            </TableHead>
+            <TableBody>
             {playersTable}
-          </TableBody>
+            </TableBody>
         </Table>
-      </React.Fragment>
     );
   }
 
@@ -586,10 +584,20 @@ const useStyles = makeStyles(theme => ({
       height: '100vh',
       overflow: 'auto',
     },
+    day: {
+        backgroundImage: 'url(http://img.yao51.com/jiankangtuku/npmogcocdv.jpeg)',
+    },
+    night: {
+        backgroundImage: 'url(https://truth.bahamut.com.tw/s01/201708/d681acd50b03a07815103f41543abba8.JPG)',
+    },
     container: {
       height: '100vh',
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
+
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat'
     },
     paper: {
       display: 'flex',
@@ -601,7 +609,7 @@ const useStyles = makeStyles(theme => ({
     },
     panel: {
         width: '100%',
-        height: '50vh'
+        height: '50vh',
     },
 }));
 
@@ -618,9 +626,11 @@ export function ChineseWerewolfBoard(props) {
 
     const paddedPaper = clsx(classes.paper, classes.padding);
 
+    const container = G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day);
+
     return (
         <main className={classes.content}>
-            <Container maxWidth="lg" className={classes.container}>
+            <Container maxWidth="lg" className={container}>
                 <Grid container spacing={1}>
                     {
                         playerID === String(G.god) ?
@@ -666,12 +676,10 @@ export function ChineseWerewolfBoard(props) {
                                     null
                             }
                             <Grid item xs={12}>
-                                <Paper className={paddedPaper}>
-                                    <Log
-                                        className={classes.panel}
-                                        chatState={G.log}
-                                    />
-                                </Paper>
+                                <Log
+                                    className={classes.panel}
+                                    chatState={G.log}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>

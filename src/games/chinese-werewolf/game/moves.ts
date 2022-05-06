@@ -88,7 +88,11 @@ export function reveal(G, ctx) {
             }
             G.players[pid].vote = '';
         }
-        gameLog(G, ctx, `上警的玩家: ${electors.join(',')}`);
+        if (electors.length > 0) {
+            gameLog(G, ctx, `上警的玩家: ${electors.join(',')}`);
+        } else {
+            gameLog(G, ctx, `没玩家上警，警徽流失！`);
+        }
         G.election = true;
     } else {
         if (G.reveal) {

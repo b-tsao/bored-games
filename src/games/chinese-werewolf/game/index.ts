@@ -47,7 +47,7 @@ export const ChineseWerewolf = {
                 players,
                 discards: shuffledCards.slice(i).map((card) => toRole(card)),
                 state: 0,
-                election: false,
+                election: [],
                 badge: null,
                 reveal: false,
                 log: [
@@ -67,7 +67,7 @@ export const ChineseWerewolf = {
                 players,
                 discards: [0, 1, 2, 3],
                 state: 0,
-                election: false,
+                election: [],
                 badge: null,
                 reveal: false,
                 log: [

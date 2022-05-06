@@ -34,7 +34,7 @@ export function next(G, ctx) {
         ctx.events.setActivePlayers({ all: 'vote', value: { [String(G.god)]: 'god' } });
         systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
 
-        if (!G.election) {
+        if (G.election && G.election.length === 0) {
             gameLog(G, ctx, '请上警的玩家投自己一票。');
         }
     } else {
@@ -80,20 +80,19 @@ export function lover(G, ctx, pid: number) {
 }
 
 export function reveal(G, ctx) {
-    if (!G.election) {
-        const electors: string[] = [];
+    if (G.election && G.election.length === 0) {
         for (const pid in G.players) {
             if (G.players[pid].vote === pid) {
-                electors.push(pid);
+                G.election.push(pid);
             }
             G.players[pid].vote = '';
         }
-        if (electors.length > 0) {
-            gameLog(G, ctx, `上警的玩家: ${electors.join(',')}`);
+        if (G.election.length > 0) {
+            gameLog(G, ctx, `上警的玩家: ${G.election.join(',')}`);
         } else {
             gameLog(G, ctx, `没玩家上警，警徽流失！`);
+            G.election = null;
         }
-        G.election = true;
     } else {
         if (G.reveal) {
             G.reveal = false;
@@ -105,15 +104,19 @@ export function reveal(G, ctx) {
             const votes = {};
             const forfeits: string[] = [];
             for (const pid in G.players) {
-                const vid = G.players[pid].vote;
-                if (vid) {
-                    if (votes[vid]) {
-                        votes[vid].push(pid);
-                    } else {
-                        votes[vid] = [pid];
+                if (pid !== String(G.god)) {
+                    if (!G.election || G.election.indexOf(pid) < 0) {
+                        const vid = G.players[pid].vote;
+                        if (vid) {
+                            if (votes[vid]) {
+                                votes[vid].push(pid);
+                            } else {
+                                votes[vid] = [pid];
+                            }
+                        } else {
+                            forfeits.push(pid);
+                        }
                     }
-                } else {
-                    forfeits.push(pid);
                 }
             }
     
@@ -122,6 +125,9 @@ export function reveal(G, ctx) {
                 gameLog(G, ctx, `${vid}: ${votes[vid].join(',')}`);
             }
             gameLog(G, ctx, `弃票: ${forfeits.join(',')}`);
+            if (G.election) {
+                G.election = null;
+            }
         }
     }
 }

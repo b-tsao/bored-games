@@ -1,8 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { fade } from '@material-ui/core/styles/colorManipulator';
-import { Toolbar, Typography, IconButton, Paper, Box } from '@material-ui/core';
-import { ExitToApp } from '@material-ui/icons';
+import { Toolbar, Typography, Paper, Box } from '@material-ui/core';
 import Chat from './Chat';
 
 const useStyles = makeStyles((theme) => ({

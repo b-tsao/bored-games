@@ -275,7 +275,7 @@ const useActionBarStyles = makeStyles((theme) => ({
                     {
                         G.state === 1 ?
                             <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                                {G.reveal ? '隐票' : (!G.election ? '上警' : '统票')}
+                                {G.reveal ? '隐票' : (G.election && G.election.length === 0 ? '上警' : '统票')}
                             </IconButton> :
                             null
                     }
@@ -447,7 +447,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         </Card>
                     </Tooltip>
                 )}
-                <Zoom in={G.badge === pid}>
+                <Zoom in={G.badge === pid || (G.election && G.election.indexOf(pid) >= 0)}>
                     <Tooltip
                         arrow={true}
                         placement="top"

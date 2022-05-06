@@ -272,7 +272,7 @@ const useActionBarStyles = makeStyles((theme) => ({
             {
                 G.state === 1 ?
                     <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                        {G.reveal ? '隐蔽票' : '统计票'}
+                        {G.reveal ? '隐票' : (!G.election ? '上警' : '统票')}
                     </IconButton> :
                     null
             }
@@ -305,7 +305,6 @@ const useActionBarStyles = makeStyles((theme) => ({
           {/* content */}
           <Box display="flex" flexDirection="column" flexGrow={1} padding={1} paddingTop={0}>
             {/* extra window */}
-            
             <Box flex={1} bgcolor="wheat" marginBottom={1}>
               {action.message}
             </Box>
@@ -316,8 +315,8 @@ const useActionBarStyles = makeStyles((theme) => ({
   }
 
 const usePlayersTableStyle = makeStyles(theme => ({
-    disconnected: {
-      color: 'rgba(0, 0, 0, 0.54)'
+    dead: {
+      color: 'rgba(0, 0, 0, 0.33)'
     },
     leader: {
       color: 'rgba(255,215,0)'
@@ -326,7 +325,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
       marginRight: 'auto',
       maxWidth: 40
     },
-    disconnectedImg: {
+    deadImg: {
       opacity: 0.5,
       filter: 'alpha(opacity=50)', /* For IE8 and earlier */
     },
@@ -405,11 +404,16 @@ const usePlayersTableStyle = makeStyles(theme => ({
   
         let playerCellClass: any = null;
         let imgClass = classes.img;
-        if (!player.alive) {
-          playerCellClass = classes.disconnected;
-          imgClass = clsx(imgClass, classes.disconnectedImg);
-        } else if (pid === String(G.god)) {
+        if (pid === String(G.god)) {
           playerCellClass = classes.leader;
+        } else if (!player.alive) {
+          playerCellClass = classes.dead;
+          imgClass = clsx(imgClass, classes.deadImg);
+        }
+
+        let voteClass: any = null;
+        if (!G.reveal) {
+            voteClass = classes.dead;
         }
 
         playersTable.push(
@@ -456,7 +460,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 </Zoom>
               </div>
             </TableCell>
-            <TableCell component="th" scope="row">
+            <TableCell className={voteClass} component="th" scope="row">
               <Typography>{player.vote}</Typography>
             </TableCell>
           </TableRow>

@@ -551,7 +551,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
   
-    if (playerID === String(G.god)) {
+    if (playerID === String(G.god) || G.players[playerID].roles.indexOf(Role.bandit) >= 0) {
         return (
             <Grid container spacing={2}>
                 {G.discards.map((role, idx) => {

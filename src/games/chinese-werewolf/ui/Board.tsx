@@ -488,6 +488,44 @@ const usePlayersTableStyle = makeStyles(theme => ({
     );
   }
 
+  const usePlayerCardStyles = makeStyles((theme) => ({
+    playerCard: {
+        display: 'flex'
+    },
+    card: {
+        display: 'flex',
+        maxWidth: 127.66,
+        maxHeight: 198.77,
+        margin: 'auto',
+        perspective: '1000px',
+        boxShadow: 'none'
+    },
+    img: {
+        overflow: 'hidden',
+        display: 'block',
+        width: '100%',
+        height: '100%'
+    }
+  }));
+  
+  function PlayerCard({ roles }) {
+    const classes = usePlayerCardStyles();
+
+    return (
+        <div className={classes.playerCard}>
+            {roles.map((role, idx) => (
+                <Card key={idx} className={classes.card}>
+                    <img
+                        className={classes.img}
+                        src={roleToCard(role).img}
+                        alt={roleToCard(role).id}
+                    />
+                </Card>
+            ))}
+        </div>
+    );
+  }
+
   const useDiscardStyles = makeStyles((theme) => ({
     img: {
         overflow: 'hidden',
@@ -592,7 +630,7 @@ export function ChineseWerewolfBoard(props) {
                                     ctx={ctx}
                                     moves={moves}
                                     actionHandler={actionHandler}
-                                />
+                                />  
                             </Grid> :
                             null
                     }
@@ -617,12 +655,25 @@ export function ChineseWerewolfBoard(props) {
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={6} lg={6}>
-                        <Paper className={paddedPaper}>
-                            <Log
-                                className={classes.panel}
-                                chatState={G.log}
-                            />
-                        </Paper>
+                        <Grid container spacing={1}>
+                            {
+                                G.players[playerID].roles.length > 0 ?
+                                    <Grid item xs={12}>
+                                        <Paper className={paddedPaper}>
+                                            <PlayerCard roles={G.players[playerID].roles} />
+                                        </Paper>
+                                    </Grid> :
+                                    null
+                            }
+                            <Grid item xs={12}>
+                                <Paper className={paddedPaper}>
+                                    <Log
+                                        className={classes.panel}
+                                        chatState={G.log}
+                                    />
+                                </Paper>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Container>

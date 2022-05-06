@@ -47,13 +47,14 @@ export default class Room {
           static: {
             presets: {
               '预女猎守': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.bodyguard.id, card.citizen.id,
+                card.prophet.id, card.witch.id, card.hunter.id, card.guard.id, card.citizen.id,
                 card.werewolf.id, card.werewolf.id, card.werewolf.id
               ]
             },
             cards: {
-              town: [card.prophet, card.witch, card.bodyguard, card.hunter, card.citizen],
-              wolves: [card.werewolf]
+              town: [card.prophet, card.witch, card.guard, card.hunter, card.citizen, card.idiot, card.mute, card.gangster, card.knight, card.tamer],
+              wolves: [card.werewolf, card.whitewolf, card.beautywolf, card.alphawolf, card.hiddenwolf],
+              neutral: [card.bandit, card.cupid, card.wild, card.terrorist]
             }
           }
         });

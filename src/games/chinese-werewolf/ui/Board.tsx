@@ -1,19 +1,15 @@
 import React, { useContext } from "react";
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { makeStyles } from "@material-ui/core/styles";
 import {
-    Badge,
+    Avatar,
     Box,
     Card,
-    CardActionArea,
-    CardContent,
     Container,
-    Fade,
     Grid,
-    Hidden,
     IconButton,
     Paper,
     Table,
@@ -27,9 +23,10 @@ import {
     Zoom
   } from '@material-ui/core';
 
-import { ExitToApp } from "@material-ui/icons";
+import { Favorite } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
+import { Role, roleToCard, roleToString } from '../game/player';
 import Log from "./Log";
 
 class Action {
@@ -99,14 +96,14 @@ const useActionBarStyles = makeStyles((theme) => ({
         setAction(new Action(
             'swap',
             {},
-            'Select roles to swap (? <-> ?)',
+            '请点选互换的角色 (? <-> ?)',
             (action, changes) => {
                 if (!action.data.r1) {
                     const data = {
                         r1: changes
                     };
-                    const r = changes.player?.id || changes.discard?.role;
-                    const message = `Select roles to swap (${r} <-> ?)`;
+                    const r = changes.player ? G.players[changes.player.id].roles[changes.player.pos] : changes.discard?.role;
+                    const message = `请选择要互换的角色 (${roleToString(r)} <-> ?)`;
                     setAction(action.clone(data, message));
                 } else {
                     const data = {
@@ -158,7 +155,7 @@ const useActionBarStyles = makeStyles((theme) => ({
             setAction(new Action(
                 'transfer',
                 {},
-                'Select a player to transfer to',
+                '请点选上帝转移的对象',
                 (action, changes) => {
                     const pid = changes;
                     moves.transfer(pid);
@@ -176,7 +173,7 @@ const useActionBarStyles = makeStyles((theme) => ({
             setAction(new Action(
                 'kill',
                 {},
-                'Select a player to kill',
+                '请点选死亡的玩家',
                 (action, changes) => {
                     const pid = changes;
                     moves.kill(pid);
@@ -193,7 +190,7 @@ const useActionBarStyles = makeStyles((theme) => ({
             setAction(new Action(
                 'badge',
                 {},
-                'Select a player to badge',
+                '请点选获得警徽的玩家',
                 (action, changes) => {
                     const pid = changes;
                     moves.badge(pid);
@@ -210,7 +207,7 @@ const useActionBarStyles = makeStyles((theme) => ({
             setAction(new Action(
                 'love',
                 {},
-                'Select a player to fall in love',
+                '请点选恋爱的玩家',
                 (action, changes) => {
                     const pid = changes;
                     moves.lover(pid);
@@ -237,29 +234,24 @@ const useActionBarStyles = makeStyles((theme) => ({
     const options = (ctx.phase === 'setup') ?
         (
             <React.Fragment>
-                <Tooltip
-                    arrow={true}
-                    title={'Swap player roles'}
-                >
-                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap" onClick={handleSwap}>
-                        {action.type !== 'swap' ? 'Swap' : 'Cancel'}
-                    </IconButton>
-                </Tooltip>
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Swap" onClick={handleSwap}>
+                    {action.type !== 'swap' ? '互换' : '取消'}
+                </IconButton>
             </React.Fragment>
         ) :
         (
             <React.Fragment>
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Kill" onClick={handleKill}>
-                    {action.type !== 'kill' ? 'Kill' : 'Cancel'}
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Kill" onClick={handleKill}>
+                    {action.type !== 'kill' ? '死亡' : '取消'}
                 </IconButton>
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Badge" onClick={handleBadge}>
-                    {action.type !== 'badge' ? 'Badge' : 'Cancel'}
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Badge" onClick={handleBadge}>
+                    {action.type !== 'badge' ? '警徽' : '取消'}
                 </IconButton>
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Love" onClick={handleLove}>
-                    {action.type !== 'love' ? 'Love' : 'Cancel'}
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Love" onClick={handleLove}>
+                    {action.type !== 'love' ? '恋爱' : '取消'}
                 </IconButton>
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Swap" onClick={handleSwap}>
-                    {action.type !== 'swap' ? 'Swap' : 'Cancel'}
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Swap" onClick={handleSwap}>
+                    {action.type !== 'swap' ? '互换' : '取消'}
                 </IconButton>
             </React.Fragment>
         );
@@ -270,7 +262,7 @@ const useActionBarStyles = makeStyles((theme) => ({
           {/* header */}
           <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
             <Typography variant="h6" color="inherit">
-              {"God Panel"}
+              {'上帝操作'}
             </Typography>
 
             {options}
@@ -279,18 +271,18 @@ const useActionBarStyles = makeStyles((theme) => ({
 
             {
                 G.state === 1 ?
-                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                        {G.reveal ? 'Unreveal' : 'Reveal'}
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
+                        {G.reveal ? '隐蔽票' : '统计票'}
                     </IconButton> :
                     null
             }
             {
                 ctx.phase === 'main' ?
-                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Next" onClick={handleNext}>
-                        {'Next'}
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="primary" aria-label="Next" onClick={handleNext}>
+                        {G.state === 0 ? '进入白天' : '进入夜晚'}
                     </IconButton> :
-                    <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Start" onClick={handleStart}>
-                        {'Start'}
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="primary" aria-label="Start" onClick={handleStart}>
+                        {'开始'}
                     </IconButton>
             }
 
@@ -299,13 +291,13 @@ const useActionBarStyles = makeStyles((theme) => ({
             <div>
                 {
                     ctx.phase === 'main' ?
-                        <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Transfer" onClick={handleTransfer}>
-                            {action.type !== 'transfer' ? 'Transfer' : 'Cancel'}
+                        <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Transfer" onClick={handleTransfer}>
+                            {action.type !== 'transfer' ? '移交上帝' : '取消'}
                         </IconButton> :
                         null
                 }
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="End" onClick={handleEnd}>
-                    <ExitToApp />
+                <IconButton classes={{ root: classes.shrinkRipple }} color="secondary" aria-label="End" onClick={handleEnd}>
+                    {'结束游戏'}
                 </IconButton>
             </div>
           </Toolbar>
@@ -354,6 +346,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
     normal: {
       transition: 'all .2s ease-in',
       backgroundColor: 'inherit'
+    },
+    roles: {
+        display: 'flex'
     }
   }));
   
@@ -410,73 +405,12 @@ const usePlayersTableStyle = makeStyles(theme => ({
   
         let playerCellClass: any = null;
         let imgClass = classes.img;
-        // if (G.players[player.id].client.status === 'disconnected') {
-        //   playerCellClass = classes.disconnected;
-        //   imgClass = clsx(imgClass, classes.disconnectedImg);
-        // } else if (room.state.leader === idx) {
-        //   playerCellClass = classes.leader;
-        // }
-
-        const playerChosen = true;
-
-      //   const questHistory = room.state.phase === 'voting' || room.state.phase === 'tally' ?
-      //     room.state.quests.length - 1 : room.state.quests.length;
-      //   const votes: any[] = [];
-
-      //   for (let i = 0; i < questHistory; i++) {
-      //     const quest = room.state.quests[i];
-      //     if (quest.history.length > 0) {
-      //       const history = quest.history[quest.history.length - 1];
-      //       const playerVote = history.votes[player.id];
-      //       votes.push(
-      //         <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">
-      //           <Zoom in={true}>
-      //             <Card className={classes.card}>
-      //               {playerVote ?
-      //                 <img
-      //                   className={imgClass}
-      //                   src={room.ctx.settings.static.vote.approve.img}
-      //                   alt={room.ctx.settings.static.vote.approve.label} /> :
-      //                 <img
-      //                   className={imgClass}
-      //                   src={room.ctx.settings.static.vote.reject.img}
-      //                   alt={room.ctx.settings.static.vote.reject.label} />}
-      //             </Card>
-      //           </Zoom>
-      //         </TableCell>
-      //       );
-      //     }
-      //   }
-
-      //   if (room.state.voters.hasOwnProperty(player.id)) {
-      //     const playerVoted =
-      //       <TableCell key={player.id + '-quest' + votes.length} component="th" scope="row">
-      //         <Zoom in={true}>
-      //           <Card className={classes.card}>
-      //             <img
-      //               className={imgClass}
-      //               src={room.ctx.settings.static.vote.cover.img}
-      //               alt={room.ctx.settings.static.vote.cover.label} />
-      //           </Card>
-      //         </Zoom>
-      //       </TableCell>;
-      //     votes.push(playerVoted);
-      //   }
-
-      //   for (let i = votes.length; i < board.quests.length; i++) {
-      //     votes.push(
-      //       <TableCell key={player.id + '-quest' + i} component="th" scope="row">
-      //         <Zoom in={false}>
-      //           <Card className={classes.card}>
-      //             <img
-      //               className={imgClass}
-      //               src={room.ctx.settings.static.vote.cover.img}
-      //               alt={room.ctx.settings.static.vote.cover.label} />
-      //           </Card>
-      //         </Zoom>
-      //       </TableCell>
-      //     );
-      //   }
+        if (!player.alive) {
+          playerCellClass = classes.disconnected;
+          imgClass = clsx(imgClass, classes.disconnectedImg);
+        } else if (pid === String(G.god)) {
+          playerCellClass = classes.leader;
+        }
 
         playersTable.push(
           <TableRow
@@ -485,21 +419,45 @@ const usePlayersTableStyle = makeStyles(theme => ({
             className={playerRowClass}>
             <TableCell className={playerCellClass} component="th" scope="row">
               {getPlayerName(pid)}
+              <Zoom in={player.lover}>
+                  <Favorite />
+              </Zoom>
             </TableCell>
             <TableCell component="th" scope="row">
-              {player.roles.map((role, idx) =>
-                <Zoom key={idx} in={playerChosen}>
-                    <Card className={classes.card} onClick={() => {handleRoleClick(pid, idx)}}>
-                    <img
-                        className={imgClass}
-                        src={"https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F13%2F2015%2F04%2F05%2Ffeatured.jpg&q=60"}
-                        alt={"woohoo"} />
-                    </Card>
+              <div className={classes.roles}>
+                {player.roles.map((role, idx) =>
+                    <Tooltip
+                        key={idx}
+                        arrow={true}
+                        placement="top"
+                        title={roleToString(role)}
+                    >
+                        <Card className={classes.card} onClick={() => {handleRoleClick(pid, idx)}}>
+                            <img
+                                className={imgClass}
+                                src={roleToCard(role).img}
+                                alt={roleToCard(role).id} />
+                        </Card>
+                    </Tooltip>
+                )}
+                <Zoom in={G.badge === pid}>
+                    <Tooltip
+                        arrow={true}
+                        placement="top"
+                        title={roleToString(Role.sheriff)}
+                    >
+                        <Card className={classes.card}>
+                            <img
+                                className={imgClass}
+                                src={roleToCard(Role.sheriff).img}
+                                alt={roleToCard(Role.sheriff).id} />
+                        </Card>
+                    </Tooltip>
                 </Zoom>
-              )}
+              </div>
             </TableCell>
             <TableCell component="th" scope="row">
-              {player.vote}
+              <Typography>{player.vote}</Typography>
             </TableCell>
           </TableRow>
         );
@@ -510,13 +468,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Player</TableCell>
-              {/* At setup this will be action */}
-              {/* At night this will be action */}
-              {/* At day/vote this will be vote */}
-              {/* At day/reveal this will be reveal */}
-              <TableCell>Role</TableCell>
-              <TableCell>Vote</TableCell>
+              <TableCell>玩家</TableCell>
+              <TableCell>角色</TableCell>
+              <TableCell>投票</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -558,13 +512,19 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 {G.discards.map((role, idx) => {
                     return (
                         <Grid item key={idx}>
-                            <Typography>{role}</Typography>
-                            <Card className={classes.card} onClick={() => {handleRoleClick(role, idx)}}>
-                                <img
-                                    className={classes.img}
-                                    src={"https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F13%2F2015%2F04%2F05%2Ffeatured.jpg&q=60"}
-                                    alt={"woohoo"} />
-                            </Card>
+                            <Tooltip
+                                key={idx}
+                                arrow={true}
+                                placement="top"
+                                title={roleToString(role)}
+                            >
+                                <Card className={classes.card} onClick={() => {handleRoleClick(role, idx)}}>
+                                    <img
+                                        className={classes.img}
+                                        src={roleToCard(role).img}
+                                        alt={roleToCard(role).id} />
+                                </Card>
+                            </Tooltip>
                         </Grid>
                     );
                 })}
@@ -632,15 +592,21 @@ export function ChineseWerewolfBoard(props) {
                     {/* Players */}
                     <Grid item xs={12} md={6} lg={6}>
                         <Paper className={paddedPaper}>
-                            <PlayersTable
-                                G={G}
-                                ctx={ctx}
-                                gameMetadata={gameMetadata}
-                                moves={moves}
-                                playerID={playerID}
-                                actionHandler={actionHandler}
-                            />
-                            <Discard G={G} playerID={playerID} actionHandler={actionHandler}/>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <PlayersTable
+                                        G={G}
+                                        ctx={ctx}
+                                        gameMetadata={gameMetadata}
+                                        moves={moves}
+                                        playerID={playerID}
+                                        actionHandler={actionHandler}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Discard G={G} playerID={playerID} actionHandler={actionHandler}/>
+                                </Grid>
+                            </Grid>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={6} lg={6}>

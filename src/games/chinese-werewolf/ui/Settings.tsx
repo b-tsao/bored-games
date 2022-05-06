@@ -69,7 +69,7 @@ function ExtraSettings({ self, settings }) {
             /> */}
             <FormControlLabel
               control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
-              label="Double identity"
+              label="双身分"
             />
           </FormGroup>
         </FormControl>
@@ -92,14 +92,15 @@ function PlayerSettings({ self, players, settings }) {
   const classes = usePlayerSettingsStyle();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const numPlayers = Number(event.target.value);
+      let numPlayers = Number(event.target.value);
       if (Object.keys(players).length > numPlayers) {
+        numPlayers = Object.keys(players).length;
         setError("Can not set players below number of currently joined players");
       } else if (numPlayers > 20) {
+        numPlayers = 20;
         setError("Too many players");
-      } else {
-        client.emit('settings', { numPlayers });
       }
+      client.emit('settings', { numPlayers });
   };
 
   const handleBlur = () => {
@@ -205,11 +206,14 @@ function CardGrid({ self, settings }) {
   const classes = useCardStyles();
 
   const handleChange = (id, value) => {
-      const cards = settings.setupData.cards.filter((cid) => cid !== id);
-      for (let i = 0; i < value; i++) {
-          cards.push(id);
-      }
-      client.emit('settings', { cards });
+    if (value > 10) {
+      value = 10;
+    }
+    const cards = settings.setupData.cards.filter((cid) => cid !== id);
+    for (let i = 0; i < value; i++) {
+        cards.push(id);
+    }
+    client.emit('settings', { cards });
   };
 
   const disabled = !self || !self.host;
@@ -226,12 +230,11 @@ function CardGrid({ self, settings }) {
             const selectedCard = value > 0;
             return (
               <Grid item key={card.id}>
-                <Typography>{card.label}</Typography>
                 <Card className={classes.card}>
                   <CardActionArea disabled={true}>
                     <img
                       src={card.img}
-                      alt={card.label}
+                      alt={card.id}
                       className={selectedCard ? classes.selectedImage : classes.image} />
                   </CardActionArea>
                 </Card>
@@ -256,12 +259,40 @@ function CardGrid({ self, settings }) {
             const selectedCard = value > 0;
             return (
               <Grid item key={card.id}>
-                <Typography>{card.label}</Typography>
                 <Card className={classes.card}>
                   <CardActionArea disabled={true}>
                     <img
                       src={card.img}
-                      alt={card.label}
+                      alt={card.id}
+                      className={selectedCard ? classes.selectedImage : classes.image} />
+                  </CardActionArea>
+                </Card>
+                <TextField
+                    id="outlined-number"
+                    label="Count"
+                    type="number"
+                    value={value}
+                    onChange={(e) => { handleChange(card.id, e.target.value) }}
+                    disabled={disabled}
+                />
+              </Grid>
+            );
+          })}
+        </Grid>
+        <Paper square elevation={0} className={classes.header}>
+          <Typography>Neutral</Typography>
+        </Paper>
+        <Grid container spacing={2}>
+          {settings.static.cards.neutral.map((card) => {
+            const value = settings.setupData.cards.filter((cid) => cid === card.id).length;
+            const selectedCard = value > 0;
+            return (
+              <Grid item key={card.id}>
+                <Card className={classes.card}>
+                  <CardActionArea disabled={true}>
+                    <img
+                      src={card.img}
+                      alt={card.id}
                       className={selectedCard ? classes.selectedImage : classes.image} />
                   </CardActionArea>
                 </Card>

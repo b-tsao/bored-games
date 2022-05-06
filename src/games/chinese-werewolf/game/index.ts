@@ -10,7 +10,7 @@ import {
     vote,
     reveal
 } from './moves';
-import Player, { Role, toRole } from './player';
+import Player, { toRole } from './player';
 
 export const ChineseWerewolf = {
     name: 'chinese-werewolf',

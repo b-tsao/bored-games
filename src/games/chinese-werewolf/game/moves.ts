@@ -60,12 +60,11 @@ export function kill(G, ctx, pid) {
 }
 
 export function badge(G, ctx, pid) {
-    if (!G.players[pid].alive) {
-        return INVALID_MOVE;
-    }
     if (G.badge === pid) {
         G.badge = null;
         gameLog(G, ctx, `${pid}号玩家撕掉警徽。`);
+    } else if (!G.players[pid].alive) {
+        return INVALID_MOVE;
     } else {
         if (G.badge === null) {
             gameLog(G, ctx, `${pid}号玩家当选警长！`);

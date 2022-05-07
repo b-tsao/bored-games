@@ -52,6 +52,16 @@ export const tamer = {
     img: 'https://image.9game.cn/2017/10/31/18414652.jpg'
 }
 
+export const gravekeeper = {
+    id: 'gravekeeper',
+    img: 'http://5b0988e595225.cdn.sohucs.com/images/20190226/88994a5aa70c488eab6869112ba5f897.jpeg'
+}
+
+export const crow = {
+    id: 'crow',
+    img: 'https://ok.166.net/reunionpub/ds/kol/20210425/230233-icp6wekm3n.png'
+}
+
 // wolves
 
 export const werewolf = {
@@ -77,6 +87,11 @@ export const alphawolf = {
 export const hiddenwolf = {
     id: 'hiddenwolf',
     img: 'https://image.9game.cn/2017/10/31/18414658.jpg'
+}
+
+export const gargoyle = {
+    id: 'gargoyle',
+    img: 'http://5b0988e595225.cdn.sohucs.com/images/20190226/e8390809851c4c8c9b42b1bb86eca2ea.jpeg'
 }
 
 // neutral
@@ -105,4 +120,9 @@ export const wild = {
 export const terrorist = {
     id: 'terrorist',
     img: 'https://image.9game.cn/2017/10/31/18414663.jpg'
+}
+
+export const hybrid = {
+    id: 'hybrid',
+    img: 'https://imgur.dcard.tw/bfoImTeh.jpg'
 }

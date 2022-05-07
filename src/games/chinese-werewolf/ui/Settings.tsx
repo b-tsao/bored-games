@@ -69,7 +69,7 @@ function ExtraSettings({ self, settings }) {
             /> */}
             <FormControlLabel
               control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
-              label="双身分"
+              label="双身份"
             />
           </FormGroup>
         </FormControl>
@@ -184,7 +184,7 @@ const useCardStyles = makeStyles(theme => ({
   card: {
     display: 'flex',
     maxWidth: 127.66,
-    maxHeight: 198.77
+    maxHeight: 184.73
   },
   image: {
     width: '100%',
@@ -218,11 +218,15 @@ function CardGrid({ self, settings }) {
 
   const disabled = !self || !self.host;
 
+  const town = settings.static.cards.town.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
+  const wolves = settings.static.cards.wolves.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
+  const neutral = settings.static.cards.neutral.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
+
   return (
     <React.Fragment>
       <Container className={classes.container} maxWidth="md">
         <Paper square elevation={0} className={classes.header}>
-          <Typography>Town</Typography>
+          <Typography>好人 ({town})</Typography>
         </Paper>
         <Grid container spacing={2}>
           {settings.static.cards.town.map((card) => {
@@ -251,7 +255,7 @@ function CardGrid({ self, settings }) {
           })}
         </Grid>
         <Paper square elevation={0} className={classes.header}>
-          <Typography>Wolves</Typography>
+          <Typography>狼人 ({wolves})</Typography>
         </Paper>
         <Grid container spacing={2}>
           {settings.static.cards.wolves.map((card) => {
@@ -280,7 +284,7 @@ function CardGrid({ self, settings }) {
           })}
         </Grid>
         <Paper square elevation={0} className={classes.header}>
-          <Typography>Neutral</Typography>
+          <Typography>第三方 ({neutral})</Typography>
         </Paper>
         <Grid container spacing={2}>
           {settings.static.cards.neutral.map((card) => {

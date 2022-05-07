@@ -12,59 +12,74 @@ export enum Role {
     gangster,
     knight,
     tamer,
+    gravekeeper,
+    crow,
     // wolves
     werewolf,
     whitewolf,
     beautywolf,
     alphawolf,
     hiddenwolf,
+    gargoyle,
     // neutral
     bandit,
     cupid,
     wild,
     terrorist,
+    hybrid,
     sheriff
 }
 
 export function toRole(role: string) {
     switch (role) {
-        case 'prophet':
+        // town
+        case card.prophet.id:
             return Role.prophet;
-        case 'witch':
+        case card.witch.id:
             return Role.witch;
-        case 'hunter':
+        case card.hunter.id:
             return Role.hunter;
-        case 'guard':
+        case card.guard.id:
             return Role.guard;
-        case 'idiot':
+        case card.idiot.id:
             return Role.idiot;
-        case 'mute':
+        case card.mute.id:
             return Role.mute;
-        case 'gangster':
+        case card.gangster.id:
             return Role.gangster;
-        case 'knight':
+        case card.knight.id:
             return Role.knight;
-        case 'tamer':
+        case card.tamer.id:
             return Role.tamer;
-        case 'werewolf':
+        case card.gravekeeper.id:
+            return Role.gravekeeper;
+        case card.crow.id:
+            return Role.crow;
+        // wolves
+        case card.werewolf.id:
             return Role.werewolf;
-        case 'whitewolf':
+        case card.whitewolf.id:
             return Role.whitewolf;
-        case 'beautywolf':
+        case card.beautywolf.id:
             return Role.beautywolf;
-        case 'alphawolf':
+        case card.alphawolf.id:
             return Role.alphawolf;
-        case 'hiddenwolf':
+        case card.hiddenwolf.id:
             return Role.hiddenwolf;
-        case 'bandit':
+        case card.gargoyle.id:
+            return Role.gargoyle;
+        // neutral
+        case card.bandit.id:
             return Role.bandit;
-        case 'cupid':
+        case card.cupid.id:
             return Role.cupid;
-        case 'wild':
+        case card.wild.id:
             return Role.wild;
-        case 'terrorist':
+        case card.terrorist.id:
             return Role.terrorist;
-        case 'sheriff':
+        case card.hybrid.id:
+            return Role.hybrid;
+        case card.sheriff.id:
             return Role.sheriff;
         default:
             return Role.citizen;
@@ -73,6 +88,7 @@ export function toRole(role: string) {
 
 export function roleToString(role: Role) {
     switch (role) {
+        // town
         case Role.prophet:
             return '预言家';
         case Role.witch:
@@ -91,6 +107,11 @@ export function roleToString(role: Role) {
             return '骑士';
         case Role.tamer:
             return '驯熊师';
+        case Role.gravekeeper:
+            return '守墓人';
+        case Role.crow:
+            return '乌鸦';
+        // wolves
         case Role.werewolf:
             return '狼人';
         case Role.whitewolf:
@@ -101,6 +122,9 @@ export function roleToString(role: Role) {
             return '狼王';
         case Role.hiddenwolf:
             return '隐狼';
+        case Role.gargoyle:
+            return '石像鬼';
+        // neutral
         case Role.bandit:
             return '盗贼';
         case Role.cupid:
@@ -109,6 +133,8 @@ export function roleToString(role: Role) {
             return '野孩子';
         case Role.terrorist:
             return '炸弹人';
+        case Role.hybrid:
+            return '混血儿';
         case Role.sheriff:
             return '警长';
         default:
@@ -118,6 +144,7 @@ export function roleToString(role: Role) {
 
 export function roleToCard(role: Role) {
     switch (role) {
+        // town
         case Role.prophet:
             return card.prophet;
         case Role.witch:
@@ -136,6 +163,11 @@ export function roleToCard(role: Role) {
             return card.knight;
         case Role.tamer:
             return card.tamer;
+        case Role.gravekeeper:
+            return card.gravekeeper;
+        case Role.crow:
+            return card.crow;
+        // wolves
         case Role.werewolf:
             return card.werewolf;
         case Role.whitewolf:
@@ -146,6 +178,9 @@ export function roleToCard(role: Role) {
             return card.alphawolf;
         case Role.hiddenwolf:
             return card.hiddenwolf;
+        case Role.gargoyle:
+            return card.gargoyle;
+        // neutral
         case Role.bandit:
             return card.bandit;
         case Role.cupid:
@@ -154,6 +189,8 @@ export function roleToCard(role: Role) {
             return card.wild;
         case Role.terrorist:
             return card.terrorist;
+        case Role.hybrid:
+            return card.hybrid;
         case Role.sheriff:
             return card.sheriff
         default:

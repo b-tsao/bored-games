@@ -6,7 +6,7 @@ WORKDIR /home/node
 COPY package.json .
 RUN npm install --only=production
 
-COPY . .
+COPY build build
 
 ENTRYPOINT ["npm", "start"]
 

@@ -447,7 +447,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         </Card>
                     </Tooltip>
                 )}
-                <Zoom in={G.badge === pid || (G.election && G.election.indexOf(pid) >= 0)}>
+                <Zoom in={G.badge === pid || (G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0)}>
                     <Tooltip
                         arrow={true}
                         placement="top"
@@ -584,11 +584,14 @@ const useStyles = makeStyles(theme => ({
       height: '100vh',
       overflow: 'auto',
     },
+    setup: {
+        backgroundImage: 'url(https://5b0988e595225.cdn.sohucs.com/images/20180223/33b30445ff2f4217b4b85e7833f8b898.jpeg)',
+    },
     day: {
-        backgroundImage: 'url(http://img.yao51.com/jiankangtuku/npmogcocdv.jpeg)',
+        backgroundImage: 'url(https://5b0988e595225.cdn.sohucs.com/images/20180223/cc60468d651c4f82af7aeeb99ff83ef4.jpeg)',
     },
     night: {
-        backgroundImage: 'url(http://img.yao51.com/jiankangtuku/wnqhpshssy.jpeg)',
+        backgroundImage: 'url(https://5b0988e595225.cdn.sohucs.com/images/20180223/4a8dfbe3594848f89e240d0e2fdffd5f.jpeg)',
     },
     container: {
       height: '100vh',
@@ -626,7 +629,7 @@ export function ChineseWerewolfBoard(props) {
 
     const paddedPaper = clsx(classes.paper, classes.padding);
 
-    const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day) : classes.container;
+    const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day) : clsx(classes.container, classes.setup);
 
     return (
         <main className={classes.content}>

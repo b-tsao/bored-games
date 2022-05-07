@@ -83,12 +83,13 @@ export function reveal(G, ctx) {
     if (G.election && G.election.length === 0) {
         for (const pid in G.players) {
             if (G.players[pid].vote === pid) {
-                G.election.push(pid);
+                G.election.push({ id: pid, drop: false });
             }
             G.players[pid].vote = '';
         }
         if (G.election.length > 0) {
-            gameLog(G, ctx, `上警的玩家: ${G.election.join(',')}`);
+            gameLog(G, ctx, `上警的玩家: ${G.election.map((player) => player.id).join(',')}`);
+            gameLog(G, ctx, `请退水的玩家投自己一票。`);
         } else {
             gameLog(G, ctx, `没玩家上警，警徽流失！`);
             G.election = null;
@@ -105,7 +106,8 @@ export function reveal(G, ctx) {
             const forfeits: string[] = [];
             for (const pid in G.players) {
                 if (pid !== String(G.god)) {
-                    if (!G.election || G.election.indexOf(pid) < 0) {
+                    if (!G.election || G.election.filter((player) => pid === player.id).length === 0) {
+                        // if no election or player is running for election
                         const vid = G.players[pid].vote;
                         if (vid) {
                             if (votes[vid]) {
@@ -137,5 +139,44 @@ export function vote(G, ctx, pid) {
     if (!player.alive) {
         return INVALID_MOVE;
     }
-    player.vote = pid;
+    let valid = true;
+    if (G.election) {
+        if (G.election.length === 0) {
+            if (ctx.playerID !== pid) {
+                valid = false;
+            }
+        } else {
+            let voteRunning = false;
+            let playerRunning = false;
+            for (const player of G.election) {
+                if (ctx.playerID === player.id) {
+                    // player running for election
+                    if (ctx.playerID === pid && !player.drop) {
+                        // played voted for self
+                        player.drop = true;
+                        gameLog(G, ctx, `${ctx.playerID}号玩家退水。`);
+                        for (const pid in G.players) {
+                            if (G.players[pid].vote === player.id) {
+                                G.players[pid].vote = '';
+                            }
+                        }
+                    }
+                    playerRunning = true;
+                    break;
+                } else {
+                    if (pid === player.id && !player.drop) {
+                        voteRunning = true;
+                    }
+                }
+            }
+            valid = !playerRunning && voteRunning;
+        }
+    }
+    if (valid) {
+        if (player.vote === pid) {
+            player.vote = '';
+        } else {
+            player.vote = pid;
+        }
+    }
 }

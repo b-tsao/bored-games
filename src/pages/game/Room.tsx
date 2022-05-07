@@ -104,13 +104,10 @@ const ActionToolbar = ({ self, room }) => {
   };
 
   const hostCheck = self && self.host;
-  const playersCheck = process.env.NODE_ENV === 'production' ? Object.keys(room.ctx.players).length === room.ctx.settings.numPlayers : true;
 
   let startDisableReason: string | null = null;
   if (!hostCheck) {
     startDisableReason = 'Waiting for host to start';
-  } else if (!playersCheck) {
-    startDisableReason = 'Invalid player count';
   }
 
   return (

@@ -14,6 +14,7 @@ export enum Role {
     tamer,
     gravekeeper,
     crow,
+    miracle_merchant,
     // wolves
     werewolf,
     whitewolf,
@@ -27,6 +28,8 @@ export enum Role {
     wild,
     terrorist,
     hybrid,
+    fox,
+    secret_admirer,
     sheriff
 }
 
@@ -55,6 +58,8 @@ export function toRole(role: string) {
             return Role.gravekeeper;
         case card.crow.id:
             return Role.crow;
+        case card.miracle_merchant.id:
+            return Role.miracle_merchant;
         // wolves
         case card.werewolf.id:
             return Role.werewolf;
@@ -79,6 +84,10 @@ export function toRole(role: string) {
             return Role.terrorist;
         case card.hybrid.id:
             return Role.hybrid;
+        case card.fox.id:
+            return Role.fox;
+        case card.secret_admirer.id:
+            return Role.secret_admirer;
         case card.sheriff.id:
             return Role.sheriff;
         default:
@@ -111,6 +120,8 @@ export function roleToString(role: Role) {
             return '守墓人';
         case Role.crow:
             return '乌鸦';
+        case Role.miracle_merchant:
+            return '奇迹商人';
         // wolves
         case Role.werewolf:
             return '狼人';
@@ -135,6 +146,10 @@ export function roleToString(role: Role) {
             return '炸弹人';
         case Role.hybrid:
             return '混血儿';
+        case Role.fox:
+            return '咒狐';
+        case Role.secret_admirer:
+            return '暗恋者';
         case Role.sheriff:
             return '警长';
         default:
@@ -167,6 +182,8 @@ export function roleToCard(role: Role) {
             return card.gravekeeper;
         case Role.crow:
             return card.crow;
+        case Role.miracle_merchant:
+            return card.miracle_merchant;
         // wolves
         case Role.werewolf:
             return card.werewolf;
@@ -191,6 +208,10 @@ export function roleToCard(role: Role) {
             return card.terrorist;
         case Role.hybrid:
             return card.hybrid;
+        case Role.fox:
+            return card.fox;
+        case Role.secret_admirer:
+            return card.secret_admirer;
         case Role.sheriff:
             return card.sheriff
         default:

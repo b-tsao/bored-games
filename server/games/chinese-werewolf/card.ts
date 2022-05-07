@@ -62,6 +62,11 @@ export const crow = {
     img: 'https://ok.166.net/reunionpub/ds/kol/20210425/230233-icp6wekm3n.png'
 }
 
+export const miracle_merchant = {
+    id: 'miracle-merchant',
+    img: 'http://p9.itc.cn/images01/20200611/cf1204a446474e51b6ec095399cc0085.jpeg'
+}
+
 // wolves
 
 export const werewolf = {
@@ -125,4 +130,14 @@ export const terrorist = {
 export const hybrid = {
     id: 'hybrid',
     img: 'https://imgur.dcard.tw/bfoImTeh.jpg'
+}
+
+export const fox = {
+    id: 'fox',
+    img: 'https://5b0988e595225.cdn.sohucs.com/images/20190822/f538e11f0be1456780a2a3ca4d8bc5e5.jpeg'
+}
+
+export const secret_admirer = {
+    id: 'secret-admirer',
+    img: 'https://i.imgur.com/PPGtdkQ.jpg'
 }

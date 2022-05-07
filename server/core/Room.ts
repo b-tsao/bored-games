@@ -73,9 +73,9 @@ export default class Room {
               ]
             },
             cards: {
-              town: [card.prophet, card.witch, card.guard, card.hunter, card.citizen, card.idiot, card.mute, card.gangster, card.knight, card.tamer, card.gravekeeper, card.crow],
+              town: [card.prophet, card.witch, card.guard, card.hunter, card.citizen, card.idiot, card.mute, card.gangster, card.knight, card.tamer, card.gravekeeper, card.crow, card.miracle_merchant],
               wolves: [card.werewolf, card.whitewolf, card.beautywolf, card.alphawolf, card.hiddenwolf, card.gargoyle],
-              neutral: [card.bandit, card.cupid, card.wild, card.terrorist, card.hybrid]
+              neutral: [card.bandit, card.cupid, card.wild, card.terrorist, card.hybrid, card.fox, card.secret_admirer]
             }
           }
         });

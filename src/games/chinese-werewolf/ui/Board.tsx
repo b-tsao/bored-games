@@ -550,7 +550,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
   
-    if (playerID === String(G.god) || G.players[playerID].roles.indexOf(cards.bandit.id) >= 0) {
+    if (playerID === String(G.god) || !playerID || G.players[playerID].roles.indexOf(cards.bandit.id) >= 0) {
         return (
             <Grid container spacing={2}>
                 {G.discards.map((role, idx) => {
@@ -671,7 +671,7 @@ export function ChineseWerewolfBoard(props) {
                     <Grid item xs={12} md={6} lg={6}>
                         <Grid container spacing={1}>
                             {
-                                G.players[playerID].roles.length > 0 ?
+                                playerID && G.players[playerID].roles.length > 0 ?
                                     <Grid item xs={12}>
                                         <Paper className={paddedPaper}>
                                             <PlayerCard roles={G.players[playerID].roles} />

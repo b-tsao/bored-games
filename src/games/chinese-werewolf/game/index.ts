@@ -82,7 +82,7 @@ export const ChineseWerewolf = {
     playerView: (G, ctx, playerID) => {
         const players = {};
         for (const pid in G.players) {
-            if (playerID === String(G.god)) {
+            if (playerID === String(G.god) || !playerID) {
                 players[pid] = G.players[pid];
             } else if (pid === playerID) {
                 if (ctx.phase === 'setup') {

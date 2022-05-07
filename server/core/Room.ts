@@ -220,7 +220,9 @@ export default class Room {
     this.logger.trace(`Client (${id}) joining game as name (${name})`);
 
     let reason: string | null;
-    if (this.game.settings.hasOwnProperty('maxPlayers') && Object.keys(this.players).length >= this.game.settings.numPlayers) {
+    if (this.game.context.inProgress) {
+      reason = 'Game is currently in progress';
+    } else if (this.game.settings.hasOwnProperty('maxPlayers') && Object.keys(this.players).length >= this.game.settings.numPlayers) {
       reason = 'Room capacity exceeded';
     } else if (this.players.hasOwnProperty(id)) {
       reason = 'Already in the game';

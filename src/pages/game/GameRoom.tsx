@@ -158,7 +158,7 @@ export default function GameRoom() {
     const self = client ? getPlayer(room.ctx.players, client.id) : null;
     console.log('self', self);
 
-    if (room.ctx.inProgress && self) {
+    if (room.ctx.inProgress) {
       if (window.location.pathname.endsWith('/game')) {
         display = <Game room={room} self={self} />;
       } else {

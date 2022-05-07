@@ -63,6 +63,14 @@ export default function BGIOClient({ room, self, game, board }) {
             </div >
         );
     } else {
-        return null;
+        return (
+            <div className={classes.frame}>
+                <Box className={classes.window} display="flex">
+                    <Box flexGrow={1}>
+                        <GameClient gameID={gameID} />
+                    </Box>
+                </Box>
+            </div >
+        );
     }
 }

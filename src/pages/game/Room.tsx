@@ -123,6 +123,12 @@ const ActionToolbar = ({ self, room }) => {
               Spectators: {Object.keys(ctx.spectators).length}
             </Typography>
           </div>
+          <div className={classes.spacer} />
+          <div className={classes.title}>
+            <Typography variant='h6' id='tableTitle'>
+              Players: {Object.keys(ctx.players).length}
+            </Typography>
+          </div>
         </Hidden>
         <div className={classes.spacer} />
         <div className={classes.actions}>

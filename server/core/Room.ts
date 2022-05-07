@@ -4,7 +4,7 @@ import { errorListener } from './lib/ImmerPlugin';
 import Game from './Game';
 // import Avalon from '../../src/games/avalon/Game';
 
-import * as card from '../games/chinese-werewolf/card';
+import cards, { Side } from '../games/chinese-werewolf/cards';
 
 import BGIOWrapper from './BGIOWrapper';
 import { People, Player, AnyFunction } from './types';
@@ -47,35 +47,35 @@ export default class Room {
           static: {
             presets: {
               '预女猎守 +4民 +3普狼 +1狼枪': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.guard.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id,
-                card.werewolf.id, card.werewolf.id, card.werewolf.id, card.alphawolf.id
+                cards.prophet.id, cards.witch.id, cards.hunter.id, cards.guard.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id,
+                cards.werewolf.id, cards.werewolf.id, cards.werewolf.id, cards.alphawolf.id
               ],
               '预女猎白 +4民 +4普狼': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.idiot.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id,
-                card.werewolf.id, card.werewolf.id, card.werewolf.id, card.werewolf.id
+                cards.prophet.id, cards.witch.id, cards.hunter.id, cards.idiot.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id,
+                cards.werewolf.id, cards.werewolf.id, cards.werewolf.id, cards.werewolf.id
               ],
               '预女猎守 +4民 +3普狼 +1美狼': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.guard.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id,
-                card.werewolf.id, card.werewolf.id, card.werewolf.id, card.beautywolf.id
+                cards.prophet.id, cards.witch.id, cards.hunter.id, cards.guard.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id,
+                cards.werewolf.id, cards.werewolf.id, cards.werewolf.id, cards.beautywolf.id
               ],
               '预女猎 +守墓人+4民+3普狼 +1石像鬼': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.gravekeeper.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id,
-                card.werewolf.id, card.werewolf.id, card.werewolf.id, card.gargoyle.id
+                cards.prophet.id, cards.witch.id, cards.hunter.id, cards.gravekeeper.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id,
+                cards.werewolf.id, cards.werewolf.id, cards.werewolf.id, cards.gargoyle.id
               ],
               '预女猎 +骑士 +4民 +3普狼 +1白狼王': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.knight.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id,
-                card.werewolf.id, card.werewolf.id, card.werewolf.id, card.whitewolf.id
+                cards.prophet.id, cards.witch.id, cards.hunter.id, cards.knight.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id,
+                cards.werewolf.id, cards.werewolf.id, cards.werewolf.id, cards.whitewolf.id
               ],
               '预女猎白守骑 +2普狼 +1隐狼 +6平民 +1盗': [
-                card.prophet.id, card.witch.id, card.hunter.id, card.idiot.id, card.guard.id, card.knight.id, card.bandit.id,
-                card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id, card.citizen.id,
-                card.werewolf.id, card.werewolf.id, card.hiddenwolf.id
+                cards.prophet.id, cards.witch.id, cards.hunter.id, cards.idiot.id, cards.guard.id, cards.knight.id, cards.bandit.id,
+                cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id, cards.citizen.id,
+                cards.werewolf.id, cards.werewolf.id, cards.hiddenwolf.id
               ]
             },
             cards: {
-              town: [card.prophet, card.witch, card.guard, card.hunter, card.citizen, card.idiot, card.mute, card.gangster, card.knight, card.tamer, card.gravekeeper, card.crow, card.miracle_merchant],
-              wolves: [card.werewolf, card.whitewolf, card.beautywolf, card.alphawolf, card.hiddenwolf, card.gargoyle],
-              neutral: [card.bandit, card.cupid, card.wild, card.terrorist, card.hybrid, card.fox, card.secret_admirer]
+              town: Object.values(cards).filter((card) => card.side === Side.Town),
+              wolves: Object.values(cards).filter((card) => card.side === Side.Wolves),
+              neutral: Object.values(cards).filter((card) => card.side === Side.Neutral)
             }
           }
         });

@@ -95,10 +95,10 @@ function PlayerSettings({ self, players, settings }) {
       let numPlayers = Number(event.target.value);
       if (Object.keys(players).length > numPlayers) {
         numPlayers = Object.keys(players).length;
-        setError("Can not set players below number of currently joined players");
+        setError("无法设置为低于当前加入的玩家数量");
       } else if (numPlayers > 20) {
         numPlayers = 20;
-        setError("Too many players");
+        setError("玩家限制的最大数量");
       }
       client.emit('settings', { numPlayers });
   };
@@ -115,7 +115,7 @@ function PlayerSettings({ self, players, settings }) {
         <TextField
           error={!!error}
           id="outlined-number"
-          label="Players"
+          label="玩家"
           type="number"
           helperText={error}
           value={settings.numPlayers}
@@ -152,10 +152,10 @@ function PresetSettings({ self, settings }) {
         <TextField
             id="outlined-select-preset"
             select
-            label="Preset"
+            label="角色预设"
             value=""
             onChange={handleChange}
-            helperText="Please select a preset"
+            helperText="常用的角色预设"
             disabled={disabled}
         >
         {Object.keys(settings.static.presets).map((preset, idx) => (
@@ -244,7 +244,7 @@ function CardGrid({ self, settings }) {
                 </Card>
                 <TextField
                     id="outlined-number"
-                    label="Count"
+                    label="数量"
                     type="number"
                     value={value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
@@ -273,7 +273,7 @@ function CardGrid({ self, settings }) {
                 </Card>
                 <TextField
                     id="outlined-number"
-                    label="Count"
+                    label="数量"
                     type="number"
                     value={value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
@@ -302,7 +302,7 @@ function CardGrid({ self, settings }) {
                 </Card>
                 <TextField
                     id="outlined-number"
-                    label="Count"
+                    label="数量"
                     type="number"
                     value={value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}

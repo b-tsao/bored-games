@@ -1,5 +1,4 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
-import { Role } from './player';
 
 function systemLog(G, ctx, message) {
     const name = '系统';
@@ -13,11 +12,11 @@ function gameLog(G, ctx, message) {
     G.log.push({ name, message, userID });
 }
 
-export function setRole(G, ctx, pid: number, pos: number, role: Role) {
+export function setRole(G, ctx, pid: number, pos: number, role: string) {
     G.players[pid].roles[pos] = role;
 }
 
-export function setDiscard(G, ctx, pos: number, role: Role) {
+export function setDiscard(G, ctx, pos: number, role: string) {
     G.discards[pos] = role;
 }
 

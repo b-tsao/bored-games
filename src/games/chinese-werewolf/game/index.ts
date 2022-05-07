@@ -1,3 +1,4 @@
+import cards from './cards';
 import {
     setRole,
     setDiscard,
@@ -10,7 +11,7 @@ import {
     vote,
     reveal
 } from './moves';
-import Player, { toRole } from './player';
+import Player from './player';
 
 export const ChineseWerewolf = {
     name: 'chinese-werewolf',
@@ -45,7 +46,7 @@ export const ChineseWerewolf = {
             return {
                 god: Number(ctx.currentPlayer),
                 players,
-                discards: shuffledCards.slice(i).map((card) => toRole(card)),
+                discards: shuffledCards.slice(i),
                 state: 0,
                 election: [],
                 badge: null,
@@ -96,7 +97,7 @@ export const ChineseWerewolf = {
                 const { roles, lover, vote, ...others } = G.players[pid];
                 players[pid] = {
                     roles: [],
-                    lover: lover && G.players[playerID].lover,
+                    lover: lover && (G.players[playerID].lover || G.players[playerID].roles.indexOf(cards.cupid.id) >= 0),
                     vote: G.reveal ? vote : '',
                     ...others
                 };

@@ -26,8 +26,9 @@ import {
 import { Favorite } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
-import { Role, roleToCard, roleToString } from '../game/player';
+import { roleToImg, roleToString } from '../game/player';
 import Log from "./Log";
+import cards from "../game/cards";
 
 class Action {
     private t: string;
@@ -442,8 +443,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         <Card className={classes.card} onClick={() => {handleRoleClick(pid, idx)}}>
                             <img
                                 className={imgClass}
-                                src={roleToCard(role).img}
-                                alt={roleToCard(role).id} />
+                                src={roleToImg(role)}
+                                alt={role} />
                         </Card>
                     </Tooltip>
                 )}
@@ -451,13 +452,13 @@ const usePlayersTableStyle = makeStyles(theme => ({
                     <Tooltip
                         arrow={true}
                         placement="top"
-                        title={roleToString(Role.sheriff)}
+                        title={cards.sheriff.label}
                     >
                         <Card className={classes.card}>
                             <img
                                 className={imgClass}
-                                src={roleToCard(Role.sheriff).img}
-                                alt={roleToCard(Role.sheriff).id} />
+                                src={cards.sheriff.img}
+                                alt={cards.sheriff.label} />
                         </Card>
                     </Tooltip>
                 </Zoom>
@@ -515,8 +516,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 <Card key={idx} className={classes.card}>
                     <img
                         className={classes.img}
-                        src={roleToCard(role).img}
-                        alt={roleToCard(role).id}
+                        src={roleToImg(role)}
+                        alt={role}
                     />
                 </Card>
             ))}
@@ -549,7 +550,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
   
-    if (playerID === String(G.god) || G.players[playerID].roles.indexOf(Role.bandit) >= 0) {
+    if (playerID === String(G.god) || G.players[playerID].roles.indexOf(cards.bandit.id) >= 0) {
         return (
             <Grid container spacing={2}>
                 {G.discards.map((role, idx) => {
@@ -564,8 +565,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 <Card className={classes.card} onClick={() => {handleRoleClick(role, idx)}}>
                                     <img
                                         className={classes.img}
-                                        src={roleToCard(role).img}
-                                        alt={roleToCard(role).id} />
+                                        src={roleToImg(role)}
+                                        alt={roleToString(role)} />
                                 </Card>
                             </Tooltip>
                         </Grid>

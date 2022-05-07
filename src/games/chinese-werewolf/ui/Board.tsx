@@ -308,8 +308,8 @@ const useActionBarStyles = makeStyles((theme) => ({
           {/* content */}
           <Box display="flex" flexDirection="column" flexGrow={1} padding={1} paddingTop={0}>
             {/* extra window */}
-            <Box flex={1} bgcolor="wheat" marginBottom={1}>
-              {action.message}
+            <Box>
+              <Typography>{action.message}</Typography>
             </Box>
           </Box>
         </Paper>

@@ -6,6 +6,7 @@ WORKDIR /home/node
 COPY package.json .
 RUN npm install --only=production
 
+COPY log4js.config.json log4js.config.json
 COPY build build
 
 ENTRYPOINT ["npm", "start"]

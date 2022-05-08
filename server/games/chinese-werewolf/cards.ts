@@ -90,6 +90,12 @@ const cards = {
         side: Side.Town,
         img: 'https://newyx-img.hellonitrack.com/article/image/202011/05/ead539b804.jpg'
     },
+    stalker: {
+        id: 'stalker',
+        label: '潜行者',
+        side: Side.Town,
+        img: 'https://ok.166.net/reunionpub/1_20191211_16ef08b0689925845.png'
+    },
     werewolf: {
         id: 'werewolf',
         label: '狼人',
@@ -180,6 +186,12 @@ const cards = {
         label: '暗恋者',
         side: Side.Neutral,
         img: 'https://i.imgur.com/PPGtdkQ.jpg'
+    },
+    avenger: {
+        id: 'avenger',
+        label: '复仇者',
+        side: Side.Neutral,
+        img: 'https://pic.87g.com/upload/2017/0919/20170919101140311.jpg'
     }
 };
 

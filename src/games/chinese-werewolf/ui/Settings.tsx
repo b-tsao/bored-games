@@ -244,7 +244,7 @@ function CardGrid({ self, settings }) {
                 </Card>
                 <TextField
                     id="outlined-number"
-                    label="数量"
+                    label={`${card.label} 数量`}
                     type="number"
                     value={value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
@@ -273,7 +273,7 @@ function CardGrid({ self, settings }) {
                 </Card>
                 <TextField
                     id="outlined-number"
-                    label="数量"
+                    label={`${card.label} 数量`}
                     type="number"
                     value={value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
@@ -302,7 +302,7 @@ function CardGrid({ self, settings }) {
                 </Card>
                 <TextField
                     id="outlined-number"
-                    label="数量"
+                    label={`${card.label} 数量`}
                     type="number"
                     value={value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}

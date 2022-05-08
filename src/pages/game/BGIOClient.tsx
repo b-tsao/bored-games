@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { Client } from 'boardgame.io/react';
 import { SocketIO } from 'boardgame.io/multiplayer';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
+
+import { ClientContext } from '../../Contexts';
 
 import SidePanel from './components/SidePanel';
 
@@ -31,13 +33,15 @@ const useStyles = makeStyles({
 });
 
 export default function BGIOClient({ room, self, game, board }) {
+    const [client] = useContext(ClientContext);
+
     // Memoize the game client so every player doesn't reconnect when props are updated.
     const GameClient = useMemo(() => Client({
         game,
         board,
         multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}` }),
         numPlayers: room.ctx.settings.numPlayers
-    }), []); // eslint-disable-line react-hooks/exhaustive-deps
+    }), [client]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // gameID is needed to have gameMetadata object passed, but also if gameID is provided can't do debug play.
     // Maybe this is fixed in newer versions of BGIO, but fuck updates.

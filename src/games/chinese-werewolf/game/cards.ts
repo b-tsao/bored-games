@@ -84,6 +84,12 @@ const cards = {
         side: Side.Town,
         img: 'http://p9.itc.cn/images01/20200611/cf1204a446474e51b6ec095399cc0085.jpeg'
     },
+    prince: {
+        id: 'prince',
+        label: '定序王子',
+        side: Side.Town,
+        img: 'https://newyx-img.hellonitrack.com/article/image/202011/05/ead539b804.jpg'
+    },
     werewolf: {
         id: 'werewolf',
         label: '狼人',
@@ -119,6 +125,12 @@ const cards = {
         label: '石像鬼',
         side: Side.Wolves,
         img: 'http://5b0988e595225.cdn.sohucs.com/images/20190226/e8390809851c4c8c9b42b1bb86eca2ea.jpeg'
+    },
+    concubine_wolf: {
+        id: 'concubine_wolf',
+        label: '蚀时狼妃',
+        side: Side.Wolves,
+        img: 'http://image.uc.cn/s/wemedia/s/upload/2020/f6c668194d68a6b0d6fa82a41a539e2f.png'
     },
     bandit: {
         id: 'bandit',

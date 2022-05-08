@@ -475,7 +475,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         <Table>
             <TableHead>
             <TableRow>
-                <TableCell><Typography>玩家</Typography></TableCell>
+                <TableCell><Typography>玩家2</Typography></TableCell>
                 <TableCell><Typography>角色</Typography></TableCell>
                 <TableCell><Typography>投票</Typography></TableCell>
             </TableRow>

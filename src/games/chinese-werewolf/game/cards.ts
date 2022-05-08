@@ -4,24 +4,27 @@ export enum Side {
     Neutral
 }
 
-const cards = {
+const Cards = {
     // id needs to be same as key!!!
     prophet: {
         id: 'prophet',
         label: '预言家',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414653.jpg'
     },
     witch: {
         id: 'witch',
         label: '女巫',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414648.jpg'
     },
     guard: {
         id: 'guard',
         label: '守卫',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414651.jpg'
     },
     citizen: {
@@ -34,18 +37,21 @@ const cards = {
         id: 'hunter',
         label: '猎人',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414647.jpg'
     },
     idiot: {
         id: 'idiot',
         label: '白痴',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414643.jpg'
     },
     mute: {
         id: 'mute',
         label: '禁言长老',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414645.jpg'
     },
     gangster: {
@@ -58,42 +64,49 @@ const cards = {
         id: 'knight',
         label: '骑士',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414650.jpg'
     },
     tamer: {
         id: 'tamer',
         label: '驯熊师',
         side: Side.Town,
+        divine: true,
         img: 'https://image.9game.cn/2017/10/31/18414652.jpg'
     },
     gravekeeper: {
         id: 'gravekeeper',
         label: '守墓人',
         side: Side.Town,
+        divine: true,
         img: 'http://5b0988e595225.cdn.sohucs.com/images/20190226/88994a5aa70c488eab6869112ba5f897.jpeg'
     },
     crow: {
         id: 'crow',
         label: '乌鸦',
         side: Side.Town,
+        divine: true,
         img: 'https://ok.166.net/reunionpub/ds/kol/20210425/230233-icp6wekm3n.png'
     },
     miracle_merchant: {
         id: 'miracle_merchant',
         label: '奇迹商人',
         side: Side.Town,
+        divine: true,
         img: 'http://p9.itc.cn/images01/20200611/cf1204a446474e51b6ec095399cc0085.jpeg'
     },
     prince: {
         id: 'prince',
         label: '定序王子',
         side: Side.Town,
+        divine: true,
         img: 'https://newyx-img.hellonitrack.com/article/image/202011/05/ead539b804.jpg'
     },
     stalker: {
         id: 'stalker',
         label: '潜行者',
         side: Side.Town,
+        divine: true,
         img: 'https://ok.166.net/reunionpub/1_20191211_16ef08b0689925845.png'
     },
     werewolf: {
@@ -195,4 +208,4 @@ const cards = {
     }
 };
 
-export default cards;
+export default Cards;

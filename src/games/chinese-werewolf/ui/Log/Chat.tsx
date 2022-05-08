@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { fade } from '@material-ui/core/styles/colorManipulator';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Paper, Avatar } from '@material-ui/core';
 
@@ -7,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
+    background: fade(theme.palette.background.default, .7)
   },
   chat: {
     // Allow messages to scroll properly.

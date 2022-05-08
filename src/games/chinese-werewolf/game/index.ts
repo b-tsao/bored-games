@@ -1,4 +1,4 @@
-import cards from './cards';
+import Cards, { Side } from './cards';
 import {
     setRole,
     setDiscard,
@@ -19,9 +19,26 @@ export const ChineseWerewolf = {
     setup: (ctx, setupData) => {
         if (setupData) {
             const { cards, extra } = setupData;
+
             let shuffledCards = cards;
+            let discarded = [];
+
+            if (extra.randomThreeDivine) {
+                let divine = cards.filter((card) => Cards[card].side === Side.Town && Cards[card].divine);
+                const citizens = cards.filter((card) => Cards[card].side === Side.Town && !Cards[card].divine);
+                const wolves = cards.filter((card) => Cards[card].side === Side.Wolves);
+                const neutral = cards.filter((card) => Cards[card].side === Side.Neutral);
+
+                for (let i = 0; i < 3; i++) {
+                    divine = ctx.random.Shuffle(divine);
+                }
+
+                shuffledCards = [...divine.slice(0, 3), ...citizens, ...wolves, ...neutral];
+                discarded = divine.slice(3);
+            }
+
             for (let i = 0; i < 3; i++) {
-                shuffledCards = ctx.random.Shuffle(cards);
+                shuffledCards = ctx.random.Shuffle(shuffledCards);
             }
 
             const players = ctx.playOrder.reduce((player, pid) => {
@@ -46,7 +63,7 @@ export const ChineseWerewolf = {
             return {
                 god: Number(ctx.currentPlayer),
                 players,
-                discards: shuffledCards.slice(i),
+                discards: [...shuffledCards.slice(i), ...discarded],
                 state: 0,
                 election: [],
                 badge: null,
@@ -54,7 +71,9 @@ export const ChineseWerewolf = {
                 log: [
                     {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
                     {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
-                ]
+                ],
+                spectatorsSeeIdentity: extra.spectatorsSeeIdentity,
+                deadSeeIdentity: extra.deadSeeIdentity
             };
         } else {
             // development because BGIO is trash right now
@@ -66,7 +85,7 @@ export const ChineseWerewolf = {
             return {
                 god: Number(ctx.currentPlayer),
                 players,
-                discards: [0, 1, 2, 3],
+                discards: [Cards.citizen.id, Cards.alphawolf.id, Cards.bandit.id],
                 state: 0,
                 election: [],
                 badge: null,
@@ -74,7 +93,9 @@ export const ChineseWerewolf = {
                 log: [
                     {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
                     {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
-                ]
+                ],
+                spectatorsSeeIdentity: true,
+                deadSeeIdentity: true
             }
         }
     },
@@ -82,9 +103,24 @@ export const ChineseWerewolf = {
     playerView: (G, ctx, playerID) => {
         const players = {};
         for (const pid in G.players) {
-            if (playerID === String(G.god) || !playerID) {
+            if (!playerID) {
+                // spectator
+                if (G.spectatorsSeeIdentity) {
+                    players[pid] = G.players[pid];
+                } else {
+                    const { vote, ...others } = G.players[pid];
+                    players[pid] = {
+                        ...others,
+                        roles: [],
+                        lover: false,
+                        vote: G.reveal ? vote : ''
+                    }
+                }
+            } else if (playerID === String(G.god)) {
+                // what god sees
                 players[pid] = G.players[pid];
             } else if (pid === playerID) {
+                // what player sees for themselves
                 if (ctx.phase === 'setup') {
                     players[pid] = {
                         ...G.players[pid],
@@ -94,20 +130,31 @@ export const ChineseWerewolf = {
                     players[pid] = G.players[pid];
                 }
             } else {
-                const { roles, lover, vote, ...others } = G.players[pid];
-                players[pid] = {
-                    roles: [],
-                    lover: lover && (G.players[playerID].lover || G.players[playerID].roles.indexOf(cards.cupid.id) >= 0),
-                    vote: G.reveal ? vote : '',
-                    ...others
-                };
+                if (!G.players[playerID].alive && G.deadSeeIdentity) {
+                    players[pid] = G.players[pid];
+                } else {
+                    // what player sees of other players
+                    const { lover, vote, ...others } = G.players[pid];
+                    players[pid] = {
+                        ...others,
+                        roles: [],
+                        lover: lover && (G.players[playerID].lover || G.players[playerID].roles.indexOf(Cards.cupid.id) >= 0),
+                        vote: G.reveal ? vote : ''
+                    };
+                }
             }
         }
+
+        const discards =
+            (playerID === String(G.god) ||
+            (playerID && G.players[playerID].roles.indexOf(Cards.bandit.id) >= 0 && ctx.phase !== 'setup')) ?
+                G.discards :
+                [];
 
         return {
             ...G,
             players,
-            discard: (ctx.phase === 'setup') ? [] : G.discard
+            discards
         }
     },
 

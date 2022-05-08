@@ -43,7 +43,7 @@ function ExtraSettings({ self, settings }) {
     client.emit('settings', { extra: { [name]: event.target.checked } });
   };
 
-  const { enableHistory, spectatorsSeeIdentity, doubleIdentity } = settings.setupData.extra;
+  const { spectatorsSeeIdentity, deadSeeIdentity, randomThreeDivine, doubleIdentity } = settings.setupData.extra;
   const error = !self || !self.host;
 
   return (
@@ -59,14 +59,18 @@ function ExtraSettings({ self, settings }) {
               Only host can make changes to settings
             </FormLabel> : null}
           <FormGroup>
-            {/* <FormControlLabel
-              control={<Checkbox checked={enableHistory} onChange={handleChange('enableHistory')} value="enableHistory" />}
-              label="Enable history"
-            />
             <FormControlLabel
               control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
-              label="Enable spectators to see everyone’s identity"
-            /> */}
+              label="观众看得到身份"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={deadSeeIdentity} onChange={handleChange('deadSeeIdentity')} value="deadSeeIdentity" />}
+              label="死亡看得到身份"
+            />
+            <FormControlLabel
+              control={<Checkbox checked={randomThreeDivine} onChange={handleChange('randomThreeDivine')} value="randomThreeDivine" />}
+              label="5随3"
+            />
             <FormControlLabel
               control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
               label="双身份"

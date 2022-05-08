@@ -5,7 +5,6 @@ import { useState } from "react";
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { makeStyles } from "@material-ui/core/styles";
 import {
-    Avatar,
     Box,
     Card,
     Container,
@@ -28,7 +27,7 @@ import { Favorite } from "@material-ui/icons";
 import { ClientContext } from '../../../Contexts';
 import { roleToImg, roleToString } from '../game/player';
 import Log from "./Log";
-import cards from "../game/cards";
+import Cards from "../game/cards";
 
 class Action {
     private t: string;
@@ -74,7 +73,7 @@ const useActionBarStyles = makeStyles((theme) => ({
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: fade(theme.palette.background.default, .5)
+      background: fade(theme.palette.background.default, .7)
     },
     shrinkRipple: {
       padding: theme.spacing(1),
@@ -362,6 +361,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
       moves,
       playerID,
       actionHandler,
+      setRoleDisplay
     }) {
     const classes = usePlayersTableStyle();
 
@@ -401,6 +401,14 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
 
+    const handleHover = (role?) => {
+        if (role !== undefined) {
+            setRoleDisplay([role]);
+        } else {
+            setRoleDisplay(playerID ? G.players[playerID].roles : []);
+        }
+    };
+
     let playersTable = [];
     for (const pid in G.players) {
         const player = G.players[pid];
@@ -434,31 +442,30 @@ const usePlayersTableStyle = makeStyles(theme => ({
             <TableCell component="th" scope="row">
               <div className={classes.roles}>
                 {player.roles.map((role, idx) =>
-                    <Tooltip
+                    <Card
                         key={idx}
-                        arrow={true}
-                        placement="top"
-                        title={roleToString(role)}
+                        className={classes.card}
+                        onClick={() => {handleRoleClick(pid, idx)}}
+                        onMouseOver={() => { handleHover(role) }}
+                        onMouseLeave={() => { handleHover() }}
                     >
-                        <Card className={classes.card} onClick={() => {handleRoleClick(pid, idx)}}>
-                            <img
-                                className={imgClass}
-                                src={roleToImg(role)}
-                                alt={role} />
-                        </Card>
-                    </Tooltip>
+                        <img
+                            className={imgClass}
+                            src={roleToImg(role)}
+                            alt={role} />
+                    </Card>
                 )}
                 <Zoom in={G.badge === pid || (G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0)}>
                     <Tooltip
                         arrow={true}
                         placement="top"
-                        title={cards.sheriff.label}
+                        title={Cards.sheriff.label}
                     >
                         <Card className={classes.card}>
                             <img
                                 className={imgClass}
-                                src={cards.sheriff.img}
-                                alt={cards.sheriff.label} />
+                                src={Cards.sheriff.img}
+                                alt={Cards.sheriff.label} />
                         </Card>
                     </Tooltip>
                 </Zoom>
@@ -537,7 +544,12 @@ const usePlayersTableStyle = makeStyles(theme => ({
     }
   }));
   
-  function Discard({ G, playerID, actionHandler }) {
+  function Discard({
+      G,
+      playerID,
+      actionHandler,
+      setRoleDisplay
+    }) {
     const classes = useDiscardStyles();
 
     const [action] = actionHandler;
@@ -549,34 +561,36 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 break;
         }
     };
-  
-    if (playerID === String(G.god) || !playerID || G.players[playerID].roles.indexOf(cards.bandit.id) >= 0) {
-        return (
-            <Grid container spacing={2}>
-                {G.discards.map((role, idx) => {
-                    return (
-                        <Grid item key={idx}>
-                            <Tooltip
-                                key={idx}
-                                arrow={true}
-                                placement="top"
-                                title={roleToString(role)}
-                            >
-                                <Card className={classes.card} onClick={() => {handleRoleClick(role, idx)}}>
-                                    <img
-                                        className={classes.img}
-                                        src={roleToImg(role)}
-                                        alt={roleToString(role)} />
-                                </Card>
-                            </Tooltip>
-                        </Grid>
-                    );
-                })}
-            </Grid>
-        );
-    } else {
-        return null;
-    }
+
+    const handleHover = (role?) => {
+        if (role !== undefined) {
+            setRoleDisplay([role]);
+        } else {
+            setRoleDisplay(playerID ? G.players[playerID].roles : []);
+        }
+    };
+
+    return (
+        <Grid container spacing={2}>
+            {G.discards.map((role, idx) => {
+                return (
+                    <Grid item key={idx}>
+                        <Card
+                            className={classes.card}
+                            onClick={() => { handleRoleClick(role, idx) }}
+                            onMouseOver={() => { handleHover(role) }}
+                            onMouseLeave={() => { handleHover() }}
+                        >
+                            <img
+                                className={classes.img}
+                                src={roleToImg(role)}
+                                alt={roleToString(role)} />
+                        </Card>
+                    </Grid>
+                );
+            })}
+        </Grid>
+    );
   }
 
 const useStyles = makeStyles(theme => ({
@@ -607,6 +621,7 @@ const useStyles = makeStyles(theme => ({
       display: 'flex',
       overflow: 'auto',
       flexDirection: 'column',
+      background: fade(theme.palette.background.default, .7)
     },
     padding: {
       padding: theme.spacing(2)
@@ -625,6 +640,7 @@ export function ChineseWerewolfBoard(props) {
     const { G, ctx, gameMetadata, moves, playerID } = props;
 
     const actionHandler = useState(new Action());
+    const [roleDisplay, setRoleDisplay] = useState(playerID ? G.players[playerID].roles : []);
 
     const classes = useStyles();
 
@@ -660,10 +676,16 @@ export function ChineseWerewolfBoard(props) {
                                         moves={moves}
                                         playerID={playerID}
                                         actionHandler={actionHandler}
+                                        setRoleDisplay={setRoleDisplay}
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <Discard G={G} playerID={playerID} actionHandler={actionHandler}/>
+                                    <Discard
+                                        G={G}
+                                        playerID={playerID}
+                                        actionHandler={actionHandler}
+                                        setRoleDisplay={setRoleDisplay}
+                                    />
                                 </Grid>
                             </Grid>
                         </Paper>
@@ -671,10 +693,10 @@ export function ChineseWerewolfBoard(props) {
                     <Grid item xs={12} md={6} lg={6}>
                         <Grid container spacing={1}>
                             {
-                                playerID && G.players[playerID].roles.length > 0 ?
+                                roleDisplay.length > 0 ?
                                     <Grid item xs={12}>
                                         <Paper className={paddedPaper}>
-                                            <PlayerCard roles={G.players[playerID].roles} />
+                                            <PlayerCard roles={roleDisplay} />
                                         </Paper>
                                     </Grid> :
                                     null

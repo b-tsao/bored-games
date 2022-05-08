@@ -1,11 +1,11 @@
-import card from './cards';
+import Cards from './cards';
 
 export function roleToString(rid: string) {
-    return card[rid].label;
+    return Cards[rid].label;
 }
 
 export function roleToImg(rid: string) {
-    return card[rid].img;
+    return Cards[rid].img;
 }
 
 export default class Player {

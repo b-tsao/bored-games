@@ -36,13 +36,15 @@ export default function BGIOClient({ room, self, game, board }) {
     const [client] = useContext(ClientContext);
 
     // Memoize the game client so every player doesn't reconnect when props are updated.
-    const GameClient = useMemo(() => Client({
-        game,
-        board,
-        multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}` }),
-        numPlayers: room.ctx.settings.numPlayers
-    }), [client]); // eslint-disable-line react-hooks/exhaustive-deps
-    client.emit('chat', 'hello world!', 'test-id');
+    const GameClient = useMemo(() => {
+        client.emit('chat', 'hello world!', 'test-id');
+        return Client({
+            game,
+            board,
+            multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}` }),
+            numPlayers: room.ctx.settings.numPlayers
+        });
+    }, [client]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // gameID is needed to have gameMetadata object passed, but also if gameID is provided can't do debug play.
     // Maybe this is fixed in newer versions of BGIO, but fuck updates.

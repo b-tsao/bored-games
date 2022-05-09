@@ -6,5 +6,5 @@ import { createRoom } from './requests/RoomManagerRequest';
 export const router = express.Router();
 
 router.get('/heartbeat', hello);
-router.get('/games', getGames);
+router.get('/games/all', getGames);
 router.post('/room/create', createRoom);

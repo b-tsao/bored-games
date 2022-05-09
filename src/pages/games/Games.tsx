@@ -36,7 +36,7 @@ export default function Games() {
       }
     };
 
-    req.open('GET', '/games');
+    req.open('GET', '/games/all');
     req.send();
     return () => {};
   }, []);

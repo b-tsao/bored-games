@@ -1,13 +1,3 @@
-import Cards from './cards';
-
-export function roleToString(rid: string) {
-    return Cards[rid].label;
-}
-
-export function roleToImg(rid: string) {
-    return Cards[rid].img;
-}
-
 export default class Player {
     roles: string[];
     alive: boolean;

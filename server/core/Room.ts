@@ -59,7 +59,7 @@ export default class Room {
                 Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.beautywolf.id
               ],
-              '预女猎 +守墓人+4民+3普狼 +1石像鬼': [
+              '预女猎 +守墓人 +4民+3普狼 +1石像鬼': [
                 Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.gravekeeper.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.gargoyle.id
               ],

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { makeStyles } from "@material-ui/core/styles";
 import {
+    Avatar,
     Box,
     Card,
     Container,
@@ -25,7 +26,6 @@ import {
 import { Favorite } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
-import { roleToImg, roleToString } from '../game/player';
 import Log from "./Log";
 import Cards from "../game/cards";
 
@@ -103,7 +103,7 @@ const useActionBarStyles = makeStyles((theme) => ({
                         r1: changes
                     };
                     const r = changes.player ? G.players[changes.player.id].roles[changes.player.pos] : changes.discard?.role;
-                    const message = `请选择要互换的角色 (${roleToString(r)} <-> ?)`;
+                    const message = `请选择要互换的角色 (${Cards[r].label} <-> ?)`;
                     setAction(action.clone(data, message));
                 } else {
                     const data = {
@@ -330,7 +330,13 @@ const usePlayersTableStyle = makeStyles(theme => ({
     },
     card: {
       marginRight: 'auto',
-      maxWidth: 40
+      maxWidth: 40,
+      height: '100%'
+    },
+    avatar: {
+        maxWidth: 90,
+        width: '100%',
+        height: '100%'
     },
     deadImg: {
       opacity: 0.5,
@@ -354,7 +360,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
       backgroundColor: 'inherit'
     },
     roles: {
-        display: 'flex'
+        display: 'flex',
+        alignItems: 'center'
     }
   }));
   
@@ -420,11 +427,13 @@ const usePlayersTableStyle = makeStyles(theme => ({
   
         let playerCellClass: any = null;
         let imgClass = classes.img;
+        let avatarClass = classes.avatar;
         if (pid === String(G.god)) {
           playerCellClass = classes.leader;
         } else if (!player.alive) {
           playerCellClass = classes.dead;
           imgClass = clsx(imgClass, classes.deadImg);
+          avatarClass = clsx(avatarClass, classes.deadImg);
         }
 
         let voteClass: any = null;
@@ -448,15 +457,17 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 {player.roles.map((role, idx) =>
                     <Card
                         key={idx}
-                        className={classes.card}
+                        className={Cards[role].img ? classes.card : classes.avatar}
                         onClick={() => {handleRoleClick(pid, idx)}}
                         onMouseOver={() => { handleHover(role) }}
                         onMouseLeave={() => { handleHover() }}
                     >
-                        <img
-                            className={imgClass}
-                            src={roleToImg(role)}
-                            alt={role} />
+                        {Cards[role].img ?
+                            <img
+                                className={imgClass}
+                                src={Cards[role].img}
+                                alt={Cards[role].label} /> :
+                            <Avatar className={avatarClass} variant='rounded'>{Cards[role].label}</Avatar>}
                     </Card>
                 )}
                 <Zoom in={G.badge === pid || (G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0)}>
@@ -504,6 +515,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
     playerCard: {
         display: 'flex'
     },
+    avatar: {
+        width: 90
+    },
     card: {
         display: 'flex',
         maxWidth: 127.66,
@@ -527,11 +541,13 @@ const usePlayersTableStyle = makeStyles(theme => ({
         <div className={classes.playerCard}>
             {roles.map((role, idx) => (
                 <Card key={idx} className={classes.card}>
-                    <img
-                        className={classes.img}
-                        src={roleToImg(role)}
-                        alt={role}
-                    />
+                    {Cards[role].img ?
+                        <img
+                            className={classes.img}
+                            src={Cards[role].img}
+                            alt={Cards[role].label}
+                        /> :
+                        <Avatar className={classes.avatar} variant='rounded'>{Cards[role].label}</Avatar>}
                 </Card>
             ))}
         </div>
@@ -539,6 +555,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
   }
 
   const useDiscardStyles = makeStyles((theme) => ({
+    avatar: {
+        width: 90
+    },
     img: {
         overflow: 'hidden',
         display: 'block',
@@ -582,15 +601,17 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 return (
                     <Grid item key={idx}>
                         <Card
-                            className={classes.card}
+                            className={Cards[role].img ? classes.card : classes.avatar}
                             onClick={() => { handleRoleClick(role, idx) }}
                             onMouseOver={() => { handleHover(role) }}
                             onMouseLeave={() => { handleHover() }}
                         >
-                            <img
-                                className={classes.img}
-                                src={roleToImg(role)}
-                                alt={roleToString(role)} />
+                            {Cards[role].img ?
+                                <img
+                                    className={classes.img}
+                                    src={Cards[role].img}
+                                    alt={Cards[role].label} /> :
+                                <Avatar className={classes.avatar} variant='rounded'>{Cards[role].label}</Avatar>}
                         </Card>
                     </Grid>
                 );

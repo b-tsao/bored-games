@@ -640,13 +640,15 @@ export function ChineseWerewolfBoard(props) {
     const { G, ctx, gameMetadata, moves, playerID } = props;
 
     const actionHandler = useState(new Action());
-    const [roleDisplay, setRoleDisplay] = useState(playerID ? G.players[playerID].roles : []);
+    const [roleDisplay, setRoleDisplay] = useState([]);
 
     const classes = useStyles();
 
     const paddedPaper = clsx(classes.paper, classes.padding);
 
     const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day) : clsx(classes.container, classes.setup);
+
+    const rolesDisplay = roleDisplay.length > 0 ? roleDisplay : playerID ? G.players[playerID].roles : [];
 
     return (
         <main className={classes.content}>
@@ -693,10 +695,10 @@ export function ChineseWerewolfBoard(props) {
                     <Grid item xs={12} md={6} lg={6}>
                         <Grid container spacing={1}>
                             {
-                                roleDisplay.length > 0 ?
+                                rolesDisplay.length > 0 ?
                                     <Grid item xs={12}>
                                         <Paper className={paddedPaper}>
-                                            <PlayerCard roles={roleDisplay} />
+                                            <PlayerCard roles={rolesDisplay} />
                                         </Paper>
                                     </Grid> :
                                     null

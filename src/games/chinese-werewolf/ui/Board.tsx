@@ -17,7 +17,6 @@ import {
     TableHead,
     TableRow,
     Toolbar,
-    Tooltip,
     Typography,
     Zoom
   } from '@material-ui/core';
@@ -456,18 +455,12 @@ const usePlayersTableStyle = makeStyles(theme => ({
                     </Card>
                 )}
                 <Zoom in={G.badge === pid || (G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0)}>
-                    <Tooltip
-                        arrow={true}
-                        placement="top"
-                        title={Cards.sheriff.label}
-                    >
-                        <Card className={classes.card}>
-                            <img
-                                className={imgClass}
-                                src={Cards.sheriff.img}
-                                alt={Cards.sheriff.label} />
-                        </Card>
-                    </Tooltip>
+                    <Card className={classes.card}>
+                        <img
+                            className={imgClass}
+                            src={Cards.sheriff.img}
+                            alt={Cards.sheriff.label} />
+                    </Card>
                 </Zoom>
               </div>
             </TableCell>

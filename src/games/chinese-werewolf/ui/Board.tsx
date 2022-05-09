@@ -598,6 +598,11 @@ const useStyles = makeStyles(theme => ({
       flexGrow: 1,
       height: '100vh',
       overflow: 'auto',
+
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'fixed'
     },
     setup: {
         backgroundImage: 'url(https://5b0988e595225.cdn.sohucs.com/images/20180223/33b30445ff2f4217b4b85e7833f8b898.jpeg)',
@@ -609,13 +614,8 @@ const useStyles = makeStyles(theme => ({
         backgroundImage: 'url(https://5b0988e595225.cdn.sohucs.com/images/20180223/4a8dfbe3594848f89e240d0e2fdffd5f.jpeg)',
     },
     container: {
-      height: '100vh',
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
-
-      backgroundPosition: 'center',
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat'
     },
     paper: {
       display: 'flex',
@@ -646,7 +646,7 @@ export function ChineseWerewolfBoard(props) {
 
     const paddedPaper = clsx(classes.paper, classes.padding);
 
-    const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day) : clsx(classes.container, classes.setup);
+    const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.content, classes.night) : clsx(classes.content, classes.day) : clsx(classes.content, classes.setup);
 
     const rolesDisplay = roleDisplay.length > 0 ? roleDisplay : playerID ? G.players[playerID].roles : [];
 

@@ -648,7 +648,8 @@ export function ChineseWerewolfBoard(props) {
 
     const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.container, classes.night) : clsx(classes.container, classes.day) : clsx(classes.container, classes.setup);
 
-    const rolesDisplay = roleDisplay.length > 0 ? roleDisplay : playerID ? G.players[playerID].roles : [];
+    // const rolesDisplay = roleDisplay.length > 0 ? roleDisplay : playerID ? G.players[playerID].roles : [];
+    const rolesDisplay = playerID ? G.players[playerID].roles : [];
 
     return (
         <main className={classes.content}>

@@ -88,9 +88,15 @@ export function reveal(G, ctx) {
         }
         if (G.election.length > 0) {
             gameLog(G, ctx, `上警的玩家: ${G.election.map((player) => player.id).join(',')}`);
-            gameLog(G, ctx, `请退水的玩家投自己一票。`);
+            if (G.election.length === 1) {
+                gameLog(G, ctx, '上警结束。');
+                G.election = null;
+            } else {
+                gameLog(G, ctx, `请退水的玩家投自己一票。`);
+            }
         } else {
             gameLog(G, ctx, `没玩家上警，警徽流失！`);
+            gameLog(G, ctx, '上警结束。');
             G.election = null;
         }
     } else {
@@ -127,6 +133,7 @@ export function reveal(G, ctx) {
             }
             gameLog(G, ctx, `弃票: ${forfeits.join(',')}`);
             if (G.election) {
+                gameLog(G, ctx, '上警结束。');
                 G.election = null;
             }
         }
@@ -158,6 +165,11 @@ export function vote(G, ctx, pid) {
                             if (G.players[pid].vote === player.id) {
                                 G.players[pid].vote = '';
                             }
+                        }
+                        const runners = G.election.filter((runner) => !runner.drop);
+                        if (runners.length === 1) {
+                            gameLog(G, ctx, '上警结束。');
+                            G.election = null;
                         }
                     }
                     playerRunning = true;

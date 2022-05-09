@@ -318,6 +318,10 @@ const useActionBarStyles = makeStyles((theme) => ({
   }
 
 const usePlayersTableStyle = makeStyles(theme => ({
+    tableScroll: {
+      height: '75vh',
+      overflowY: 'auto'
+    },
     dead: {
       color: 'rgba(0, 0, 0, 0.33)'
     },
@@ -479,18 +483,20 @@ const usePlayersTableStyle = makeStyles(theme => ({
     }
   
     return (
-        <Table>
-            <TableHead>
-            <TableRow>
-                <TableCell><Typography>玩家</Typography></TableCell>
-                <TableCell><Typography>角色</Typography></TableCell>
-                <TableCell><Typography>投票</Typography></TableCell>
-            </TableRow>
-            </TableHead>
-            <TableBody>
-            {playersTable}
-            </TableBody>
-        </Table>
+        <Box className={classes.tableScroll}>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell><Typography>玩家</Typography></TableCell>
+                        <TableCell><Typography>角色</Typography></TableCell>
+                        <TableCell><Typography>投票</Typography></TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {playersTable}
+                </TableBody>
+            </Table>
+        </Box>
     );
   }
 
@@ -646,13 +652,13 @@ export function ChineseWerewolfBoard(props) {
 
     const paddedPaper = clsx(classes.paper, classes.padding);
 
-    const container = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.content, classes.night) : clsx(classes.content, classes.day) : clsx(classes.content, classes.setup);
+    const content = ctx.phase === 'main' ? G.state === 0 ? clsx(classes.content, classes.night) : clsx(classes.content, classes.day) : clsx(classes.content, classes.setup);
 
     const rolesDisplay = roleDisplay.length > 0 ? roleDisplay : playerID ? G.players[playerID].roles : [];
 
     return (
-        <main className={classes.content}>
-            <Container maxWidth="lg" className={container}>
+        <main className={content}>
+            <Container maxWidth="lg" className={classes.container}>
                 <Grid container spacing={1}>
                     {
                         playerID === String(G.god) ?

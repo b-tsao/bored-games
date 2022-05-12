@@ -43,6 +43,7 @@ export function next(G, ctx) {
 }
 
 export function transfer(G, ctx, pid: number) {
+    G.players[pid].vote = '';
     G.god = Number(pid);
     if (G.state === 1) {
         ctx.events.setActivePlayers({ all: 'vote', value: { [pid]: 'god' } });
@@ -159,7 +160,7 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    if (!player.alive) {
+    if (!player.alive || pid === String(G.god)) {
         return INVALID_MOVE;
     }
     if (G.election) {

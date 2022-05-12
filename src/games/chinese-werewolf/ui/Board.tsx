@@ -522,14 +522,16 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         }
                     }
                 } else {
-                    voteComponent = (
-                        <Button
-                            variant='contained'
-                            color={voteColor}
-                        >
-                            {pid === playerID ? '弃票' : '投票'}
-                        </Button>
-                    );
+                    if (pid !== String(G.god)) {
+                        voteComponent = (
+                            <Button
+                                variant='contained'
+                                color={voteColor}
+                            >
+                                {pid === playerID ? '弃票' : '投票'}
+                            </Button>
+                        );
+                    }
                 }
             }
         }

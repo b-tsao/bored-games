@@ -273,10 +273,13 @@ function CardGrid({ self, settings }) {
               <Grid item key={card.id}>
                 <Card className={classes.card}>
                   <CardActionArea disabled={true}>
-                    <img
+                    {card.img ?
+                      <img
                       src={card.img}
                       alt={card.id}
-                      className={selectedCard ? classes.selectedImage : classes.image} />
+                      className={selectedCard ? classes.selectedImage : classes.image} /> :
+                      <Avatar className={selectedCard ? classes.selectedImage : classes.image} variant='rounded'>{card.label}</Avatar>
+                    }
                   </CardActionArea>
                 </Card>
                 <TextField
@@ -302,10 +305,13 @@ function CardGrid({ self, settings }) {
               <Grid item key={card.id}>
                 <Card className={classes.card}>
                   <CardActionArea disabled={true}>
-                    <img
+                    {card.img ?
+                      <img
                       src={card.img}
                       alt={card.id}
-                      className={selectedCard ? classes.selectedImage : classes.image} />
+                      className={selectedCard ? classes.selectedImage : classes.image} /> :
+                      <Avatar className={selectedCard ? classes.selectedImage : classes.image} variant='rounded'>{card.label}</Avatar>
+                    }
                   </CardActionArea>
                 </Card>
                 <TextField

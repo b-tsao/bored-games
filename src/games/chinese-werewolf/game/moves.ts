@@ -120,7 +120,7 @@ export function reveal(G, ctx) {
                             } else {
                                 votes[vid] = [pid];
                             }
-                        } else {
+                        } else if (G.players[pid].alive) {
                             forfeits.push(pid);
                         }
                     }

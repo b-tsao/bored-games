@@ -231,11 +231,11 @@ function CardGrid({ self, settings }) {
 
   const disabled = !self || !self.host;
 
-  const town = settings.static.cards.town.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
-  const wolves = settings.static.cards.wolves.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
-  const neutral = settings.static.cards.neutral.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
-
   const hidden = settings.setupData.extra.hiddenChanges && (!self || !self.host);
+
+  const town = hidden ? 0 : settings.static.cards.town.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
+  const wolves = hidden ? 0 : settings.static.cards.wolves.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
+  const neutral = hidden ? 0 : settings.static.cards.neutral.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
 
   return (
     <React.Fragment>

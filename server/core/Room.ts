@@ -42,7 +42,8 @@ export default class Room {
               spectatorsSeeIdentity: true,
               deadSeeIdentity: false,
               randomThreeDivine: false,
-              doubleIdentity: false
+              doubleIdentity: false,
+              hiddenChanges: false,
             }
           },
           static: {

@@ -44,7 +44,7 @@ function ExtraSettings({ self, settings }) {
     client.emit('settings', { extra: { [name]: event.target.checked } });
   };
 
-  const { spectatorsSeeIdentity, deadSeeIdentity, randomThreeDivine, doubleIdentity } = settings.setupData.extra;
+  const { spectatorsSeeIdentity, deadSeeIdentity, randomThreeDivine, doubleIdentity, hiddenChanges } = settings.setupData.extra;
   const error = !self || !self.host;
 
   return (
@@ -76,6 +76,14 @@ function ExtraSettings({ self, settings }) {
               control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
               label="双身份"
             />
+            {
+              self && self.host ?
+                <FormControlLabel
+                  control={<Checkbox checked={hiddenChanges} onChange={handleChange('hiddenChanges')} value="hiddenChanges" />}
+                  label="私改 [只有Host看得到的选项]"
+                /> :
+                null
+            }
           </FormGroup>
         </FormControl>
       </div>
@@ -227,6 +235,8 @@ function CardGrid({ self, settings }) {
   const wolves = settings.static.cards.wolves.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
   const neutral = settings.static.cards.neutral.reduce((count, card) => count + settings.setupData.cards.filter((cid) => cid === card.id).length, 0);
 
+  const hidden = settings.setupData.extra.hiddenChanges && (!self || !self.host);
+
   return (
     <React.Fragment>
       <Container className={classes.container} maxWidth="md">
@@ -236,7 +246,7 @@ function CardGrid({ self, settings }) {
         <Grid container spacing={2}>
           {settings.static.cards.town.map((card) => {
             const value = settings.setupData.cards.filter((cid) => cid === card.id).length;
-            const selectedCard = value > 0;
+            const selectedCard = value > 0 && !hidden;
             return (
               <Grid item key={card.id}>
                 <Card className={classes.card}>
@@ -254,7 +264,7 @@ function CardGrid({ self, settings }) {
                     id="outlined-number"
                     label={`${card.label} 数量`}
                     type="number"
-                    value={value}
+                    value={hidden ? 0 : value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
                     disabled={disabled}
                 />
@@ -268,7 +278,7 @@ function CardGrid({ self, settings }) {
         <Grid container spacing={2}>
           {settings.static.cards.wolves.map((card) => {
             const value = settings.setupData.cards.filter((cid) => cid === card.id).length;
-            const selectedCard = value > 0;
+            const selectedCard = value > 0 && !hidden;
             return (
               <Grid item key={card.id}>
                 <Card className={classes.card}>
@@ -286,7 +296,7 @@ function CardGrid({ self, settings }) {
                     id="outlined-number"
                     label={`${card.label} 数量`}
                     type="number"
-                    value={value}
+                    value={hidden ? 0 : value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
                     disabled={disabled}
                 />
@@ -300,7 +310,7 @@ function CardGrid({ self, settings }) {
         <Grid container spacing={2}>
           {settings.static.cards.neutral.map((card) => {
             const value = settings.setupData.cards.filter((cid) => cid === card.id).length;
-            const selectedCard = value > 0;
+            const selectedCard = value > 0 && !hidden;
             return (
               <Grid item key={card.id}>
                 <Card className={classes.card}>
@@ -318,7 +328,7 @@ function CardGrid({ self, settings }) {
                     id="outlined-number"
                     label={`${card.label} 数量`}
                     type="number"
-                    value={value}
+                    value={hidden ? 0 : value}
                     onChange={(e) => { handleChange(card.id, e.target.value) }}
                     disabled={disabled}
                 />

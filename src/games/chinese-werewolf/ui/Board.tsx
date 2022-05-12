@@ -455,20 +455,27 @@ const usePlayersTableStyle = makeStyles(theme => ({
             <TableCell component="th" scope="row">
               <div className={classes.roles}>
                 {player.roles.map((role, idx) =>
-                    <Card
+                    <Tooltip
                         key={idx}
-                        className={Cards[role].img ? classes.card : classes.avatar}
-                        onClick={() => {handleRoleClick(pid, idx)}}
-                        onMouseOver={() => { handleHover(role) }}
-                        onMouseLeave={() => { handleHover() }}
+                        arrow={true}
+                        placement="top"
+                        title={Cards[role].label}
                     >
-                        {Cards[role].img ?
-                            <img
-                                className={imgClass}
-                                src={Cards[role].img}
-                                alt={Cards[role].label} /> :
-                            <Avatar className={avatarClass} variant='rounded'>{Cards[role].label}</Avatar>}
-                    </Card>
+                        <Card
+                            key={idx}
+                            className={Cards[role].img ? classes.card : classes.avatar}
+                            onClick={() => {handleRoleClick(pid, idx)}}
+                            onMouseOver={() => { handleHover(role) }}
+                            onMouseLeave={() => { handleHover() }}
+                        >
+                            {Cards[role].img ?
+                                <img
+                                    className={imgClass}
+                                    src={Cards[role].img}
+                                    alt={Cards[role].label} /> :
+                                <Avatar className={avatarClass} variant='rounded'>{Cards[role].label}</Avatar>}
+                        </Card>
+                    </Tooltip>
                 )}
                 <Zoom in={G.badge === pid || (G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0)}>
                     <Tooltip
@@ -600,19 +607,25 @@ const usePlayersTableStyle = makeStyles(theme => ({
             {G.discards.map((role, idx) => {
                 return (
                     <Grid item key={idx}>
-                        <Card
-                            className={Cards[role].img ? classes.card : classes.avatar}
-                            onClick={() => { handleRoleClick(role, idx) }}
-                            onMouseOver={() => { handleHover(role) }}
-                            onMouseLeave={() => { handleHover() }}
+                        <Tooltip
+                            arrow={true}
+                            placement="top"
+                            title={Cards[role].label}
                         >
-                            {Cards[role].img ?
-                                <img
-                                    className={classes.img}
-                                    src={Cards[role].img}
-                                    alt={Cards[role].label} /> :
-                                <Avatar className={classes.avatar} variant='rounded'>{Cards[role].label}</Avatar>}
-                        </Card>
+                            <Card
+                                className={Cards[role].img ? classes.card : classes.avatar}
+                                onClick={() => { handleRoleClick(role, idx) }}
+                                onMouseOver={() => { handleHover(role) }}
+                                onMouseLeave={() => { handleHover() }}
+                            >
+                                {Cards[role].img ?
+                                    <img
+                                        className={classes.img}
+                                        src={Cards[role].img}
+                                        alt={Cards[role].label} /> :
+                                    <Avatar className={classes.avatar} variant='rounded'>{Cards[role].label}</Avatar>}
+                            </Card>
+                        </Tooltip>
                     </Grid>
                 );
             })}

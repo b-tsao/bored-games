@@ -298,6 +298,18 @@ const Cards = {
         label: '复仇者',
         side: Side.Neutral,
         img: 'https://pic.87g.com/upload/2017/0919/20170919101140311.jpg'
+    },
+    servant: {
+        id: 'servant',
+        label: '女仆',
+        side: Side.Neutral,
+        img: 'https://pic.87g.com/upload/2017/0918/20170918102500125.jpg'
+    },
+    shadow: {
+        id: 'shadow',
+        label: '影子',
+        side: Side.Neutral,
+        img: 'https://pic.87g.com/upload/2017/0919/20170919101926919.jpg'
     }
 };
 

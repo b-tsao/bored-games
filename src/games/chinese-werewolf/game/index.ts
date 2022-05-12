@@ -67,7 +67,6 @@ export const ChineseWerewolf = {
                 state: 0,
                 election: [],
                 badge: null,
-                reveal: false,
                 log: [
                     {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
                     {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
@@ -89,7 +88,6 @@ export const ChineseWerewolf = {
                 state: 0,
                 election: [],
                 badge: null,
-                reveal: false,
                 log: [
                     {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
                     {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}

@@ -7,6 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
     Avatar,
     Box,
+    Button,
     Card,
     Container,
     Grid,
@@ -275,7 +276,7 @@ const useActionBarStyles = makeStyles((theme) => ({
                     {
                         G.state === 1 ?
                             <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                                {G.reveal ? '隐票' : (G.election && G.election.length === 0 ? '上警' : '统票')}
+                                {G.election && G.election.length === 0 ? '上警' : '统票'}
                             </IconButton> :
                             null
                     }
@@ -428,17 +429,27 @@ const usePlayersTableStyle = makeStyles(theme => ({
         let playerCellClass: any = null;
         let imgClass = classes.img;
         let avatarClass = classes.avatar;
+        let voteClass: any = undefined;
         if (pid === String(G.god)) {
           playerCellClass = classes.leader;
         } else if (!player.alive) {
           playerCellClass = classes.dead;
           imgClass = clsx(imgClass, classes.deadImg);
           avatarClass = clsx(avatarClass, classes.deadImg);
+          voteClass = classes.dead;
         }
 
-        let voteClass: any = null;
-        if (!G.reveal) {
-            voteClass = classes.dead;
+        let voteColor: any = undefined;
+        if (playerID) {
+            if (pid === playerID) {
+                if (player.vote === pid || player.vote === '-') {
+                    voteColor = 'secondary';
+                }
+            } else {
+                if (G.players[playerID].vote === pid) {
+                    voteColor = 'primary';
+                }
+            }
         }
 
         playersTable.push(
@@ -484,17 +495,27 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         title={Cards.sheriff.label}
                     >
                         <Card className={classes.card}>
-                            <img
-                                className={imgClass}
-                                src={Cards.sheriff.img}
-                                alt={Cards.sheriff.label} />
+                            {Cards.sheriff.img ?
+                                <img
+                                    className={imgClass}
+                                    src={Cards.sheriff.img}
+                                    alt={Cards.sheriff.label} /> :
+                                <Avatar className={avatarClass} variant='rounded'>{Cards.sheriff.label}</Avatar>}
                         </Card>
                     </Tooltip>
                 </Zoom>
               </div>
             </TableCell>
             <TableCell className={voteClass} component="th" scope="row">
-              <Typography>{player.vote}</Typography>
+              {playerID === String(G.god) || !playerID ?
+                <Typography>{player.vote}</Typography> :
+                <Button
+                    variant='contained'
+                    color={voteColor}
+                >
+                    {pid === playerID ? '弃票' : '投票'}
+                </Button>
+              }
             </TableCell>
           </TableRow>
         );

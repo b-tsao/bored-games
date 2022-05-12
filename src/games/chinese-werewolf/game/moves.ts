@@ -44,7 +44,11 @@ export function next(G, ctx) {
 
 export function transfer(G, ctx, pid: number) {
     G.god = Number(pid);
-    ctx.events.setActivePlayers({ value: { [pid]: 'god' } });
+    if (G.state === 1) {
+        ctx.events.setActivePlayers({ all: 'vote', value: { [pid]: 'god' } });
+    } else {
+        ctx.events.setActivePlayers({ value: { [pid]: 'god' } });
+    }
 }
 
 export function kill(G, ctx, pid) {
@@ -100,13 +104,7 @@ export function reveal(G, ctx) {
             G.election = null;
         }
     } else {
-        if (G.reveal) {
-            G.reveal = false;
-            ctx.events.setActivePlayers({ all: 'vote', value: { [String(G.god)]: 'god' } });
-        } else if (G.state === 1) {
-            G.reveal = true;
-            ctx.events.setActivePlayers({ value: { [String(G.god)]: 'god' } });
-    
+        if (G.state === 1) {
             const votes = {};
             const forfeits: string[] = [];
             for (const pid in G.players) {
@@ -114,7 +112,7 @@ export function reveal(G, ctx) {
                     if (!G.election || G.election.filter((player) => pid === player.id).length === 0) {
                         // if no election or player is running for election
                         const vid = G.players[pid].vote;
-                        if (vid) {
+                        if (vid !== '' && vid !== '弃') {
                             if (votes[vid]) {
                                 votes[vid].push(pid);
                             } else {
@@ -125,6 +123,7 @@ export function reveal(G, ctx) {
                         }
                     }
                 }
+                G.players[pid].vote = '';
             }
     
             gameLog(G, ctx, `投票结果:`);
@@ -186,6 +185,8 @@ export function vote(G, ctx, pid) {
     if (valid) {
         if (player.vote === pid) {
             player.vote = '';
+        } else if (pid === ctx.playerID) {
+            player.vote = '弃';
         } else {
             player.vote = pid;
         }

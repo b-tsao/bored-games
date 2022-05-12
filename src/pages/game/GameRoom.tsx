@@ -34,6 +34,10 @@ async function preloadImages(settings) {
             img.onload = () => {
               resolve();
             };
+            img.onerror = () => {
+              delete settings.img;
+              resolve();
+            }
           }));
         } else {
           promises.push(preloadImages(settings[setting]));

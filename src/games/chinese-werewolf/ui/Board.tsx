@@ -436,7 +436,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         if (role !== undefined) {
             setRoleDisplay([role]);
         } else {
-            setRoleDisplay(playerID ? G.players[playerID].roles : []);
+            setRoleDisplay([]);
         }
     };
 
@@ -695,7 +695,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         if (role !== undefined) {
             setRoleDisplay([role]);
         } else {
-            setRoleDisplay(playerID ? G.players[playerID].roles : []);
+            setRoleDisplay([]);
         }
     };
 

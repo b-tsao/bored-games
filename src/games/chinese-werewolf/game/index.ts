@@ -9,7 +9,8 @@ import {
     lover,
     next,
     vote,
-    reveal
+    reveal,
+    election
 } from './moves';
 import Player from './player';
 
@@ -186,7 +187,7 @@ export const ChineseWerewolf = {
                 },
                 stages: {
                     god: {
-                        moves: { setRole, setDiscard, transfer, kill, badge, lover, reveal, next }
+                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, next }
                     },
                     vote: {
                         moves: { vote }

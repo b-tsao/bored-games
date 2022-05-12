@@ -34,7 +34,7 @@ export function next(G, ctx) {
         systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
 
         if (G.election && G.election.length === 0) {
-            gameLog(G, ctx, '请上警的玩家投自己一票。');
+            gameLog(G, ctx, '请上警的玩家点选上警。');
         }
     } else {
         ctx.events.endTurn();
@@ -82,21 +82,39 @@ export function lover(G, ctx, pid: number) {
     G.players[pid].lover = !G.players[pid].lover;
 }
 
+export function election(G, ctx) {
+    for (const pid in G.players) {
+        G.players[pid].vote = '';
+    }
+    if (G.election) {
+        systemLog(G, ctx, '上帝終止上警！');
+        G.election = null;
+    } else {
+        G.election = [];
+        gameLog(G, ctx, '请上警的玩家点选上警。');
+    }
+}
+
 export function reveal(G, ctx) {
     if (G.election && G.election.length === 0) {
+        const voters: string[] = [];
         for (const pid in G.players) {
             if (G.players[pid].vote === pid) {
                 G.election.push({ id: pid, drop: false });
+            } else if (pid !== String(G.god)) {
+                voters.push(pid);
             }
             G.players[pid].vote = '';
         }
         if (G.election.length > 0) {
-            gameLog(G, ctx, `上警的玩家: ${G.election.map((player) => player.id).join(',')}`);
+            gameLog(G, ctx, `上警玩家: ${G.election.map((player) => player.id).join(',')}`);
+            gameLog(G, ctx, `警下玩家: ${voters.join(',')}`);
             if (G.election.length === 1) {
+                gameLog(G, ctx, `只有${G.election[0].id}号玩家上警！`);
                 gameLog(G, ctx, '上警结束。');
                 G.election = null;
             } else {
-                gameLog(G, ctx, `请退水的玩家投自己一票。`);
+                gameLog(G, ctx, `请退水的玩家点选退水。`);
             }
         } else {
             gameLog(G, ctx, `没玩家上警，警徽流失！`);
@@ -112,7 +130,7 @@ export function reveal(G, ctx) {
                     if (!G.election || G.election.filter((player) => pid === player.id).length === 0) {
                         // if no election or player is running for election
                         const vid = G.players[pid].vote;
-                        if (vid !== '' && vid !== '弃') {
+                        if (vid !== '' && vid !== pid) {
                             if (votes[vid]) {
                                 votes[vid].push(pid);
                             } else {
@@ -144,20 +162,18 @@ export function vote(G, ctx, pid) {
     if (!player.alive) {
         return INVALID_MOVE;
     }
-    let valid = true;
     if (G.election) {
         if (G.election.length === 0) {
             if (ctx.playerID !== pid) {
-                valid = false;
+                return INVALID_MOVE;
             }
         } else {
             let voteRunning = false;
-            let playerRunning = false;
             for (const player of G.election) {
                 if (ctx.playerID === player.id) {
                     // player running for election
                     if (ctx.playerID === pid && !player.drop) {
-                        // played voted for self
+                        // player voted for self
                         player.drop = true;
                         gameLog(G, ctx, `${ctx.playerID}号玩家退水。`);
                         for (const pid in G.players) {
@@ -167,28 +183,29 @@ export function vote(G, ctx, pid) {
                         }
                         const runners = G.election.filter((runner) => !runner.drop);
                         if (runners.length === 1) {
+                            gameLog(G, ctx, `警上剩${runners[0].id}号玩家！`);
                             gameLog(G, ctx, '上警结束。');
                             G.election = null;
                         }
+                        return;
+                    } else {
+                        return INVALID_MOVE;
                     }
-                    playerRunning = true;
-                    break;
                 } else {
                     if (pid === player.id && !player.drop) {
                         voteRunning = true;
+                        // can't break here because a player running might vote
                     }
                 }
             }
-            valid = !playerRunning && voteRunning;
+            if (!voteRunning && pid !== ctx.playerID) {
+                return INVALID_MOVE;
+            }
         }
     }
-    if (valid) {
-        if (player.vote === pid) {
-            player.vote = '';
-        } else if (pid === ctx.playerID) {
-            player.vote = '弃';
-        } else {
-            player.vote = pid;
-        }
+    if (player.vote === pid) {
+        player.vote = '';
+    } else {
+        player.vote = pid;
     }
 }

@@ -68,6 +68,14 @@ class Action {
     }
 }
 
+function isRunningForElection(G, pid) {
+    return G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0;
+}
+
+function wasRunningForElection(G, pid) {
+    return G.election && G.election.filter((player) => pid === player.id).length > 0;
+}
+
 const useActionBarStyles = makeStyles((theme) => ({
     panel: {
       width: '100%',
@@ -220,6 +228,10 @@ const useActionBarStyles = makeStyles((theme) => ({
         }
     }
 
+    const handleElection = () => {
+        moves.election();
+    };
+
     const handleReveal = () => {
         moves.reveal();
     };
@@ -275,8 +287,15 @@ const useActionBarStyles = makeStyles((theme) => ({
                 <Grid item>
                     {
                         G.state === 1 ?
+                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleElection}>
+                                {G.election === null ? '开始上警' : '取消上警'}
+                            </IconButton> :
+                            null
+                    }
+                    {
+                        G.state === 1 ?
                             <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                                {G.election && G.election.length === 0 ? '上警' : '统票'}
+                                {G.election && G.election.length === 0 ? '开警' : '统票'}
                             </IconButton> :
                             null
                     }
@@ -442,12 +461,75 @@ const usePlayersTableStyle = makeStyles(theme => ({
         let voteColor: any = undefined;
         if (playerID) {
             if (pid === playerID) {
-                if (player.vote === pid || player.vote === '-') {
+                if (player.vote === pid) {
                     voteColor = 'secondary';
                 }
             } else {
                 if (G.players[playerID].vote === pid) {
                     voteColor = 'primary';
+                }
+            }
+        }
+
+        let voteComponent: any = null;
+        if (ctx.phase === 'main' && G.state === 1) {
+            if (!playerID || playerID === String(G.god)) {
+                voteComponent = <Typography>{player.vote === pid ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
+            } else {
+                if (G.election) {
+                    if (G.election.length === 0) {
+                        if (playerID === pid) {
+                            voteComponent = (
+                                <Button
+                                    variant='contained'
+                                    color={player.vote === pid ? 'primary' : undefined}
+                                >
+                                    上警
+                                </Button>
+                            );
+                        }
+                    } else {
+                        if (playerID === pid) {
+                            if (isRunningForElection(G, pid)) {
+                                voteComponent = (
+                                    <Button
+                                        variant='contained'
+                                    >
+                                        退水
+                                    </Button>
+                                );
+                            } else if (!wasRunningForElection(G, pid)) {
+                                voteComponent = (
+                                    <Button
+                                        variant='contained'
+                                        color={voteColor}
+                                    >
+                                        弃票
+                                    </Button>
+                                );
+                            }
+                        } else {
+                            if (isRunningForElection(G, pid) && !wasRunningForElection(G, playerID)) {
+                                voteComponent = (
+                                    <Button
+                                        variant='contained'
+                                        color={voteColor}
+                                    >
+                                        投票
+                                    </Button>
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    voteComponent = (
+                        <Button
+                            variant='contained'
+                            color={voteColor}
+                        >
+                            {pid === playerID ? '弃票' : '投票'}
+                        </Button>
+                    );
                 }
             }
         }
@@ -488,7 +570,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         </Card>
                     </Tooltip>
                 )}
-                <Zoom in={G.badge === pid || (G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0)}>
+                <Zoom in={G.badge === pid || (G.election && isRunningForElection(G, pid))}>
                     <Tooltip
                         arrow={true}
                         placement="top"
@@ -507,15 +589,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
               </div>
             </TableCell>
             <TableCell className={voteClass} component="th" scope="row">
-              {playerID === String(G.god) || !playerID ?
-                <Typography>{player.vote}</Typography> :
-                <Button
-                    variant='contained'
-                    color={voteColor}
-                >
-                    {pid === playerID ? '弃票' : '投票'}
-                </Button>
-              }
+              {voteComponent}
             </TableCell>
           </TableRow>
         );

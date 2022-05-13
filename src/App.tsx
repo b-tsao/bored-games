@@ -5,7 +5,7 @@ import {
   BrowserRouter as Router
 } from 'react-router-dom';
 
-import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import { MuiThemeProvider, createTheme } from "@material-ui/core/styles";
 import { CssBaseline } from '@material-ui/core';
 
 /* Import Components */
@@ -39,7 +39,7 @@ export default function App() {
     localStorage.setItem('themeMode', newPaletteType);
   };
 
-  const muiTheme = createMuiTheme(theme);
+  const muiTheme = createTheme(theme);
 
   const handleMessageClose = () => {
     setMessage({ status: '', text: '' });

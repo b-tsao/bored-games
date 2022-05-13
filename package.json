@@ -5,8 +5,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.10.0",
-    "@material-ui/icons": "^4.9.1",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
     "@types/socket.io-client": "^1.4.33",
     "boardgame.io": "^0.39.11",
     "deep-extend": "^0.6.0",

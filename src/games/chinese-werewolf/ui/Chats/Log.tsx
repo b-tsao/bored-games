@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import { alpha } from '@material-ui/core/styles';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Paper, Avatar } from '@material-ui/core';
 
@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    background: fade(theme.palette.background.default, .7)
+    background: alpha(theme.palette.background.default, .7)
   },
   chat: {
     // Allow messages to scroll properly.
@@ -56,11 +56,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type Chat = {
+type Log = {
   chatState: Array<Object>
 }
 
-function Chat({ chatState }) {
+function Log({ chatState }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -125,4 +125,4 @@ function Chat({ chatState }) {
   );
 }
 
-export default Chat;
+export default Log;

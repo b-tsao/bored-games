@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import clsx from 'clsx';
 import { useState } from "react";
 
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import { alpha } from '@material-ui/core/styles';
 import { makeStyles } from "@material-ui/core/styles";
 import {
     Avatar,
@@ -27,7 +27,7 @@ import {
 import { Favorite } from "@material-ui/icons";
 
 import { ClientContext } from '../../../Contexts';
-import Log from "./Log";
+import Chats from "./Chats";
 import Cards from "../game/cards";
 
 class Action {
@@ -82,7 +82,7 @@ const useActionBarStyles = makeStyles((theme) => ({
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: fade(theme.palette.background.default, .7)
+      background: alpha(theme.palette.background.default, .7)
     },
     shrinkRipple: {
       padding: theme.spacing(1),
@@ -760,7 +760,7 @@ const useStyles = makeStyles(theme => ({
       display: 'flex',
       overflow: 'auto',
       flexDirection: 'column',
-      background: fade(theme.palette.background.default, .7)
+      background: alpha(theme.palette.background.default, .7)
     },
     padding: {
       padding: theme.spacing(2)
@@ -843,9 +843,9 @@ export function ChineseWerewolfBoard(props) {
                                     null
                             }
                             <Grid item xs={12}>
-                                <Log
+                                <Chats
                                     className={classes.panel}
-                                    chatState={G.log}
+                                    chats={G.chats}
                                 />
                             </Grid>
                         </Grid>

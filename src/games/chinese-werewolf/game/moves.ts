@@ -3,13 +3,13 @@ import { INVALID_MOVE } from 'boardgame.io/core';
 function systemLog(G, ctx, message) {
     const name = '系统';
     const userID = '0';
-    G.log.push({ name, message, userID });
+    G.chats[0].chat.push({ name, message, userID });
 }
 
 function gameLog(G, ctx, message) {
     const name = `${G.state === 0 ? '夜晚' : '白天'} ${Number(ctx.turn) - 1}`;
     const userID = `${ctx.turn}${G.state}`;
-    G.log.push({ name, message, userID });
+    G.chats[0].chat.push({ name, message, userID });
 }
 
 export function setRole(G, ctx, pid: number, pos: number, role: string) {

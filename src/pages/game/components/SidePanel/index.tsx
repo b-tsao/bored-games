@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import { alpha } from '@material-ui/core/styles';
 import { Toolbar, Typography, IconButton, Paper, Box } from '@material-ui/core';
 import { ExitToApp } from '@material-ui/icons';
 import Chat from './Chat';
@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    background: fade(theme.palette.background.default, .9)
+    background: alpha(theme.palette.background.default, .9)
   },
   menuButton: {
     marginRight: theme.spacing(2),

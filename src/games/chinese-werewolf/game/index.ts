@@ -88,10 +88,15 @@ export const ChineseWerewolf = {
                 state: 0,
                 election: [],
                 badge: null,
-                log: [
-                    {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
-                    {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
-                ],
+                chats: {
+                    0: {
+                        title: 'Log',
+                        chat: [
+                            {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
+                            {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
+                        ]
+                    }
+                },
                 spectatorsSeeIdentity: extra.spectatorsSeeIdentity,
                 deadSeeIdentity: extra.deadSeeIdentity
             };
@@ -109,10 +114,15 @@ export const ChineseWerewolf = {
                 state: 0,
                 election: [],
                 badge: null,
-                log: [
-                    {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
-                    {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
-                ],
+                chats: {
+                    0: {
+                        title: 'Log',
+                        chat: [
+                            {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
+                            {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
+                        ]
+                    }
+                },
                 spectatorsSeeIdentity: true,
                 deadSeeIdentity: true
             }

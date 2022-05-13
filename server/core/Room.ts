@@ -48,30 +48,66 @@ export default class Room {
           },
           static: {
             presets: {
-              '预女猎守 +4民 +3普狼 +1狼枪': [
-                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+              '12 预女猎守 +4民 +3普狼 +1狼枪': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.alphawolf.id
               ],
-              '预女猎白 +4民 +4普狼': [
-                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.idiot.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+              '12 预女猎白 +4民 +4普狼': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.idiot.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id
               ],
-              '预女猎守 +4民 +3普狼 +1美狼': [
-                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
-                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.beautywolf.id
-              ],
-              '预女猎 +守墓人 +4民+3普狼 +1石像鬼': [
-                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.gravekeeper.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+              '12 预女猎 +守墓人 +4民 +3普狼 +1石像鬼': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.gravekeeper.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.gargoyle.id
               ],
-              '预女猎 +骑士 +4民 +3普狼 +1白狼王': [
-                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.knight.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+              '12 预女猎 +骑士 +4民 +3普狼 +1白狼王': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.knight.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.whitewolf.id
               ],
-              '预女猎白守骑 +2普狼 +1隐狼 +6平民 +1盗': [
-                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.idiot.id, Cards.guard.id, Cards.knight.id, Cards.bandit.id,
-                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
-                Cards.werewolf.id, Cards.werewolf.id, Cards.hiddenwolf.id
+              '14 盗丘 预女猎白守 +5民 +4普狼': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.idiot.id, Cards.guard.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id,
+                Cards.bandit.id, Cards.cupid.id
+              ],
+              '10 奇迹商人': [
+                Cards.prophet.id, Cards.witch.id, Cards.miracle_merchant.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.alphawolf.id
+              ],
+              '12 奇迹商人': [
+                Cards.prophet.id, Cards.witch.id, Cards.guard.id, Cards.miracle_merchant.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.alphawolf.id
+              ],
+              '12 骑士狼美': [
+                Cards.prophet.id, Cards.witch.id, Cards.guard.id, Cards.knight.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.beautywolf.id
+              ],
+              '12 时波之乱': [
+                Cards.prophet.id, Cards.witch.id, Cards.guard.id, Cards.light_scholar.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.night_mentor.id
+              ],
+              '12 无目之夜': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.dreamer.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.hiddenwolf.id, Cards.gargoyle.id, Cards.crowwolf.id
+              ],
+              '12 迷雾雅影': [
+                Cards.prophet.id, Cards.alchemist.id, Cards.idiot.id, Cards.dreamer.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.crowwolf.id
+              ],
+              '12 永序之轮': [
+                Cards.prophet.id, Cards.witch.id, Cards.guard.id, Cards.prince.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.concubine_wolf.id
               ]
             },
             cards: {

@@ -118,6 +118,13 @@ const Cards = {
         divine: true,
         img: 'https://pic2.zhimg.com/80/v2-12213157b873540dd4ea393da69fa98d_1440w.jpg'
     },
+    light_scholar: {
+        id: 'light_scholar',
+        label: '白昼学者',
+        side: Side.Town,
+        divine: true,
+        img: 'https://github.com/b-tsao/temp/blob/master/cn_werewolf/light_scholar.jpeg?raw=true'
+    },
     dreamer: {
         id: 'dreamer',
         label: '摄梦人',
@@ -139,6 +146,13 @@ const Cards = {
         side: Side.Town,
         divine: true,
         img: 'https://pic.pimg.tw/hkgameteller/1626007626-1699865543-g_n.png',
+    },
+    alchemist: {
+        id: 'alchemist',
+        label: '炼金魔女',
+        side: Side.Town,
+        divine: true,
+        img: 'https://github.com/b-tsao/temp/blob/master/cn_werewolf/alchemist.jpeg?raw=true'
     },
     reviver: {
         id: 'reviver',
@@ -204,6 +218,12 @@ const Cards = {
         side: Side.Wolves,
         img: 'https://pic.pimg.tw/hkgameteller/1626007691-2995852796-g_n.png'
     },
+    crowwolf: {
+        id: 'crowwolf',
+        label: '狼鸦之爪',
+        side: Side.Wolves,
+        img: 'https://github.com/b-tsao/temp/blob/master/cn_werewolf/crowwolf.jpeg?raw=true'
+    },
     gargoyle: {
         id: 'gargoyle',
         label: '石像鬼',
@@ -217,6 +237,12 @@ const Cards = {
         side: Side.Wolves,
         img: 'https://pic.pimg.tw/hkgameteller/1625980095-1087934518-g.jpg'
         // img: 'https://pic3.zhimg.com/80/v2-94f6c5957f28e26b3d0f731355f0a172_1440w.jpg'
+    },
+    night_mentor: {
+        id: 'night_mentor',
+        label: '寂夜导师',
+        side: Side.Wolves,
+        img: 'https://github.com/b-tsao/temp/blob/master/cn_werewolf/night_mentor.jpeg?raw=true'
     },
     nightmare: {
         id: 'nightmare',

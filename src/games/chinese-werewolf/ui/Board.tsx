@@ -351,7 +351,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
     card: {
       marginRight: 'auto',
       maxWidth: 40,
-      height: '100%'
+      maxHeight: 56.78
     },
     avatar: {
         maxWidth: 90,
@@ -365,7 +365,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
     img: {
       overflow: 'hidden',
       display: 'block',
-      width: '100%'
+      width: '100%',
     },
     evil: {
       transition: 'all .2s ease-in',
@@ -625,8 +625,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
     card: {
         display: 'flex',
         maxWidth: 127.66,
-        maxHeight: 198.77,
-        margin: 'auto',
+        maxHeight: 181.23,
+        marginLeft: 'auto',
+        marginRight: 'auto',
         perspective: '1000px',
         boxShadow: 'none'
     },
@@ -669,7 +670,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
     },
     card: {
         marginRight: 'auto',
-        maxWidth: 40
+        maxWidth: 40,
+        maxHeight: 56.78
     }
   }));
   

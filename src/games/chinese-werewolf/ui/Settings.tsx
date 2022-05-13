@@ -18,6 +18,7 @@ import {
   MenuItem,
   Paper,
   TextField,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 
@@ -68,10 +69,14 @@ function ExtraSettings({ self, settings }) {
               control={<Checkbox checked={deadSeeIdentity} onChange={handleChange('deadSeeIdentity')} value="deadSeeIdentity" />}
               label="死亡看得到身份"
             />
-            <FormControlLabel
-              control={<Checkbox checked={randomThreeDivine} onChange={handleChange('randomThreeDivine')} value="randomThreeDivine" />}
-              label="5随3"
-            />
+            <Tooltip
+                title={'从选定的角色中随机选择3个神，所有民，所有普狼，并且除了普狼以外的狼随机抽取至总共3个狼，以及如果有选定第三方随机抽取一个第三方'}
+            >
+              <FormControlLabel
+                control={<Checkbox checked={randomThreeDivine} onChange={handleChange('randomThreeDivine')} value="randomThreeDivine" />}
+                label="5随3"
+              />
+            </Tooltip>
             <FormControlLabel
               control={<Checkbox checked={doubleIdentity} onChange={handleChange('doubleIdentity')} value="doubleIdentity" />}
               label="双身份"

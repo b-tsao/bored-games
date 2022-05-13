@@ -22,25 +22,45 @@ export const ChineseWerewolf = {
             const { cards, extra } = setupData;
 
             let shuffledCards = cards;
-            let discarded = [];
+            let discarded: string[] = [];
 
             if (extra.randomThreeDivine) {
                 let divine = cards.filter((card) => Cards[card].side === Side.Town && Cards[card].divine);
                 const citizens = cards.filter((card) => Cards[card].side === Side.Town && !Cards[card].divine);
-                const wolves = cards.filter((card) => Cards[card].side === Side.Wolves);
-                const neutral = cards.filter((card) => Cards[card].side === Side.Neutral);
 
-                for (let i = 0; i < 3; i++) {
-                    divine = ctx.random.Shuffle(divine);
+                let otherWolves = cards.filter((card) => Cards[card].side === Side.Wolves && Cards[card].id !== Cards.werewolf.id);
+                const normalWolves = cards.filter((card) => Cards[card].side === Side.Wolves && Cards[card].id === Cards.werewolf.id);
+
+                let neutrals = cards.filter((card) => Cards[card].side === Side.Neutral);
+
+                divine = ctx.random.Shuffle(divine);
+                otherWolves = ctx.random.Shuffle(otherWolves);
+                neutrals = ctx.random.Shuffle(neutrals);
+
+                // grab 3 divines if possible
+                const town = [...citizens, ...divine.slice(0, 3)];
+                divine = divine.slice(3);
+
+                // grab up to 3 wolves if possible
+                const count = 3 - normalWolves.length;
+                let wolves = normalWolves;
+                if (count > 0) {
+                    wolves = [...wolves, ...otherWolves.slice(0, count)];
+                    otherWolves = otherWolves.slice(count);
                 }
 
-                shuffledCards = [...divine.slice(0, 3), ...citizens, ...wolves, ...neutral];
-                discarded = divine.slice(3);
+                // pick 1 neutral if possible
+                let neutral = [];
+                if (neutrals.length > 0) {
+                    neutral = neutrals.slice(0, 1);
+                    neutrals = neutrals.slice(1);
+                }
+
+                shuffledCards = [...town, ...wolves, ...neutral];
+                discarded = [...divine, ...otherWolves, ...neutrals];
             }
 
-            for (let i = 0; i < 3; i++) {
-                shuffledCards = ctx.random.Shuffle(shuffledCards);
-            }
+            shuffledCards = ctx.random.Shuffle(shuffledCards);
 
             const players = ctx.playOrder.reduce((player, pid) => {
                 player[pid] = new Player()

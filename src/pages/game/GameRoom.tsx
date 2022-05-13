@@ -38,12 +38,12 @@ function getNumberofPreloadImages(settings): number {
 /**
  * Preload of all 'img' fields in passed in object.
  */
-async function preloadImages(settings) {
+async function preloadImages(settings, tick = () => {}) {
   if (typeof settings === 'object') {
     const promises: any[] = [];
     if (Array.isArray(settings)) {
       for (const element of settings) {
-        promises.push(preloadImages(element));
+        promises.push(preloadImages(element, tick));
       }
     } else {
       for (const setting in settings) {
@@ -52,15 +52,17 @@ async function preloadImages(settings) {
             const img = new Image();
             img.src = settings[setting];
             img.onload = () => {
+              tick();
               resolve();
             };
             img.onerror = () => {
               delete settings.img;
+              tick();
               resolve();
             }
           }));
         } else {
-          promises.push(preloadImages(settings[setting]));
+          promises.push(preloadImages(settings[setting], tick));
         }
       }
     }
@@ -86,6 +88,7 @@ export default function GameRoom() {
   const setMessage = useContext(MessageContext);
 
   const [room, setRoom]: [any, (...args: any[]) => any] = React.useState(null);
+  const [progress, setProgress]: [any, (...args: any[]) => any] = React.useState(null);
 
   useEffect(() => {
     if (client) {
@@ -124,8 +127,16 @@ export default function GameRoom() {
       };
 
       const roomHandler = (ctx, state) => {
-        console.log('preloading images:', getNumberofPreloadImages(ctx.settings.static));
-        preloadImages(ctx.settings.static).then(() => {
+        const images = getNumberofPreloadImages(ctx.settings.static);
+        setProgress(0);
+        let loaded = 0;
+        preloadImages(
+          ctx.settings.static,
+          () => {
+            loaded++;
+            setProgress(Math.floor((loaded / images) * 100));
+          }
+        ).then(() => {
           setRoom({ ctx, state });
         });
       };
@@ -176,7 +187,7 @@ export default function GameRoom() {
     }
   }, [room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  let display = <LoadingRoom />;
+  let display = <LoadingRoom progress={progress} />;
 
   if (room) {
     console.log('room', room);

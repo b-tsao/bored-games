@@ -1,6 +1,25 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import { CircularProgress, LinearProgress } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { Box, CircularProgress, LinearProgress, LinearProgressProps, Typography } from '@material-ui/core';
+
+const useLinearProgressWithLabelStyles = makeStyles(theme => ({
+  bar: {
+    width: '100%'
+  }
+}));
+
+function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
+  const classes = useLinearProgressWithLabelStyles();
+
+  return (
+    <Box>
+      <Typography variant="body2">{`${props.value}%`}</Typography>
+      <Box className={classes.bar}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+    </Box>
+  );
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -12,10 +31,7 @@ export default function Maintenance({ progress }) {
   const classes = useStyles();
 
   const loading = progress ? (
-    <React.Fragment>
-      <p>{progress}%</p>
-      <LinearProgress variant='determinate' value={progress} />
-    </React.Fragment>
+    <LinearProgressWithLabel value={progress} />
   ) :
   (
     <CircularProgress variant='indeterminate' />

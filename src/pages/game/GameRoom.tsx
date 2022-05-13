@@ -15,6 +15,26 @@ import Room from './Room';
 
 import { ClientContext, MessageContext } from '../../Contexts';
 
+function getNumberofPreloadImages(settings): number {
+  let numImages = 0;
+  if (typeof settings === 'object') {
+    if (Array.isArray(settings)) {
+      for (const element of settings) {
+        numImages += getNumberofPreloadImages(element);
+      }
+    } else {
+      for (const setting in settings) {
+        if (setting === 'img' && typeof settings[setting] === 'string') {
+          numImages += 1;
+        } else {
+          numImages += getNumberofPreloadImages(settings[setting]);
+        }
+      }
+    }
+  }
+  return numImages;
+}
+
 /**
  * Preload of all 'img' fields in passed in object.
  */
@@ -104,6 +124,7 @@ export default function GameRoom() {
       };
 
       const roomHandler = (ctx, state) => {
+        console.log('preloading images:', getNumberofPreloadImages(ctx.settings.static));
         preloadImages(ctx.settings.static).then(() => {
           setRoom({ ctx, state });
         });

@@ -587,7 +587,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         placement="top"
                         title={Cards.sheriff.label}
                     >
-                        <Card className={classes.card}>
+                        <Card className={Cards.sheriff.img ? classes.card : classes.avatar}>
                             {Cards.sheriff.img ?
                                 <img
                                     className={imgClass}

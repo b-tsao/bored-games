@@ -178,6 +178,18 @@ const Cards = {
         side: Side.Town,
         divine: true
     },
+    investigator: {
+        id: 'investigator',
+        label: '侦探',
+        side: Side.Town,
+        divine: true
+    },
+    dog: {
+        id: 'dog',
+        label: '警犬',
+        side: Side.Town,
+        divine: true
+    },
     werewolf: {
         id: 'werewolf',
         label: '狼人',
@@ -267,6 +279,11 @@ const Cards = {
         label: '蚀时狼妃',
         side: Side.Wolves,
         // img: 'https://github.com/b-tsao/temp/blob/master/cn_werewolf/concubine_wolf.png?raw=true'
+    },
+    phantomwolf: {
+        id: 'phantomwolf',
+        label: '怪盗狼王',
+        side: Side.Wolves
     },
     bandit: {
         id: 'bandit',

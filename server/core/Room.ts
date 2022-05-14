@@ -108,6 +108,11 @@ export default class Room {
                 Cards.prophet.id, Cards.witch.id, Cards.guard.id, Cards.prince.id,
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.concubine_wolf.id
+              ],
+              '12 怪盗侦探': [
+                Cards.investigator.id, Cards.dog.id, Cards.witch.id, Cards.hunter.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.phantomwolf.id
               ]
             },
             cards: {

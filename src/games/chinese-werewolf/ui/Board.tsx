@@ -522,7 +522,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         }
                     }
                 } else {
-                    if (pid !== String(G.god)) {
+                    if (pid !== String(G.god) && G.players[pid].alive) {
                         voteComponent = (
                             <Button
                                 variant='contained'

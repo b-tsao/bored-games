@@ -173,20 +173,19 @@ export function vote(G, ctx, pid) {
             for (const player of G.election) {
                 if (ctx.playerID === player.id) {
                     // player running for election
-                    if (ctx.playerID === pid && !player.drop) {
+                    if (ctx.playerID === pid) {
                         // player voted for self
-                        player.drop = true;
-                        gameLog(G, ctx, `${ctx.playerID}号玩家退水。`);
-                        for (const pid in G.players) {
-                            if (G.players[pid].vote === player.id) {
-                                G.players[pid].vote = '';
+                        if (!player.drop) {
+                            player.drop = true;
+                            gameLog(G, ctx, `${ctx.playerID}号玩家退水。`);
+                            for (const pid in G.players) {
+                                if (G.players[pid].vote === player.id) {
+                                    G.players[pid].vote = '';
+                                }
                             }
-                        }
-                        const runners = G.election.filter((runner) => !runner.drop);
-                        if (runners.length === 1) {
-                            gameLog(G, ctx, `警上剩${runners[0].id}号玩家！`);
-                            gameLog(G, ctx, '上警结束。');
-                            G.election = null;
+                        } else {
+                            player.drop = false;
+                            gameLog(G, ctx, `${ctx.playerID}号玩家不退水。`);
                         }
                         return;
                     } else {

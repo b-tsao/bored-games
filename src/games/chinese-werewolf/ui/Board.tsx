@@ -288,7 +288,7 @@ const useActionBarStyles = makeStyles((theme) => ({
                     {
                         G.state === 1 ?
                             <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleElection}>
-                                {G.election === null ? '开始上警' : '取消上警'}
+                                {G.election === null ? '开始上警' : '終止上警'}
                             </IconButton> :
                             null
                     }
@@ -498,7 +498,16 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                         退水
                                     </Button>
                                 );
-                            } else if (!wasRunningForElection(G, pid)) {
+                            } else if (wasRunningForElection(G, pid)) {
+                                voteComponent = (
+                                    <Button
+                                        variant='contained'
+                                        color='secondary'
+                                    >
+                                        退水
+                                    </Button>
+                                );
+                            } else {
                                 voteComponent = (
                                     <Button
                                         variant='contained'

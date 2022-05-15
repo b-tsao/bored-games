@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { alpha } from '@material-ui/core/styles';
 import { Paper, Box, withStyles, Tabs, Tab } from '@material-ui/core';
 import Log from './Log';
+import NewChat from './NewChat';
 
 const AntTabs = withStyles({
   root: {
@@ -46,6 +47,24 @@ const AntTab = withStyles((theme) => ({
   selected: {},
 }))((props) => <Tab disableRipple {...props} />);
 
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        children
+      )}
+    </div>
+  );
+}
+
 const useStyles = makeStyles((theme) => ({
   panel: {
     width: '100%',
@@ -56,27 +75,58 @@ const useStyles = makeStyles((theme) => ({
   },
   tabs: {
     background: alpha(theme.palette.background.default, .7)
+  },
+  tabPanel: {
+    width: '100%',
+    height: '100%'
+  },
+  chatWindow: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    background: alpha(theme.palette.background.default, .7)
   }
 }));
 
-function Chats({ className, chats }) {
+function Chats({ className, G, playerID }) {
   const classes = useStyles();
 
-  const [value, setValue] = React.useState(0);
+  const [tab, setTab] = React.useState(0);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleChange = (event, newTab) => {
+    setTab(newTab);
   };
 
   return (
     <Box className={className}>
       <Paper className={classes.panel} elevation={0}>
-        {/* <AntTabs className={classes.tabs} value={value} onChange={handleChange} aria-label="multichat">
-          {Object.keys(chats).map((cid) => (
-            <AntTab key={cid} label={chats[cid].title} />
+        <Log className={classes.tabPanel} chatState={G.chats[0].chat} />
+        {/* <AntTabs className={classes.tabs} value={tab} onChange={handleChange} aria-label="multichat">
+          {Object.keys(G.chats).map((cid) => (
+            <AntTab key={cid} label={G.chats[cid].title} />
           ))}
-        </AntTabs> */}
-        <Log chatState={chats[0].chat} />
+          {
+            playerID === String(G.god) ?
+              <AntTab label='新增' /> :
+              null
+          }
+        </AntTabs>
+        {Object.keys(G.chats).map((cid, idx) => (
+          <TabPanel key={cid} className={classes.tabPanel} value={tab} index={idx}>
+            {
+              cid === String(0) ?
+                <Log className={classes.tabPanel} chatState={G.chats[0].chat} /> :
+                null // TODO chat windows
+            }
+          </TabPanel>
+        ))}
+        {
+          playerID === String(G.god) ?
+            <TabPanel className={classes.tabPanel} value={tab} index={Object.keys(G.chats).length}>
+              <NewChat className={classes.tabPanel} playerID={playerID} players={G.players} />
+            </TabPanel> :
+            null
+        } */}
       </Paper>
     </Box>
   );

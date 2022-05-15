@@ -581,7 +581,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         </Card>
                     </Tooltip>
                 )}
-                <Zoom in={G.badge === pid || (G.election && isRunningForElection(G, pid))}>
+                <Zoom in={G.badge === pid}>
                     <Tooltip
                         arrow={true}
                         placement="top"
@@ -594,6 +594,22 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     src={Cards.sheriff.img}
                                     alt={Cards.sheriff.label} /> :
                                 <Avatar className={avatarClass} variant='rounded'>{Cards.sheriff.label}</Avatar>}
+                        </Card>
+                    </Tooltip>
+                </Zoom>
+                <Zoom in={G.election && isRunningForElection(G, pid)}>
+                    <Tooltip
+                        arrow={true}
+                        placement="top"
+                        title='上警'
+                    >
+                        <Card className={Cards.sheriff.img ? classes.card : classes.avatar}>
+                            {Cards.sheriff.img ?
+                                <img
+                                    className={imgClass}
+                                    src={Cards.sheriff.img}
+                                    alt='上警' /> :
+                                <Avatar className={avatarClass} variant='rounded'>警上</Avatar>}
                         </Card>
                     </Tooltip>
                 </Zoom>
@@ -854,7 +870,8 @@ export function ChineseWerewolfBoard(props) {
                             <Grid item xs={12}>
                                 <Chats
                                     className={classes.panel}
-                                    chats={G.chats}
+                                    G={G}
+                                    playerID={playerID}
                                 />
                             </Grid>
                         </Grid>

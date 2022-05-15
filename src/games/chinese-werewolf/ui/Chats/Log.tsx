@@ -60,7 +60,7 @@ type Log = {
   chatState: Array<Object>
 }
 
-function Log({ chatState }) {
+function Log({ className, chatState }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -92,7 +92,7 @@ function Log({ chatState }) {
   }, [chatState, scrollPos]);
 
   return (
-    <Box display="flex" flexDirection="column" flex={2}>
+    <Box className={className} display="flex" flexDirection="column" flex={2}>
       <Paper className={classes.chatWindow} classes={{ rounded: classes.rounding }} elevation={24}>
         <Box {...{ ref: scroll } as any} className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>
           <Box display="flex" flexDirection="column" flex={1} padding={1}>

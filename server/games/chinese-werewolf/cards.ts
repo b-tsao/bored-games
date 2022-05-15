@@ -4,7 +4,15 @@ export enum Side {
     Neutral
 }
 
-const Cards = {
+interface Card {
+    id: string,
+    label: string,
+    side: Side,
+    divine?: boolean,
+    img?: string
+}
+
+const Cards: { [key: string]: Card } = {
     // id needs to be same as key!!!
     prophet: {
         id: 'prophet',

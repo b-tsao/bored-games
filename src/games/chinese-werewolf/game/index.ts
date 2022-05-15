@@ -90,7 +90,7 @@ export const ChineseWerewolf = {
                 badge: null,
                 chats: {
                     0: {
-                        title: 'Log',
+                        title: '记录',
                         chat: [
                             {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
                             {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
@@ -116,7 +116,7 @@ export const ChineseWerewolf = {
                 badge: null,
                 chats: {
                     0: {
-                        title: 'Log',
+                        title: '记录',
                         chat: [
                             {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
                             {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}

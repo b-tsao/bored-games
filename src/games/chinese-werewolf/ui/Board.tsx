@@ -601,14 +601,14 @@ const usePlayersTableStyle = makeStyles(theme => ({
                     <Tooltip
                         arrow={true}
                         placement="top"
-                        title='上警'
+                        title='警上'
                     >
                         <Card className={Cards.sheriff.img ? classes.card : classes.avatar}>
                             {Cards.sheriff.img ?
                                 <img
                                     className={imgClass}
                                     src={Cards.sheriff.img}
-                                    alt='上警' /> :
+                                    alt='警上' /> :
                                 <Avatar className={avatarClass} variant='rounded'>警上</Avatar>}
                         </Card>
                     </Tooltip>

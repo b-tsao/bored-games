@@ -76,7 +76,7 @@ const useStyles = makeStyles(theme => ({
 export default function Main() {
   const classes = useStyles();
 
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(true);
 
   const toggleDrawer = (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {

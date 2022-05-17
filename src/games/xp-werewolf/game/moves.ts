@@ -80,7 +80,7 @@ export function vote(G, ctx, pid) {
 }
 
 export function reveal(G, ctx, pid) {
-    if (!G.players[pid].alive) {
+    if (!G.players[pid]?.alive) {
         return INVALID_MOVE;
     }
     gameLog(G, ctx, `${pid}号玩家死亡。`);

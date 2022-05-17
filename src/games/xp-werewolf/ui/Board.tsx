@@ -200,6 +200,21 @@ const usePlayersTableStyle = makeStyles(theme => ({
             voteComponent = <Typography>{player.vote}</Typography>;
         }
 
+        let readyComponent: any;
+        if (ctx.phase === 'setup') {
+            readyComponent = (
+                <Zoom in={player.secret !== ''}>
+                    <CheckCircleOutline />
+                </Zoom>
+            );
+        } else {
+            readyComponent = (
+                <Zoom in={player.vote !== ''}>
+                    <CheckCircleOutline />
+                </Zoom>
+            );
+        }
+
         playersTable.push(
           <TableRow
             key={pid}
@@ -214,9 +229,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
               {voteComponent}
             </TableCell>
             <TableCell className={playerCellClass} component="th" scope="row">
-              <Zoom in={player.vote !== ''}>
-                  <CheckCircleOutline />
-              </Zoom>
+              {readyComponent}
             </TableCell>
           </TableRow>
         );

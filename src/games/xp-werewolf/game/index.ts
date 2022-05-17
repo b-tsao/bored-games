@@ -37,13 +37,13 @@ export const XPWerewolf = {
                 if (!playerID) {
                     players[pid] = {
                         ...others,
-                        secret: '',
+                        secret: secret !== '' ? '???' : '',
                         vote
                     }
                 } else {
                     players[pid] = {
                         ...others,
-                        secret: '',
+                        secret: secret !== '' ? '???' : '',
                         vote: vote !== '' ? '?' : ''
                     };
                 }

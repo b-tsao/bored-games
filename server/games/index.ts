@@ -21,5 +21,12 @@ export const games = [
       subtitle: localize(text.games.chineseWerewolf, 'cn/simplified').subtitle,
       image: 'https://shopee.tw/blog/wp-content/uploads/2019/08/%E7%8B%BC%E4%BA%BA%E6%AE%BA.png',
       disabled: false
+    },
+    {
+      id: 'xp-werewolf',
+      title: localize(text.games.xpWerewolf, 'cn/simplified').title,
+      subtitle: localize(text.games.xpWerewolf, 'cn/simplified').subtitle,
+      image: 'https://www.acfun.cn/imageProxy?url=https://img2.ali213.net/picfile/News/2021/08/27/584_2021082710724509.jpg',
+      disabled: false
     }
 ];

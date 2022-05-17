@@ -200,20 +200,15 @@ const usePlayersTableStyle = makeStyles(theme => ({
             voteComponent = <Typography>{player.vote}</Typography>;
         }
 
-        let readyComponent: any;
-        if (ctx.phase === 'setup') {
-            readyComponent = (
+        let readyComponent = ctx.phase === 'setup' ? (
                 <Zoom in={player.secret !== ''}>
                     <CheckCircleOutline />
                 </Zoom>
-            );
-        } else {
-            readyComponent = (
+            ) : (
                 <Zoom in={player.vote !== ''}>
                     <CheckCircleOutline />
                 </Zoom>
             );
-        }
 
         playersTable.push(
           <TableRow

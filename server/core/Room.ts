@@ -135,7 +135,7 @@ export default class Room {
         });
         break;
       case 'xp-werewolf':
-        this.game = new BGIOWrapper(props, { numPlayers: 4, setupData: {
+        this.game = new BGIOWrapper(props, { numPlayers: 8, setupData: {
           static: {
             background: {
               setup: {

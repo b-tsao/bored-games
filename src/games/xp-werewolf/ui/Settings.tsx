@@ -148,6 +148,11 @@ export function XPWerewolfSettings({ room, self }) {
         <Grid item xs={12} md={6} lg={6}>
             <Paper className={paddedPaper}>
                 <ExtraSettings self={self} settings={room.ctx.settings} />
+            </Paper>
+        </Grid>
+        {/* Preset Settings */}
+        <Grid item xs={12} md={6} lg={6}>
+            <Paper className={paddedPaper}>
                 <PlayerSettings self={self} players={room.ctx.players} settings={room.ctx.settings} />
             </Paper>
         </Grid>

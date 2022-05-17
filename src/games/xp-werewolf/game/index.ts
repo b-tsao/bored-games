@@ -44,7 +44,7 @@ export const XPWerewolf = {
                     players[pid] = {
                         ...others,
                         secret: '',
-                        vote: '?'
+                        vote: vote !== '' ? '?' : ''
                     };
                 }
             }

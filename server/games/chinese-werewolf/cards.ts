@@ -293,6 +293,11 @@ const Cards: { [key: string]: Card } = {
         label: '怪盗狼王',
         side: Side.Wolves
     },
+    witchwolf: {
+        id: 'witchwolf',
+        label: '狼巫',
+        side: Side.Wolves
+    },
     bandit: {
         id: 'bandit',
         label: '盗贼',

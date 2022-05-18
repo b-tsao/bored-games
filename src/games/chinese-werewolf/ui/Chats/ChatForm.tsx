@@ -31,7 +31,7 @@ const useTitleFieldStyles = makeStyles((theme) => ({
     }
 }));
 
-function TitleField({ error, title, helperText, onChange, onSubmit }) {
+function TitleField({ error, title, disableTitleChange, helperText, onChange, onSubmit }) {
     const classes = useTitleFieldStyles();
 
     return (
@@ -44,6 +44,7 @@ function TitleField({ error, title, helperText, onChange, onSubmit }) {
                 label="聊天室名称"
                 variant="outlined"
                 value={title}
+                disabled={disableTitleChange}
                 helperText={helperText}
                 onChange={onChange}
             />
@@ -53,7 +54,7 @@ function TitleField({ error, title, helperText, onChange, onSubmit }) {
                 color="primary"
                 onClick={onSubmit}
             >
-                创造
+                确认
             </Button>
         </div>
     );
@@ -150,37 +151,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function ChatForm({ className, playerID, players, onSubmit }) {
+function ChatForm({ className, error, title, disableTitleChange, playerID, players, selected, onTitleChange, onSelect, onSubmit }) {
   const classes = useStyles();
-
-  const [title, setTitle] = useState('');
-  const [error, setError] = useState('');
-  const [selected, setSelected] = useState({});
-
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-    setError('');
-  };
-
-  const handleSubmit = (e) => {
-      onSubmit(title.trim(), [playerID, ...Object.keys(selected).filter((pid) => selected[pid])], (e) => {
-          if (e) {
-            setTitle(title.trim());
-            setError(e);
-          } else {
-            setTitle('');
-            setError('');
-            setSelected({});
-          }
-      });
-  };
-
-  const handleSelect = (key, value) => {
-      setSelected({
-          ...selected,
-          [key]: value
-      });
-  };
 
   return (
     <Box className={className} display="flex" flexDirection="column" flex={2}>
@@ -190,15 +162,16 @@ function ChatForm({ className, playerID, players, onSubmit }) {
             <TitleField
                 error={!!error}
                 title={title}
+                disableTitleChange={disableTitleChange}
                 helperText={error}
-                onChange={handleTitleChange}
-                onSubmit={handleSubmit}
+                onChange={onTitleChange}
+                onSubmit={onSubmit}
             />
             <CheckboxesGroup
                 playerID={playerID}
                 players={players}
                 selected={selected}
-                onSelect={handleSelect}
+                onSelect={onSelect}
             />
           </Box>
         </Box>

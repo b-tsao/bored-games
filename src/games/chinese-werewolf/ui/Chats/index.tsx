@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import { Paper, Box, withStyles, Tabs, Tab } from '@material-ui/core';
+import { Paper, Box, withStyles, Tabs, Tab, IconButton } from '@material-ui/core';
 import Log from './Log';
 import ChatForm from './ChatForm';
 import Chat from './Chat';
+import { AddCircleOutline } from '@material-ui/icons';
+
+enum ModifyChat {
+  None,
+  Add,
+  Edit
+}
 
 const AntTabs = withStyles({
   root: {
@@ -73,7 +80,12 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     background: alpha(theme.palette.background.default, 0)
   },
+  tabsPanel: {
+    display: 'flex',
+    background: alpha(theme.palette.background.default, .7)
+  },
   tabs: {
+    flexGrow: 1,
     background: alpha(theme.palette.background.default, .7)
   },
   tabPanel: {
@@ -91,25 +103,81 @@ const useStyles = makeStyles((theme) => ({
 function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
   const classes = useStyles();
 
-  const [tab, setTab] = React.useState(0);
+  const [tab, setTab] = useState(0);
+  const [modify, setModify] = useState(ModifyChat.None);
+
+  const [title, setTitle] = useState('');
+  const [error, setError] = useState('');
+  const [selected, setSelected] = useState({});
 
   const handleChange = (event, newTab) => {
     setTab(newTab);
+    if (modify === ModifyChat.Edit) {
+      setTitle('');
+      setError('');
+      setSelected({});
+    }
+    setModify(ModifyChat.None);
   };
 
-  const handleNewChat = (title, players, cb) => {
-    if (title.length === 0) {
-      cb('请输入聊天室名称');
-    } else if (Object.keys(G.chats).filter((cid) => cid === title).length > 0) {
-      cb('聊天室名称已存在');
+  const handleChatAdd = () => {
+    if (modify === ModifyChat.Edit) {
+      setTitle('');
+      setError('');
+      setSelected({});
+    } else if (modify === ModifyChat.Add) {
+      setModify(ModifyChat.None);
     } else {
-      cb();
-      moves.newChat(title, players);
+      setModify(ModifyChat.Add);
+    }
+  };
+
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+    setError('');
+  };
+
+  const handleSelect = (key, value) => {
+    setSelected({
+        ...selected,
+        [key]: value
+    });
+  };
+
+  const handleModifyChat = () => {
+    const trimmedTitle = title.trim();
+    if (trimmedTitle.length === 0) {
+      setTitle(trimmedTitle);
+      setError('请输入聊天室名称');
+    } else {
+      if (modify === ModifyChat.Edit) {
+        setModify(ModifyChat.None);
+      } else if (Object.keys(G.chats).filter((cid) => cid === trimmedTitle).length > 0) {
+        setTitle(trimmedTitle);
+        setError('聊天室名称已存在');
+        return;
+      }
+      setTitle('');
+      setError('');
+      setSelected({});
+      moves.modifyChat(trimmedTitle, [playerID, ...Object.keys(selected).filter((pid) => selected[pid] && pid !== playerID)]);
     }
   };
 
   const handleEditChat = (cid) => {
+    setTitle(cid);
+    setError('');
+    const selected = {};
+    for (const pid of G.chats[cid].participants) {
+      selected[pid] = true;
+    }
+    setSelected(selected);
+    setModify(ModifyChat.Edit);
+  };
 
+  const handleDeleteChat = (cid) => {
+    moves.deleteChat(cid)
+    setTab(0);
   };
 
   const handleChat = (cid, message) => {
@@ -119,49 +187,57 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
   return (
     <Box className={className}>
       <Paper className={classes.panel} elevation={0}>
-        <AntTabs
-          className={classes.tabs}
-          value={tab}
-          variant="scrollable"
-          onChange={handleChange}
-          aria-label="multichat"
-        >
-          {Object.keys(G.chats).map((cid, idx) => (
-            <AntTab key={idx} label={cid} />
-          ))}
+        <Paper className={classes.tabsPanel}>
+          <AntTabs
+            className={classes.tabs}
+            value={tab}
+            variant="scrollable"
+            onChange={handleChange}
+            aria-label="multichat"
+          >
+            {Object.keys(G.chats).map((cid, idx) => (
+              <AntTab key={idx} label={cid} />
+            ))}
+          </AntTabs>
           {
             playerID === String(G.god) ?
-              <AntTab label='新增' /> :
+              <IconButton color="inherit" aria-label="Add chat" onClick={handleChatAdd}>
+                <AddCircleOutline />
+              </IconButton> :
               null
           }
-        </AntTabs>
-        {Object.keys(G.chats).map((cid, idx) => (
-          <TabPanel key={idx} className={classes.tabPanel} value={tab} index={idx}>
-            {
-              cid === '记录' ?
-                <Log className={classes.tabPanel} chatState={G.chats['记录'].chat} /> :
-                <Chat
-                  G={G}
-                  gameMetadata={gameMetadata}
-                  playerID={playerID}
-                  chat={G.chats[cid]}
-                  onChat={(message) => handleChat(cid, message)}
-                  deleteChat={() => moves.deleteChat(cid)}
-                />
-            }
-          </TabPanel>
-        ))}
+        </Paper>
         {
-          playerID === String(G.god) ?
-            <TabPanel className={classes.tabPanel} value={tab} index={Object.keys(G.chats).length}>
-              <ChatForm
-                className={classes.tabPanel}
-                playerID={playerID}
-                players={G.players}
-                onSubmit={handleNewChat}
-              />
-            </TabPanel> :
-            null
+          modify !== ModifyChat.None ?
+            <ChatForm
+              className={classes.tabPanel}
+              error={error}
+              title={title}
+              disableTitleChange={modify === ModifyChat.Edit}
+              playerID={playerID}
+              players={G.players}
+              selected={selected}
+              onTitleChange={handleTitleChange}
+              onSelect={handleSelect}
+              onSubmit={handleModifyChat}
+            /> :
+            Object.keys(G.chats).map((cid, idx) => (
+              <TabPanel key={idx} className={classes.tabPanel} value={tab} index={idx}>
+                {
+                  cid === '记录' ?
+                    <Log className={classes.tabPanel} chatState={G.chats['记录'].chat} /> :
+                    <Chat
+                      G={G}
+                      gameMetadata={gameMetadata}
+                      playerID={playerID}
+                      chat={G.chats[cid]}
+                      onChat={(message) => handleChat(cid, message)}
+                      editChat={() => handleEditChat(cid)}
+                      deleteChat={() => handleDeleteChat(cid)}
+                    />
+                }
+              </TabPanel>
+            ))
         }
       </Paper>
     </Box>

@@ -209,11 +209,13 @@ export function vote(G, ctx, pid) {
     }
 }
 
-export function newChat(G, ctx, title, players) {
+export function modifyChat(G, ctx, title, players) {
+    // If this is an edit move old chat to new chat
+    const chat = Object.prototype.hasOwnProperty.call(G.chats, title) ? G.chats[title].chat : [];
     G.chats[title] = {
         participants: players,
         disabled: G.state === 1,
-        chat: []
+        chat
     };
 }
 

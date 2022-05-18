@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Chat({ G, gameMetadata, playerID, chat, onChat, deleteChat }) {
+export default function Chat({ G, gameMetadata, playerID, chat, onChat, editChat, deleteChat }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -102,8 +102,8 @@ export default function Chat({ G, gameMetadata, playerID, chat, onChat, deleteCh
         <Toolbar classes={{ root: classes.headerRoot, gutters: classes.headerGutters }} variant="dense">
           <div className={classes.names}>
             {
-              chat.participants.map((pid) => (
-                <Paper className={classes.name}>
+              chat.participants.map((pid, idx) => (
+                <Paper key={idx} className={classes.name}>
                   <Typography variant="h6" color="inherit">
                     {gameMetadata ? gameMetadata[pid].name : `${pid}号玩家`}
                   </Typography>
@@ -117,7 +117,10 @@ export default function Chat({ G, gameMetadata, playerID, chat, onChat, deleteCh
           {
             playerID === String(G.god) ?
               <div>
-                <IconButton classes={{ root: classes.shrinkRipple }} edge="end" color="inherit" aria-label="Delete chat" onClick={deleteChat}>
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={editChat}>
+                  <Edit />
+                </IconButton>
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Delete chat" onClick={deleteChat}>
                   <Delete />
                 </IconButton>
               </div> :

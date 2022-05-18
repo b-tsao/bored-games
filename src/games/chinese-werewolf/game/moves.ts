@@ -71,7 +71,7 @@ export function transfer(G, ctx, pid: number) {
     ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
     
     for (const cid in G.chats) {
-        if (G.chats[cid].participants.indexOf(pid) < 0) {
+        if (cid !== '记录' && G.chats[cid].participants.indexOf(pid) < 0) {
             G.chats[cid].participants.push(pid);
         }
     }

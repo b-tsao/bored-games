@@ -474,7 +474,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         let voteComponent: any = null;
         if (ctx.phase === 'main') {
             if (!playerID || playerID === String(G.god) || !G.players[playerID].alive) {
-                voteComponent = <Typography>{player.vote === pid ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
+                voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
             } else {
                 if (G.election) {
                     if (G.election.length === 0) {

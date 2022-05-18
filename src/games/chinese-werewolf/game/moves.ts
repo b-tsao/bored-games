@@ -43,7 +43,7 @@ export function start(G, ctx) {
 
     // unlock chats
     Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-    meowLog(G, ctx, `今晚是夜晚 ${Number(ctx.turn)}。`);
+    meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}。`);
 }
 
 export function next(G, ctx) {
@@ -59,7 +59,7 @@ export function next(G, ctx) {
 
         // unlock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-        meowLog(G, ctx, `今晚是夜晚 ${Number(ctx.turn)}。`);
+        meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}。`);
 
         systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
     }

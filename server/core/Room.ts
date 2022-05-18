@@ -126,6 +126,11 @@ export default class Room {
               wolves: Object.values(Cards).filter((card) => card.side === Side.Wolves),
               neutral: Object.values(Cards).filter((card) => card.side === Side.Neutral && card.id !== Cards.sheriff.id)
             },
+            chat: {
+              meow: {
+                img: 'https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c'
+              }
+            },
             background: {
               setup: {
                 img: 'https://5b0988e595225.cdn.sohucs.com/images/20180223/33b30445ff2f4217b4b85e7833f8b898.jpeg'

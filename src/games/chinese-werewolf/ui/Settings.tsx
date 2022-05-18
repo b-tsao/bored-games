@@ -96,56 +96,6 @@ function ExtraSettings({ self, settings }) {
   );
 }
 
-const usePlayerSettingsStyle = makeStyles(theme => ({
-  playerSettings: {
-    display: 'flex',
-  }
-}));
-
-function PlayerSettings({ self, players, settings }) {
-  const [client] = useContext(ClientContext);
-
-  const [error, setError] = useState(null);
-
-  const classes = usePlayerSettingsStyle();
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      let numPlayers = Number(event.target.value);
-      if (Object.keys(players).length > numPlayers) {
-        numPlayers = Object.keys(players).length;
-        setError("无法设置为低于当前加入的玩家数量");
-      } else if (numPlayers > 20) {
-        numPlayers = 20;
-        setError("玩家限制的最大数量");
-      }
-      client.emit('settings', { numPlayers });
-  };
-
-  const handleBlur = () => {
-    setError(null);
-  }
-
-  const disabled = !self || !self.host;
-
-  return (
-    <React.Fragment>
-      <div className={classes.playerSettings}>
-        <TextField
-          error={!!error}
-          id="outlined-number"
-          label="玩家"
-          type="number"
-          helperText={error}
-          value={settings.numPlayers}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          disabled={disabled}
-        />
-      </div>
-    </React.Fragment>
-  );
-}
-
 const usePresetSettingsStyle = makeStyles(theme => ({
     presetSettings: {
       display: 'flex',
@@ -388,7 +338,6 @@ export function ChineseWerewolfSettings({ room, self }) {
         {/* Preset Settings */}
         <Grid item xs={12} md={6} lg={6}>
             <Paper className={paddedPaper}>
-                <PlayerSettings self={self} players={room.ctx.players} settings={room.ctx.settings} />
                 <PresetSettings self={self} settings={room.ctx.settings} />
             </Paper>
         </Grid>

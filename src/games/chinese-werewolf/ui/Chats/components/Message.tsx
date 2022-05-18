@@ -120,12 +120,13 @@ export const MessageLeft = (props) => {
   const timestamp = props.timestamp ? props.timestamp : "";
   const photoURL = props.photoURL ? props.photoURL : "dummy.js";
   const displayName = props.displayName ? props.displayName : "名無しさん";
+  const avatar = props.avatarAlt ? props.avatarAlt : displayName;
   const classes = useStyles();
   return (
     <>
       <div className={classes.messageRow}>
         <Avatar
-          alt={displayName}
+          alt={avatar}
           className={classes.orange}
           src={photoURL}
         ></Avatar>

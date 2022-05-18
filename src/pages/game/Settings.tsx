@@ -17,8 +17,8 @@ export default function Settings({ room, self }) {
         //     return <BGIOClient room={room} self={self} game={Mahjong} board={MahjongTable} />
         case 'chinese-werewolf':
             return <ChineseWerewolfSettings room={room} self={self} />
-        case 'xp-werewolf':
-            return <XPWerewolfSettings room={room} self={self} />
+        // case 'xp-werewolf':
+        //     return <XPWerewolfSettings room={room} self={self} />
         default:
             return <Maintenance />
     }

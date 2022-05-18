@@ -170,12 +170,14 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
                 key={idx}
                 message={message}
                 displayName={gameMetadata ? gameMetadata[userID].name : name}
+                avatarAlt={name}
               />
             ) : (
               <MessageLeft
                 key={idx}
                 message={message}
                 displayName={gameMetadata ? gameMetadata[userID].name : name}
+                avatarAlt={name}
               />
             )
           )}

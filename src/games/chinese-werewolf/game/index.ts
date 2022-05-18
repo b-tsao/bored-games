@@ -210,7 +210,7 @@ export const ChineseWerewolf = {
 
     phases: {
         setup: {
-            moves: { setRole, setDiscard, modifyChat, deleteChat, chat, start },
+            moves: { setRole, setDiscard, modifyChat, deleteChat, start },
             next: 'main',
             start: true
         },

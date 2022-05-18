@@ -25,20 +25,23 @@ export function start(G, ctx) {
     systemLog(G, ctx, '游戏开始！');
     systemLog(G, ctx, '请等待上帝的指示。');
     systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
+
+    // unlock chats
+    Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
 }
 
 export function next(G, ctx) {
     if (G.state === 0) { // night
         G.state = 1; // day
 
-        // unlock chats
+        // lock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = true);
 
         systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
     } else {
         ctx.events.endTurn();
 
-        // lock chats
+        // unlock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
 
         systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
@@ -214,7 +217,7 @@ export function modifyChat(G, ctx, title, players) {
     const chat = Object.prototype.hasOwnProperty.call(G.chats, title) ? G.chats[title].chat : [];
     G.chats[title] = {
         participants: players,
-        disabled: G.state === 1,
+        disabled: ctx.phase === 'setup' || G.state === 1,
         chat
     };
 }

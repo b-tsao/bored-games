@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import { Paper, Box, withStyles, Tabs, Tab, IconButton, Badge } from '@material-ui/core';
+import { Paper, Box, withStyles, Tabs, Tab, IconButton, Badge, Zoom } from '@material-ui/core';
 import Log from './Log';
 import ChatForm from './ChatForm';
 import Chat from './Chat';
@@ -110,6 +110,12 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
   const [error, setError] = useState('');
   const [selected, setSelected] = useState({});
 
+  useEffect(() => {
+    if (tab >= Object.keys(G.chats).length) {
+      setTab(0);
+    }
+  }, [G.chats]);
+
   const handleChange = (event, newTab) => {
     setTab(newTab);
     if (modify === ModifyChat.Edit) {
@@ -198,13 +204,14 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
             aria-label="multichat"
           >
             {Object.keys(G.chats).map((cid, idx) => (
+              <Zoom key={idx} in={true}>
                 <AntTab
-                  key={idx}
                   label={
-                    <Badge color="secondary" badgeContent={G.players[playerID].chats[cid]}>
+                    <Badge color="secondary" badgeContent={playerID ? G.players[playerID].chats[cid] : 0}>
                       {cid}
                     </Badge>
                   } />
+              </Zoom>
             ))}
           </AntTabs>
           {

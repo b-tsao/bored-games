@@ -95,8 +95,13 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
   }, [chat.chat, scrollPos]);
 
   useEffect(() => {
-    moves.read(cid);
-  }, [chat]);
+    return () => {
+      // Need try catch for debugging mode when we switch views between players ctx goes undefined
+      try {
+        moves.read(cid);
+      } catch (e) {}
+    };
+  }, []);
 
   return (
     <div className={classes.container}>

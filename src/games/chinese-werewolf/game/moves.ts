@@ -69,6 +69,12 @@ export function transfer(G, ctx, pid: number) {
     G.players[pid].vote = '';
     G.god = Number(pid);
     ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
+    
+    for (const cid in G.chats) {
+        if (G.chats[cid].participants.indexOf(pid) < 0) {
+            G.chats[cid].participants.push(pid);
+        }
+    }
 }
 
 export function kill(G, ctx, pid) {

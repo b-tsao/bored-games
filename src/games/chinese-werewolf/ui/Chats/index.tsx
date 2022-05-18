@@ -131,6 +131,7 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
       setTitle('');
       setError('');
       setSelected({});
+      setModify(ModifyChat.Add);
     } else if (modify === ModifyChat.Add) {
       setModify(ModifyChat.None);
     } else {
@@ -207,7 +208,7 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
               <Zoom key={idx} in={true}>
                 <AntTab
                   label={
-                    <Badge color="secondary" badgeContent={playerID ? G.players[playerID].chats[cid] : 0}>
+                    <Badge color="secondary" badgeContent={playerID && tab !== idx ? G.players[playerID].chats[cid] : 0}>
                       {cid}
                     </Badge>
                   } />

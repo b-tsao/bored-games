@@ -13,7 +13,8 @@ import {
     election,
     modifyChat,
     deleteChat,
-    chat
+    chat,
+    read
 } from './moves';
 import Player from './player';
 
@@ -171,7 +172,8 @@ export const ChineseWerewolf = {
                         ...others,
                         roles: [],
                         lover: lover && (G.players[playerID].lover || G.players[playerID].roles.indexOf(Cards.cupid.id) >= 0),
-                        vote: G.reveal ? vote : ''
+                        vote: G.reveal ? vote : '',
+                        chats: {}
                     };
                 }
             }
@@ -229,10 +231,10 @@ export const ChineseWerewolf = {
                 },
                 stages: {
                     god: {
-                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, modifyChat, deleteChat, chat, next }
+                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, modifyChat, deleteChat, chat, read, next }
                     },
                     player: {
-                        moves: { vote, chat }
+                        moves: { vote, chat, read }
                     }
                 }
             }

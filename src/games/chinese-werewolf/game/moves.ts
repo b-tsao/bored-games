@@ -239,9 +239,12 @@ export function modifyChat(G, ctx, title, players) {
         disabled: ctx.phase === 'setup' || G.state === 1,
         chat
     };
+
+    players.forEach((pid) => G.players[pid].chats[title] = 0);
 }
 
 export function deleteChat(G, ctx, cid) {
+    G.chats[cid].participants.forEach((pid) => delete G.players[pid].chats[cid]);
     delete G.chats[cid];
 }
 
@@ -250,10 +253,17 @@ export function chat(G, ctx, cid, message) {
         return INVALID_MOVE;
     } else if (G.state === 1) {
         return INVALID_MOVE;
+    } else if (message.length === 0) {
+        return;
     }
 
     const name = ctx.playerID;
     const userID = ctx.playerID;
 
-    G.chats[cid].chat.push({ name, message, userID })
+    G.chats[cid].chat.push({ name, message, userID });
+    G.chats[cid].participants.forEach((pid) => G.players[pid].chats[cid]++);
+}
+
+export function read(G, ctx, cid) {
+    G.players[ctx.playerID].chats[cid] = 0;
 }

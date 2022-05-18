@@ -145,7 +145,7 @@ export const MessageLeft = (props) => {
 //avatarが右にあるメッセージ（自分）
 export const MessageRight = (props) => {
   const classes = useStyles();
-  const message = props.message ? props.message : "no message";
+  const message = props.message ? props.message : "";
   const timestamp = props.timestamp ? props.timestamp : "";
   return (
     <div className={classes.messageRowRight}>

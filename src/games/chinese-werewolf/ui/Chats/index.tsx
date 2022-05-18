@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import { Paper, Box, withStyles, Tabs, Tab, IconButton } from '@material-ui/core';
+import { Paper, Box, withStyles, Tabs, Tab, IconButton, Badge } from '@material-ui/core';
 import Log from './Log';
 import ChatForm from './ChatForm';
 import Chat from './Chat';
@@ -181,7 +181,9 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
   };
 
   const handleChat = (cid, message) => {
-    moves.chat(cid, message);
+    if (message.length > 0) {
+      moves.chat(cid, message);
+    }
   };
 
   return (
@@ -196,7 +198,13 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
             aria-label="multichat"
           >
             {Object.keys(G.chats).map((cid, idx) => (
-              <AntTab key={idx} label={cid} />
+                <AntTab
+                  key={idx}
+                  label={
+                    <Badge color="secondary" badgeContent={G.players[playerID].chats[cid]}>
+                      {cid}
+                    </Badge>
+                  } />
             ))}
           </AntTabs>
           {
@@ -229,7 +237,9 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
                     <Chat
                       G={G}
                       gameMetadata={gameMetadata}
+                      moves={moves}
                       playerID={playerID}
+                      cid={cid}
                       chat={G.chats[cid]}
                       onChat={(message) => handleChat(cid, message)}
                       editChat={() => handleEditChat(cid)}

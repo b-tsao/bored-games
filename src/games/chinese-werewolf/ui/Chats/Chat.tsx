@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Chat({ G, gameMetadata, playerID, chat, onChat, editChat, deleteChat }) {
+export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onChat, editChat, deleteChat }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -93,6 +93,10 @@ export default function Chat({ G, gameMetadata, playerID, chat, onChat, editChat
       element.scrollTop = element.scrollHeight - element.clientHeight;
     }
   }, [chat.chat, scrollPos]);
+
+  useEffect(() => {
+    moves.read(cid);
+  }, [chat]);
 
   return (
     <div className={classes.container}>

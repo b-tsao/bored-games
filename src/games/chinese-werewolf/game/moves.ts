@@ -12,6 +12,21 @@ function gameLog(G, ctx, message) {
     G.chats['记录'].chat.push({ name, message, userID });
 }
 
+function getRandomMeowMessage(G, ctx, cid) {
+    return '喵起来啦!';
+}
+
+function meowLog(G, ctx, message) {
+    const name = '喵';
+    const userID = '00';
+    for (const cid in G.chats) {
+        if (cid !== '记录') {
+            const meow = getRandomMeowMessage(G, ctx, cid);
+            G.chats[cid].chat.push({ name, message: `${meow} ${message}`, userID });
+        }
+    }
+}
+
 export function setRole(G, ctx, pid: number, pos: number, role: string) {
     G.players[pid].roles[pos] = role;
 }
@@ -28,6 +43,7 @@ export function start(G, ctx) {
 
     // unlock chats
     Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
+    meowLog(G, ctx, `今晚是夜晚 ${Number(ctx.turn)}。`);
 }
 
 export function next(G, ctx) {
@@ -43,6 +59,7 @@ export function next(G, ctx) {
 
         // unlock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
+        meowLog(G, ctx, `今晚是夜晚 ${Number(ctx.turn)}。`);
 
         systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
     }
@@ -214,7 +231,9 @@ export function vote(G, ctx, pid) {
 
 export function modifyChat(G, ctx, title, players) {
     // If this is an edit move old chat to new chat
-    const chat = Object.prototype.hasOwnProperty.call(G.chats, title) ? G.chats[title].chat : [];
+    const chat = Object.prototype.hasOwnProperty.call(G.chats, title) ?
+        G.chats[title].chat :
+        [{ name: '喵', message: '这是喵管理的聊天室，不过喵白天睡喵觉所以喵晚上才开放喵～', userID: '00' }];
     G.chats[title] = {
         participants: players,
         disabled: ctx.phase === 'setup' || G.state === 1,

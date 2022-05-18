@@ -93,7 +93,6 @@ export const ChineseWerewolf = {
                 badge: null,
                 chats: {
                     '记录': {
-                        participants: Object.keys(players),
                         disabled: true,
                         chat: [
                             {name: '系统', message: '欢迎来到狼人杀！', userID: '00'},
@@ -120,7 +119,6 @@ export const ChineseWerewolf = {
                 badge: null,
                 chats: {
                     '记录': {
-                        participants: Object.keys(players),
                         disabled: true,
                         chat: [
                             {name: '系统', message: '欢迎来到狼人杀！', userID: '00'},
@@ -192,7 +190,7 @@ export const ChineseWerewolf = {
             chats: (() => {
                 const chats = {};
                 for (const cid in G.chats) {
-                    if (G.chats[cid].participants.indexOf(playerID) >= 0) {
+                    if (cid === '记录' || G.chats[cid].participants.indexOf(playerID) >= 0) {
                         chats[cid] = G.chats[cid];
                     }
                 }

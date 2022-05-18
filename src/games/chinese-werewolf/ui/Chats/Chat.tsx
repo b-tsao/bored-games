@@ -153,13 +153,15 @@ export default function Chat({ G, gameMetadata, playerID, chat, onChat, editChat
             photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
             displayName="まさりぶ"
           /> */}
-          <MessageLeft
-            message="这是喵管理的聊天室，不过喵白天睡美觉所以喵晚上才开放喵～"
-            photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
-            displayName="喵"
-          />
           {chat.chat.map(({ name, message, userID }, idx) =>
-            userID === playerID ? (
+            userID === '00' ? (
+              <MessageLeft
+                key={idx}
+                message={message}
+                photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
+                displayName={name}
+              />
+            ) : userID === playerID ? (
               <MessageRight
                 key={idx}
                 message={message}

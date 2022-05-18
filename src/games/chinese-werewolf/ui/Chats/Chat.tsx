@@ -154,7 +154,7 @@ export default function Chat({ G, gameMetadata, playerID, chat, onChat, editChat
             displayName="まさりぶ"
           /> */}
           <MessageLeft
-            message="这是喵管理的聊天室，不过白天睡美觉所以只有晚上才开放喵～"
+            message="这是喵管理的聊天室，不过喵白天睡美觉所以喵晚上才开放喵～"
             photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
             displayName="喵"
           />

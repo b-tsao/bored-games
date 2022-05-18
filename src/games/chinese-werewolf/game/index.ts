@@ -10,7 +10,10 @@ import {
     next,
     vote,
     reveal,
-    election
+    election,
+    newChat,
+    deleteChat,
+    chat
 } from './moves';
 import Player from './player';
 
@@ -86,14 +89,15 @@ export const ChineseWerewolf = {
                 players,
                 discards: [...shuffledCards.slice(i), ...discarded],
                 state: 0,
-                election: [],
+                election: null,
                 badge: null,
                 chats: {
-                    0: {
-                        title: '记录',
+                    '记录': {
+                        participants: Object.keys(players),
+                        disabled: true,
                         chat: [
-                            {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
-                            {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
+                            {name: '系统', message: '欢迎来到狼人杀！', userID: '00'},
+                            {name: '系统', message: '请等待上帝开始游戏。', userID: '00'}
                         ]
                     }
                 },
@@ -112,14 +116,15 @@ export const ChineseWerewolf = {
                 players,
                 discards: [Cards.citizen.id, Cards.alphawolf.id, Cards.bandit.id],
                 state: 0,
-                election: [],
+                election: null,
                 badge: null,
                 chats: {
-                    0: {
-                        title: '记录',
+                    '记录': {
+                        participants: Object.keys(players),
+                        disabled: true,
                         chat: [
-                            {name: '系统', message: '欢迎来到狼人杀！', userID: '0'},
-                            {name: '系统', message: '请等待上帝开始游戏。', userID: '0'}
+                            {name: '系统', message: '欢迎来到狼人杀！', userID: '00'},
+                            {name: '系统', message: '请等待上帝开始游戏。', userID: '00'}
                         ]
                     }
                 },
@@ -183,7 +188,16 @@ export const ChineseWerewolf = {
         return {
             ...G,
             players,
-            discards
+            discards,
+            chats: (() => {
+                const chats = {};
+                for (const cid in G.chats) {
+                    if (G.chats[cid].participants.indexOf(playerID) >= 0) {
+                        chats[cid] = G.chats[cid];
+                    }
+                }
+                return chats;
+            })()
         }
     },
 
@@ -196,7 +210,7 @@ export const ChineseWerewolf = {
 
     phases: {
         setup: {
-            moves: { setRole, setDiscard, start },
+            moves: { setRole, setDiscard, newChat, deleteChat, chat, start },
             next: 'main',
             start: true
         },
@@ -211,16 +225,16 @@ export const ChineseWerewolf = {
                         const player = G.players[pid];
                         player.vote = '';
                     }
-                    ctx.events.setActivePlayers({ currentPlayer: 'god' })
+                    ctx.events.setActivePlayers({ others: 'player', currentPlayer: 'god' })
                     G.state = 0;
                     G.reveal = false;
                 },
                 stages: {
                     god: {
-                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, next }
+                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, newChat, deleteChat, chat, next }
                     },
-                    vote: {
-                        moves: { vote }
+                    player: {
+                        moves: { vote, chat }
                     }
                 }
             }

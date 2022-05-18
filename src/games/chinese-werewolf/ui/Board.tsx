@@ -472,7 +472,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
 
         let voteComponent: any = null;
-        if (ctx.phase === 'main' && G.state === 1) {
+        if (ctx.phase === 'main') {
             if (!playerID || playerID === String(G.god) || !G.players[playerID].alive) {
                 voteComponent = <Typography>{player.vote === pid ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
             } else {
@@ -537,7 +537,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 variant='contained'
                                 color={voteColor}
                             >
-                                {pid === playerID ? '弃票' : '投票'}
+                                {pid === playerID && G.state === 1 ? '弃票' : '投票'}
                             </Button>
                         );
                     }
@@ -871,6 +871,9 @@ export function ChineseWerewolfBoard(props) {
                                 <Chats
                                     className={classes.panel}
                                     G={G}
+                                    ctx={ctx}
+                                    gameMetadata={gameMetadata}
+                                    moves={moves}
                                     playerID={playerID}
                                 />
                             </Grid>

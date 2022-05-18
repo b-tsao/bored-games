@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { alpha } from '@material-ui/core/styles';
-import { makeStyles } from '@material-ui/core/styles';
+import { alpha, makeStyles } from '@material-ui/core/styles';
 import { Box, Checkbox, Paper, FormControl, FormLabel, FormGroup, FormControlLabel, FormHelperText, TextField, Button } from '@material-ui/core';
 import Cards, { Side } from '../../game/cards';
 
@@ -32,21 +31,27 @@ const useTitleFieldStyles = makeStyles((theme) => ({
     }
 }));
 
-function TitleField() {
+function TitleField({ error, title, helperText, onChange, onSubmit }) {
     const classes = useTitleFieldStyles();
 
     return (
         <div className={classes.root}>
             <TextField
                 className={classes.field}
+                inputProps={{ autoComplete: 'off' }}
+                error={error}
                 id="chatroom-name"
                 label="聊天室名称"
                 variant="outlined"
+                value={title}
+                helperText={helperText}
+                onChange={onChange}
             />
             <Button
                 className={classes.button}
                 variant="contained"
                 color="primary"
+                onClick={onSubmit}
             >
                 创造
             </Button>
@@ -64,20 +69,13 @@ const useCheckboxesGroupStyles = makeStyles((theme) => ({
     },
 }));
 
-function CheckboxesGroup({ playerID, players }) {
+function CheckboxesGroup({ playerID, players, selected, onSelect }) {
     const classes = useCheckboxesGroupStyles();
-    const [state, setState] = React.useState({
-        gilad: true,
-        jason: false,
-        antoine: false,
-    });
 
     const handleChange = (event) => {
-        setState({ ...state, [event.target.name]: event.target.checked });
+        const { name, checked } = event.target;
+        onSelect(name, checked);
     };
-
-    const { gilad, jason, antoine } = state;
-    const error = [gilad, jason, antoine].filter((v) => v).length !== 2;    
 
     const town = Object.keys(players).filter((pid) => pid !== playerID && getPlayerSide(players[pid]) === Side.Town);
     const wolves = Object.keys(players).filter((pid) => pid !== playerID && getPlayerSide(players[pid]) === Side.Wolves);
@@ -93,7 +91,7 @@ function CheckboxesGroup({ playerID, players }) {
                         {town.map((pid, idx) => (
                             <FormControlLabel
                                 key={idx}
-                                control={<Checkbox checked={gilad} onChange={handleChange} name={pid} />}
+                                control={<Checkbox checked={selected[pid] || false} onChange={handleChange} name={pid} />}
                                 label={`${pid} (${players[pid].roles.map((role) => Cards[role].label)})`}
                             />
                         ))}
@@ -105,7 +103,7 @@ function CheckboxesGroup({ playerID, players }) {
                         {wolves.map((pid, idx) => (
                             <FormControlLabel
                                 key={idx}
-                                control={<Checkbox checked={gilad} onChange={handleChange} name={pid} />}
+                                control={<Checkbox checked={selected[pid] || false} onChange={handleChange} name={pid} />}
                                 label={`${pid} (${players[pid].roles.map((role) => Cards[role].label)})`}
                             />
                         ))}
@@ -117,7 +115,7 @@ function CheckboxesGroup({ playerID, players }) {
                         {neutral.map((pid, idx) => (
                             <FormControlLabel
                                 key={idx}
-                                control={<Checkbox checked={gilad} onChange={handleChange} name={pid} />}
+                                control={<Checkbox checked={selected[pid] || false} onChange={handleChange} name={pid} />}
                                 label={`${pid} (${players[pid].roles.map((role) => Cards[role].label)})`}
                             />
                         ))}
@@ -152,34 +150,56 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function NewChat({ className, playerID, players }) {
+function ChatForm({ className, playerID, players, onSubmit }) {
   const classes = useStyles();
 
-  const scroll = useRef<any>(null);
+  const [title, setTitle] = useState('');
+  const [error, setError] = useState('');
+  const [selected, setSelected] = useState({});
 
-  // Pair representing the current and max scroll position as well number of chat messages.
-  const [scrollPos, setScrollPos] = useState<Array<number>>([0, 0]);
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+    setError('');
+  };
 
-  /** Monitor user scroll event. */
-  useEffect(() => {
-    const onScroll = () => setScrollPos([scroll.current.scrollTop, scroll.current.scrollHeight - scroll.current.clientHeight]);
+  const handleSubmit = (e) => {
+      onSubmit(title.trim(), [playerID, ...Object.keys(selected).filter((pid) => selected[pid])], (e) => {
+          if (e) {
+            setTitle(title.trim());
+            setError(e);
+          } else {
+            setTitle('');
+            setError('');
+            setSelected({});
+          }
+      });
+  };
 
-    const element = scroll.current;
-
-    if (element !== null) element.addEventListener("scroll", onScroll);
-
-    return () => {
-      if (element !== null) element.removeEventListener("scroll", onScroll);
-    };
-  }, []);
+  const handleSelect = (key, value) => {
+      setSelected({
+          ...selected,
+          [key]: value
+      });
+  };
 
   return (
     <Box className={className} display="flex" flexDirection="column" flex={2}>
       <Paper className={classes.chatWindow} classes={{ rounded: classes.rounding }} elevation={24}>
-        <Box {...{ ref: scroll } as any} className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>
+        <Box className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>
           <Box display="flex" flexDirection="column" flex={1} padding={1}>
-            <TitleField />
-            <CheckboxesGroup playerID={playerID} players={players} />
+            <TitleField
+                error={!!error}
+                title={title}
+                helperText={error}
+                onChange={handleTitleChange}
+                onSubmit={handleSubmit}
+            />
+            <CheckboxesGroup
+                playerID={playerID}
+                players={players}
+                selected={selected}
+                onSelect={handleSelect}
+            />
           </Box>
         </Box>
       </Paper>
@@ -187,4 +207,4 @@ function NewChat({ className, playerID, players }) {
   );
 }
 
-export default NewChat;
+export default ChatForm;

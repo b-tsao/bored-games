@@ -2,14 +2,14 @@ import { INVALID_MOVE } from 'boardgame.io/core';
 
 function systemLog(G, ctx, message) {
     const name = '系统';
-    const userID = '0';
-    G.chats[0].chat.push({ name, message, userID });
+    const userID = '00';
+    G.chats['记录'].chat.push({ name, message, userID });
 }
 
 function gameLog(G, ctx, message) {
     const name = `${G.state === 0 ? '夜晚' : '白天'} ${Number(ctx.turn) - 1}`;
     const userID = `${ctx.turn}${G.state}`;
-    G.chats[0].chat.push({ name, message, userID });
+    G.chats['记录'].chat.push({ name, message, userID });
 }
 
 export function setRole(G, ctx, pid: number, pos: number, role: string) {
@@ -30,14 +30,17 @@ export function start(G, ctx) {
 export function next(G, ctx) {
     if (G.state === 0) { // night
         G.state = 1; // day
-        ctx.events.setActivePlayers({ all: 'vote', value: { [String(G.god)]: 'god' } });
-        systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
 
-        if (G.election && G.election.length === 0) {
-            gameLog(G, ctx, '请上警的玩家点选上警。');
-        }
+        // unlock chats
+        Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = true);
+
+        systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
     } else {
         ctx.events.endTurn();
+
+        // lock chats
+        Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
+
         systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
     }
 }
@@ -45,11 +48,7 @@ export function next(G, ctx) {
 export function transfer(G, ctx, pid: number) {
     G.players[pid].vote = '';
     G.god = Number(pid);
-    if (G.state === 1) {
-        ctx.events.setActivePlayers({ all: 'vote', value: { [pid]: 'god' } });
-    } else {
-        ctx.events.setActivePlayers({ value: { [pid]: 'god' } });
-    }
+    ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
 }
 
 export function kill(G, ctx, pid) {
@@ -208,4 +207,29 @@ export function vote(G, ctx, pid) {
     } else {
         player.vote = pid;
     }
+}
+
+export function newChat(G, ctx, title, players) {
+    G.chats[title] = {
+        participants: players,
+        disabled: G.state === 1,
+        chat: []
+    };
+}
+
+export function deleteChat(G, ctx, cid) {
+    delete G.chats[cid];
+}
+
+export function chat(G, ctx, cid, message) {
+    if (G.chats[cid].participants.indexOf(ctx.playerID) < 0) {
+        return INVALID_MOVE;
+    } else if (G.state === 1) {
+        return INVALID_MOVE;
+    }
+
+    const name = ctx.playerID;
+    const userID = ctx.playerID;
+
+    G.chats[cid].chat.push({ name, message, userID })
 }

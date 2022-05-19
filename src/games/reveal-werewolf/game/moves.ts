@@ -69,6 +69,10 @@ export function wolf(G, ctx) {
     const alive = Object.keys(G.players).filter((pid) => G.players[pid].alive);
     G.wolf = Number(alive[ctx.random.Die(alive.length) - 1]);
     systemLog(G, ctx, `狼人秘密: ${G.players[G.wolf].secret}`);
+    if (alive.length === 1) {
+        systemLog(G, ctx, '🎉🎉🎉！恭喜揭晓所有秘密！🎉🎉🎉');
+        ctx.events.endGame();
+    }
 }
 
 export function vote(G, ctx, pid) {

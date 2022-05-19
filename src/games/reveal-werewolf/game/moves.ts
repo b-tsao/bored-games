@@ -40,23 +40,21 @@ function count(G, ctx) {
         G.pk = null;
         const pid = idx[0];
         gameLog(G, ctx, `众票: ${pid}号玩家 (${max}票)`);
-        determine(G, ctx, pid);
+        eliminate(G, ctx, pid);
     } else {
         gameLog(G, ctx, `平票: ${idx.join(',')}号玩家 (${max}票)`);
         ctx.events.endPhase();
     }
 }
 
-function determine(G, ctx, pid) {
+function eliminate(G, ctx, pid) {
+    gameLog(G, ctx, `${pid}号玩家死亡。`);
+    gameLog(G, ctx, `公布秘密: ${G.players[pid].secret}`);
+    G.players[pid].alive = false;
     if (pid === String(G.wolf)) {
-        gameLog(G, ctx, `${pid}号玩家是狼！`);
-        gameLog(G, ctx, `公布秘密: ${G.players[pid].secret}`);
-        G.players[pid].alive = false;
-
         wolf(G, ctx);
         ctx.events.setPhase('day');
     } else {
-        gameLog(G, ctx, `${pid}号玩家不是狼！`);
         ctx.events.endPhase();
     }
 }

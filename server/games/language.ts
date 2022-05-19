@@ -33,17 +33,17 @@ export const text = {
                 "subtitle": "Social Deduction, Deception, Teamwork, Co-op"
             }
         },
-        "xpWerewolf": {
+        "revealWerewolf": {
             "cn/simplified": {
-                "title": "XP狼人杀",
+                "title": "揭秘狼人杀",
                 "subtitle": "娱乐、暴漏、瓜",
             },
             "cn/traditional": {
-                "title": "XP狼人殺",
+                "title": "揭秘狼人殺",
                 "subtitle": "娛樂、暴漏、瓜"
             },
             "en": {
-                "title": "XP Werewolf",
+                "title": "Reveal Werewolf",
                 "subtitle": "Entertainment, Exposed, Tea"
             }
         }

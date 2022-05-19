@@ -23,9 +23,9 @@ export const games = [
       disabled: false
     },
     {
-      id: 'xp-werewolf',
-      title: localize(text.games.xpWerewolf, 'cn/simplified').title,
-      subtitle: localize(text.games.xpWerewolf, 'cn/simplified').subtitle,
+      id: 'reveal-werewolf',
+      title: localize(text.games.revealWerewolf, 'cn/simplified').title,
+      subtitle: localize(text.games.revealWerewolf, 'cn/simplified').subtitle,
       image: 'https://www.acfun.cn/imageProxy?url=https://img2.ali213.net/picfile/News/2021/08/27/584_2021082710724509.jpg',
       disabled: false
     }

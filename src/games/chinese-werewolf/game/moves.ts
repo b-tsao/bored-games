@@ -175,6 +175,17 @@ export function reveal(G, ctx) {
                 gameLog(G, ctx, `${vid}: ${votes[vid].join(',')}`);
             }
             gameLog(G, ctx, `弃票: ${forfeits.join(',')}`);
+
+            const max = Object.keys(votes).reduce((max, vid) => Math.max(max, votes[vid].length), 0);
+            const idx = Object.keys(votes).filter((vid) => votes[vid].length === max);
+
+            if (idx.length === 1) {
+                const pid = idx[0];
+                gameLog(G, ctx, `众票: ${pid}号玩家 (${max}票)`);
+            } else {
+                gameLog(G, ctx, `平票: ${idx.join(',')}号玩家 (${max}票)`);
+            }
+
             if (G.election) {
                 gameLog(G, ctx, '上警结束。');
                 G.election = null;

@@ -11,18 +11,6 @@ export const text = {
             "cn/simplified": {
                 "title": "狼人杀",
                 "subtitle": "社会演绎、欺骗、团队合作",
-                "cards": {
-                    "town": {
-                        "prophet": "预言家",
-                        "witch": "女巫",
-                        "bodyguard": "守卫",
-                        "hunter": "猎人",
-                        "citizen": "平民"
-                    },
-                    "wolves": {
-                        "werewolf": "狼"
-                    }
-                }
             },
             "cn/traditional": {
                 "title": "狼人殺",
@@ -36,11 +24,11 @@ export const text = {
         "revealWerewolf": {
             "cn/simplified": {
                 "title": "揭秘狼人杀",
-                "subtitle": "娱乐、暴漏、瓜",
+                "subtitle": "娱乐、瓜",
             },
             "cn/traditional": {
                 "title": "揭秘狼人殺",
-                "subtitle": "娛樂、暴漏、瓜"
+                "subtitle": "娛樂、瓜"
             },
             "en": {
                 "title": "Reveal Werewolf",

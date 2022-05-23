@@ -198,6 +198,12 @@ const Cards: { [key: string]: Card } = {
         side: Side.Town,
         divine: true
     },
+    saint: {
+        id: 'saint',
+        label: '九天圣人',
+        side: Side.Town,
+        divine: true
+    },
     werewolf: {
         id: 'werewolf',
         label: '狼人',
@@ -296,6 +302,11 @@ const Cards: { [key: string]: Card } = {
     witchwolf: {
         id: 'witchwolf',
         label: '狼巫',
+        side: Side.Wolves
+    },
+    emperor: {
+        id: 'emperor',
+        label: '帝尊魔皇',
         side: Side.Wolves
     },
     bandit: {

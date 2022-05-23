@@ -13,7 +13,7 @@ function gameLog(G, ctx, message) {
 }
 
 function getRandomMeowMessage(G, ctx, cid) {
-    return '喵起来啦!';
+    return '喵起来啦！';
 }
 
 function meowLog(G, ctx, message) {
@@ -43,7 +43,7 @@ export function start(G, ctx) {
 
     // unlock chats
     Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-    meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}。`);
+    meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}～`);
 }
 
 export function next(G, ctx) {
@@ -59,7 +59,7 @@ export function next(G, ctx) {
 
         // unlock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-        meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}。`);
+        meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}～`);
 
         systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
     }
@@ -182,7 +182,7 @@ export function reveal(G, ctx) {
             if (idx.length === 1) {
                 const pid = idx[0];
                 gameLog(G, ctx, `众票: ${pid}号玩家 (${max}票)`);
-            } else {
+            } else if (idx.length > 0) {
                 gameLog(G, ctx, `平票: ${idx.join(',')}号玩家 (${max}票)`);
             }
 

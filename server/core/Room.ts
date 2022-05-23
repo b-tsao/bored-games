@@ -119,7 +119,12 @@ export default class Room {
                 Cards.dreamer.id, Cards.crow.id,
                 Cards.cupid.id, Cards.hybrid.id,
                 Cards.nightmare.id, Cards.concubine_wolf.id, Cards.alphawolf.id, Cards.witchwolf.id
-              ]
+              ],
+              '12 帝尊魔皇-九天圣人': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.saint.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.emperor.id
+              ],
             },
             cards: {
               town: Object.values(Cards).filter((card) => card.side === Side.Town),

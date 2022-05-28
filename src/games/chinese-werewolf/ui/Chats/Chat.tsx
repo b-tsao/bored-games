@@ -3,7 +3,7 @@ import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core/styles
 import { Box, IconButton, Paper, Toolbar, Typography } from "@material-ui/core";
 import { TextInput } from "./components/TextInput";
 import { MessageLeft, MessageRight } from "./components/Message";
-import { Delete, Edit } from "@material-ui/icons";
+import { Delete, Edit, LeakAdd, LeakRemove } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onChat, editChat, deleteChat }) {
+export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onChat, editChat, deleteChat, lockChat }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -126,6 +126,13 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
           {
             playerID === String(G.god) ?
               <div>
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Lock chat" onClick={lockChat}>
+                  {
+                    chat.disabled ?
+                      <LeakRemove /> :
+                      <LeakAdd />
+                  }
+                </IconButton>
                 <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={editChat}>
                   <Edit />
                 </IconButton>

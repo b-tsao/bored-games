@@ -265,10 +265,12 @@ export function deleteChat(G, ctx, cid) {
     delete G.chats[cid];
 }
 
+export function lockChat(G, ctx, cid) {
+    G.chats[cid].disabled = !G.chats[cid].disabled;
+}
+
 export function chat(G, ctx, cid, message) {
     if (G.chats[cid].participants.indexOf(ctx.playerID) < 0) {
-        return INVALID_MOVE;
-    } else if (G.state === 1) {
         return INVALID_MOVE;
     } else if (message.length === 0) {
         return;

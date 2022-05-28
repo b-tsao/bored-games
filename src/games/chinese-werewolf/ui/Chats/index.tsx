@@ -183,8 +183,12 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
   };
 
   const handleDeleteChat = (cid) => {
-    moves.deleteChat(cid)
+    moves.deleteChat(cid);
     setTab(0);
+  };
+
+  const handleLockChat = (cid) => {
+    moves.lockChat(cid);
   };
 
   const handleChat = (cid, message) => {
@@ -252,6 +256,7 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
                       onChat={(message) => handleChat(cid, message)}
                       editChat={() => handleEditChat(cid)}
                       deleteChat={() => handleDeleteChat(cid)}
+                      lockChat={() => handleLockChat(cid)}
                     />
                 }
               </TabPanel>

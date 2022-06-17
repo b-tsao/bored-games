@@ -53,6 +53,12 @@ export function next(G, ctx) {
         // lock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = true);
 
+        // clear votes
+        for (const pid in G.players) {
+            const player = G.players[pid];
+            player.vote = '';
+        }
+
         systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
     } else {
         ctx.events.endTurn();

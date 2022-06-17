@@ -125,6 +125,12 @@ export default class Room {
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.emperor.id
               ],
+              '16 (双身份) 预女猎守白 +乌鸦 +6民 +1隐狼 +1狼枪 +1普狼 +1盗贼': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.idiot.id, Cards.crow.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.hiddenwolf.id, Cards.alphawolf.id, Cards.werewolf.id,
+                Cards.bandit.id
+              ]
             },
             cards: {
               town: Object.values(Cards).filter((card) => card.side === Side.Town),

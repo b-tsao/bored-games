@@ -61,10 +61,10 @@ function ExtraSettings({ self, settings }) {
               Only host can make changes to settings
             </FormLabel> : null}
           <FormGroup>
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
               label="观众看得到身份"
-            />
+            /> */}
             <FormControlLabel
               control={<Checkbox checked={deadSeeIdentity} onChange={handleChange('deadSeeIdentity')} value="deadSeeIdentity" />}
               label="死亡看得到身份"
@@ -102,14 +102,15 @@ const usePresetSettingsStyle = makeStyles(theme => ({
     }
   }));
   
-function PresetSettings({ self, settings }) {
+function PresetSettings({ self, settings, preset, setPreset }) {
   const [client] = useContext(ClientContext);
 
   const classes = usePresetSettingsStyle();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const cards = JSON.parse(event.target.value);
-      client.emit('settings', { cards });
+    setPreset(event.target.value);
+    const cards = JSON.parse(event.target.value);
+    client.emit('settings', { cards });
   };
 
   const disabled = !self || !self.host;
@@ -121,16 +122,16 @@ function PresetSettings({ self, settings }) {
             id="outlined-select-preset"
             select
             label="角色预设"
-            value=""
+            value={preset}
             onChange={handleChange}
             helperText="常用的角色预设"
             disabled={disabled}
         >
-        {Object.keys(settings.static.presets).map((preset, idx) => (
-            <MenuItem key={idx} value={JSON.stringify(settings.static.presets[preset])}>
-                {preset}
-            </MenuItem>
-        ))}
+          {Object.keys(settings.static.presets).map((preset, idx) => (
+              <MenuItem key={idx} value={JSON.stringify(settings.static.presets[preset])}>
+                  {preset}
+              </MenuItem>
+          ))}
         </TextField>
       </div>
     </React.Fragment>
@@ -168,12 +169,13 @@ const useCardStyles = makeStyles(theme => ({
   }
 }));
 
-function CardGrid({ self, settings }) {
+function CardGrid({ self, settings, setPreset }) {
   const [client] = useContext(ClientContext);
 
   const classes = useCardStyles();
 
   const handleChange = (id, value) => {
+    setPreset('');
     if (value > 10) {
       value = 10;
     }
@@ -327,6 +329,8 @@ export function ChineseWerewolfSettings({ room, self }) {
 
   const paddedPaper = clsx(classes.paper, classes.padding);
 
+  const [preset, setPreset] = useState('');
+
   return (
     <Grid container spacing={3}>
         {/* Extra Settings */}
@@ -338,11 +342,11 @@ export function ChineseWerewolfSettings({ room, self }) {
         {/* Preset Settings */}
         <Grid item xs={12} md={6} lg={6}>
             <Paper className={paddedPaper}>
-                <PresetSettings self={self} settings={room.ctx.settings} />
+                <PresetSettings self={self} settings={room.ctx.settings} preset={preset} setPreset={setPreset} />
             </Paper>
         </Grid>
         {/* Cards */}
-        <CardGrid self={self} settings={room.ctx.settings} />
+        <CardGrid self={self} settings={room.ctx.settings} setPreset={setPreset} />
     </Grid>
   );
 }

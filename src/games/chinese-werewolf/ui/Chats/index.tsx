@@ -139,8 +139,8 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
     }
   };
 
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
+  const handleTitleChange = (e, v) => {
+    setTitle(v);
     setError('');
   };
 
@@ -205,6 +205,7 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
             className={classes.tabs}
             value={tab}
             variant="scrollable"
+            scrollButtons="auto"
             onChange={handleChange}
             aria-label="multichat"
           >

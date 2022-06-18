@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { alpha, makeStyles } from '@material-ui/core/styles';
 import { Box, Checkbox, Paper, FormControl, FormLabel, FormGroup, FormControlLabel, FormHelperText, TextField, Button } from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
 import Cards, { Side } from '../../game/cards';
 
 function getPlayerSide(player) {
@@ -31,22 +32,30 @@ const useTitleFieldStyles = makeStyles((theme) => ({
     }
 }));
 
-function TitleField({ error, title, disableTitleChange, helperText, onChange, onSubmit }) {
+function TitleField({ error, title, suggestions, disableTitleChange, helperText, onChange, onSubmit }) {
     const classes = useTitleFieldStyles();
 
     return (
         <div className={classes.root}>
-            <TextField
+            <Autocomplete
                 className={classes.field}
-                inputProps={{ autoComplete: 'off' }}
-                error={error}
                 id="chatroom-name"
-                label="聊天室名称"
-                variant="outlined"
+                freeSolo
+                disableClearable
                 value={title}
+                options={suggestions}
                 disabled={disableTitleChange}
-                helperText={helperText}
-                onChange={onChange}
+                onInputChange={onChange}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        InputProps={{ ...params.InputProps }}
+                        label="聊天室名称"
+                        variant="outlined"
+                        error={error}
+                        helperText={helperText}
+                    />
+                )}
             />
             <Button
                 className={classes.button}
@@ -154,6 +163,9 @@ const useStyles = makeStyles((theme) => ({
 function ChatForm({ className, error, title, disableTitleChange, playerID, players, selected, onTitleChange, onSelect, onSubmit }) {
   const classes = useStyles();
 
+  const roles = Array.from(new Set(Object.keys(selected).filter((pid) => selected[pid]).reduce((r, pid) => r.concat(players[pid].roles), [])));
+  const suggestions = roles.map((rid) => Cards[rid].label);
+
   return (
     <Box className={className} display="flex" flexDirection="column" flex={2}>
       <Paper className={classes.chatWindow} classes={{ rounded: classes.rounding }} elevation={24}>
@@ -162,6 +174,7 @@ function ChatForm({ className, error, title, disableTitleChange, playerID, playe
             <TitleField
                 error={!!error}
                 title={title}
+                suggestions={suggestions}
                 disableTitleChange={disableTitleChange}
                 helperText={error}
                 onChange={onTitleChange}

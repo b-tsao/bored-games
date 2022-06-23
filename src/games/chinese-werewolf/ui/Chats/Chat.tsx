@@ -4,6 +4,15 @@ import { Box, IconButton, Paper, Toolbar, Typography } from "@material-ui/core";
 import { TextInput } from "./components/TextInput";
 import { MessageLeft, MessageRight } from "./components/Message";
 import { Delete, Edit, LeakAdd, LeakRemove } from "@material-ui/icons";
+import SelectionInput from "./SelectionInput";
+import Cards from "../../game/cards";
+
+const inputs = {
+  '主语': ['全部', '我', '你', '你们'], // will be filled with all player numbers in game (except god)
+  '名词': [], // will be filled with all roles in game
+  '动词': ['🔪刀掉', '🔪自刀', '起跳', '冲锋', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '骑'],
+  '形容词': ['收到', '好', '否', '别', '有身份', '和', '或']
+};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -103,6 +112,33 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
     };
   }, []);
 
+  /** process input options **/
+  const options: any[] = [];
+  for (const group in inputs) {
+    if (group === '主语') {
+      // fill all player numbers in game
+      for (const pid in G.players) {
+        if (pid !== String(G.god)) {
+          options.push({
+            group,
+            label: `${pid}号`
+          });
+        }
+      }
+    } else if (group === '名词') {
+      // fill all roles in game
+      for (const cid of G.roles) {
+        options.push({
+          group,
+          label: Cards[cid].label
+        });
+      }
+    }
+    for (const label of inputs[group]) {
+      options.push({ group, label });
+    }
+  }
+
   return (
     <div className={classes.container}>
       {/* <Paper className={classes.paper} zDepth={2}> */}
@@ -194,7 +230,14 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
             )
           )}
         </Paper>
-        <TextInput onSubmit={onChat} disabled={chat.disabled} />
+        {/* <TextInput onSubmit={onChat} disabled={chat.disabled} label="输入信息" /> */}
+        <SelectionInput
+          options={options}
+          onSubmit={onChat}
+          disabled={chat.disabled}
+          label="输入信息"
+          placeholder="点选词语"
+        />
       </Paper>
     </div>
   );

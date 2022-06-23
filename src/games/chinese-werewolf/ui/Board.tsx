@@ -530,17 +530,15 @@ const usePlayersTableStyle = makeStyles(theme => ({
                             }
                         }
                     }
-                } else {
-                    if (pid !== String(G.god) && G.players[pid].alive) {
-                        voteComponent = (
-                            <Button
-                                variant='contained'
-                                color={voteColor}
-                            >
-                                {pid === playerID && G.state === 1 ? '弃票' : '投票'}
-                            </Button>
-                        );
-                    }
+                } else if (G.state === 1 && pid !== String(G.god) && G.players[pid].alive) {
+                    voteComponent = (
+                        <Button
+                            variant='contained'
+                            color={voteColor}
+                        >
+                            {pid === playerID ? '弃票' : '投票'}
+                        </Button>
+                    );
                 }
             }
         }

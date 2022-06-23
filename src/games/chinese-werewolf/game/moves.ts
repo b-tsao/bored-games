@@ -202,9 +202,10 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    if (!player.alive || pid === String(G.god)) {
+    if (!player.alive || pid === String(G.god) || G.state !== 1) {
         return INVALID_MOVE;
     }
+    
     if (G.election) {
         if (G.election.length === 0) {
             if (ctx.playerID !== pid) {

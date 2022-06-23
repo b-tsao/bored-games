@@ -74,9 +74,9 @@ export const ChineseWerewolf = {
 
             // distribute out cards to players except god (host) until it runs out
             const pids = Object.keys(players);
-            let roles = extra.doubleIdentity ? 2 : 1;
+            let playerRoles = extra.doubleIdentity ? 2 : 1;
             let i = 0;
-            for (let j = 0; j < roles; j++) {
+            for (let j = 0; j < playerRoles; j++) {
                 let k = 1;
                 while (i < shuffledCards.length && k < pids.length) {
                     const player = players[pids[k]];
@@ -86,8 +86,11 @@ export const ChineseWerewolf = {
                 }
             }
 
+            const roles = Array.from(new Set(cards));
+
             return {
                 god: Number(ctx.currentPlayer),
+                roles,
                 players,
                 discards: [...shuffledCards.slice(i), ...discarded],
                 state: 0,
@@ -114,6 +117,7 @@ export const ChineseWerewolf = {
 
             return {
                 god: Number(ctx.currentPlayer),
+                roles: [Cards.citizen.id, Cards.alphawolf.id, Cards.bandit.id],
                 players,
                 discards: [Cards.citizen.id, Cards.alphawolf.id, Cards.bandit.id],
                 state: 0,

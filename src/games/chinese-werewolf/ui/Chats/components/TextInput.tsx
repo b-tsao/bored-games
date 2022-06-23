@@ -17,13 +17,13 @@ const useStyles = makeStyles((theme: Theme) =>
         width: "100%"
     },
     button: {
-        //margin: theme.spacing(1),
+        margin: theme.spacing(1),
     },
   })
 );
 
 
-export const TextInput = ({ onSubmit, disabled }) => {
+export const TextInput = ({ onSubmit, disabled, ...props }) => {
     const classes = useStyles();
 
     const [message, setMessage] = useState('');
@@ -47,16 +47,22 @@ export const TextInput = ({ onSubmit, disabled }) => {
         if(e.keyCode == 13){
             onSubmit(message);
             setMessage('');
-         }
+        }
+
+        // enter, left, up, right, down
+        const stop = new Set([13, 37, 38, 39, 40]);
+
+        if (stop.has(e.keyCode)) {
+            e.stopPropagation();
+        }
     };
 
     return (
         <>
             <form className={classes.wrapForm}  noValidate autoComplete="off" onSubmit={preventSubmission}>
             <TextField
-                id="standard-text"
+                {...props}
                 // label="メッセージを入力"
-                label="输入信息"
                 className={classes.wrapText}
                 //margin="normal"
                 value={message}

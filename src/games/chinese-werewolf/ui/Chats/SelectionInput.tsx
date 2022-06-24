@@ -31,7 +31,7 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
   };
 
   const handleKeyPress = (e) => {
-    if(e.key === 'Backspace' && selected.length > 0) {
+    if (e.key === 'Backspace' && selected.length > 0) {
       setSelected(selected.slice(0, selected.length - 1));
     }
   };

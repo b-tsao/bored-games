@@ -52,7 +52,7 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
       inputValue=""
       value={selected}
       options={options}
-      noOptionsText='无词语'
+      noOptionsText="无词语"
       groupBy={(option) => option.group}
       getOptionLabel={() => ''}
       disableCloseOnSelect

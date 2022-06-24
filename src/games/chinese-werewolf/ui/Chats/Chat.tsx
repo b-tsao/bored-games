@@ -7,12 +7,24 @@ import { Delete, Edit, LeakAdd, LeakRemove } from "@material-ui/icons";
 import SelectionInput from "./SelectionInput";
 import Cards from "../../game/cards";
 
-const inputs = {
-  '主语': ['全部', '我', '你', '你们'], // will be filled with all player numbers in game (except god)
-  '名词': [], // will be filled with all roles in game
-  '动词': ['🔪刀掉', '🔪自刀', '起跳', '冲锋', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '骑'],
-  '形容词': ['收到', '好', '否', '别', '有身份', '和', '或']
-};
+const inputs = [
+  {
+    group: '主语',
+    selections: ['全部', '我', '你', '你们'] // will be filled with all player numbers in game (except god)
+  },
+  {
+    group: '名词',
+    selections: [] // will be filled with all roles in game
+  },
+  {
+    group: '动词',
+    selections: ['🔪刀掉', '🔪自刀', '起跳', '冲锋', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '骑']
+  },
+  {
+    group: '形容词',
+    selections: ['收到', '好', '否', '别', '有身份', '和', '或']
+  }
+];
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -114,28 +126,23 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
 
   /** process input options **/
   const options: any[] = [];
-  for (const group in inputs) {
+  for (const input of inputs) {
+    const { group, selections } = input;
     if (group === '主语') {
       // fill all player numbers in game
+      const nums: string[] = [];
       for (const pid in G.players) {
         if (pid !== String(G.god)) {
-          options.push({
-            group,
-            label: `${pid}号`
-          });
+          nums.push(`${pid}号`);
         }
       }
+      options.push({ group, selections: [...nums, ...selections] });
     } else if (group === '名词') {
       // fill all roles in game
-      for (const cid of G.roles) {
-        options.push({
-          group,
-          label: Cards[cid].label
-        });
-      }
-    }
-    for (const label of inputs[group]) {
-      options.push({ group, label });
+      const roles = G.roles.map((cid) => Cards[cid].label);
+      options.push({ group, selections: [...roles, ...selections] });
+    } else {
+      options.push({ group, selections });
     }
   }
 

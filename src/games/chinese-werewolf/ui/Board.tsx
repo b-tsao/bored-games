@@ -339,7 +339,7 @@ const useActionBarStyles = makeStyles((theme) => ({
 
 const usePlayersTableStyle = makeStyles(theme => ({
     tableScroll: {
-      height: '75vh',
+      height: '73vh',
       overflowY: 'auto'
     },
     dead: {
@@ -517,17 +517,15 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     </Button>
                                 );
                             }
-                        } else {
-                            if (isRunningForElection(G, pid) && !wasRunningForElection(G, playerID)) {
-                                voteComponent = (
-                                    <Button
-                                        variant='contained'
-                                        color={voteColor}
-                                    >
-                                        投票
-                                    </Button>
-                                );
-                            }
+                        } else if (isRunningForElection(G, pid) && !wasRunningForElection(G, playerID)) {
+                            voteComponent = (
+                                <Button
+                                    variant='contained'
+                                    color={voteColor}
+                                >
+                                    投票
+                                </Button>
+                            );
                         }
                     }
                 } else if (G.state === 1 && pid !== String(G.god) && G.players[pid].alive) {
@@ -776,6 +774,8 @@ const useStyles = makeStyles(theme => ({
         backgroundImage: 'url(https://5b0988e595225.cdn.sohucs.com/images/20180223/4a8dfbe3594848f89e240d0e2fdffd5f.jpeg)',
     },
     container: {
+      width: '100%',
+      height: '100%',
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
     },
@@ -856,7 +856,7 @@ export function ChineseWerewolfBoard(props) {
                     </Grid>
                     <Grid item xs={12} md={6} lg={6}>
                         <Grid container spacing={1}>
-                            {
+                            {/* {
                                 rolesDisplay.length > 0 ?
                                     <Grid item xs={12}>
                                         <Paper className={paddedPaper}>
@@ -864,7 +864,7 @@ export function ChineseWerewolfBoard(props) {
                                         </Paper>
                                     </Grid> :
                                     null
-                            }
+                            } */}
                             <Grid item xs={12}>
                                 <Chats
                                     className={classes.panel}

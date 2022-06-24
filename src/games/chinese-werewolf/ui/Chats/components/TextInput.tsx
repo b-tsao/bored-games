@@ -49,17 +49,13 @@ export const TextInput = ({ onSubmit, disabled, ...props }) => {
             setMessage('');
         }
 
-        // enter, left, up, right, down
-        const stop = new Set([13, 37, 38, 39, 40]);
-
-        if (stop.has(e.keyCode)) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
             e.stopPropagation();
         }
     };
 
     return (
-        <>
-            <form className={classes.wrapForm}  noValidate autoComplete="off" onSubmit={preventSubmission}>
+        <form className={classes.wrapForm} noValidate autoComplete="off" onSubmit={preventSubmission}>
             <TextField
                 {...props}
                 // label="メッセージを入力"
@@ -73,9 +69,8 @@ export const TextInput = ({ onSubmit, disabled, ...props }) => {
             <Button variant="contained" color="primary" className={classes.button} onClick={handleClick} disabled={disabled}>
                 <SendIcon />
             </Button>
-            </form>
-        </>
-    )
+        </form>
+    );
 }
 
 

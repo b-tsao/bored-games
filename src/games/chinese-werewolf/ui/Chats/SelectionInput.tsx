@@ -31,9 +31,7 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      textInputRef.current.blur();
-    } else if(e.key === 'Backspace' && selected.length > 0) {
+    if(e.key === 'Backspace' && selected.length > 0) {
       setSelected(selected.slice(0, selected.length - 1));
     }
   };
@@ -41,6 +39,7 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
   const handleSubmit = () => {
     onSubmit(selected.join(' '));
     setSelected([]);
+    textInputRef.current.blur();
   };
 
   return (

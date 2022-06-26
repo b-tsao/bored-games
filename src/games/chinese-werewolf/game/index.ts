@@ -105,6 +105,7 @@ export const ChineseWerewolf = {
                         ]
                     }
                 },
+                selectionTermsOnly: extra.selectionTermsOnly,
                 spectatorsSeeIdentity: extra.spectatorsSeeIdentity,
                 deadSeeIdentity: extra.deadSeeIdentity
             };
@@ -132,6 +133,7 @@ export const ChineseWerewolf = {
                         ]
                     }
                 },
+                selectionTermsOnly: true,
                 spectatorsSeeIdentity: true,
                 deadSeeIdentity: true
             }

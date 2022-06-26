@@ -264,7 +264,7 @@ export function modifyChat(G, ctx, title, players) {
         chat
     };
 
-    players.forEach((pid) => G.players[pid].chats[title] = 0);
+    players.forEach((pid) => G.players[pid].chats[title] = G.players[pid].chats[title] || 0);
 }
 
 export function deleteChat(G, ctx, cid) {

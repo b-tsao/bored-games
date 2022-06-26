@@ -39,6 +39,7 @@ export default class Room {
           setupData: {
             cards: [],
             extra: {
+              selectionTermsOnly: true,
               spectatorsSeeIdentity: false,
               deadSeeIdentity: false,
               randomThreeDivine: false,

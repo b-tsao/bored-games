@@ -45,7 +45,7 @@ function ExtraSettings({ self, settings }) {
     client.emit('settings', { extra: { [name]: event.target.checked } });
   };
 
-  const { spectatorsSeeIdentity, deadSeeIdentity, randomThreeDivine, doubleIdentity, hiddenChanges } = settings.setupData.extra;
+  const { selectionTermsOnly, spectatorsSeeIdentity, deadSeeIdentity, randomThreeDivine, doubleIdentity, hiddenChanges } = settings.setupData.extra;
   const error = !self || !self.host;
 
   return (
@@ -61,6 +61,14 @@ function ExtraSettings({ self, settings }) {
               Only host can make changes to settings
             </FormLabel> : null}
           <FormGroup>
+            <Tooltip
+              title={'若是钩此选项聊天室则只能使用特定选项词语交流'}
+            >
+              <FormControlLabel
+                control={<Checkbox checked={selectionTermsOnly} onChange={handleChange('selectionTermsOnly')} value="selectionTermsOnly" />}
+                label="聊天室选项词语"
+              />
+            </Tooltip>
             {/* <FormControlLabel
               control={<Checkbox checked={spectatorsSeeIdentity} onChange={handleChange('spectatorsSeeIdentity')} value="spectatorsSeeIdentity" />}
               label="观众看得到身份"

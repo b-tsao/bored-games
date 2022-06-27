@@ -52,7 +52,6 @@ export const TextInput = ({ onSubmit, disabled, ...props }) => {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
             e.stopPropagation();
         }
-        e.preventDefault();
     };
 
     return (

@@ -84,7 +84,18 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
         </div>
       )}
       renderInput={(params) => (
-        <TextInput {...params} inputRef={textInputRef} variant="filled" onSubmit={handleSubmit} label={label} placeholder={placeholder} />
+        <TextInput
+          {...params}
+          inputRef={textInputRef}
+          variant="filled"
+          onSubmit={handleSubmit}
+          label={label}
+          placeholder={placeholder}
+          InputProps={{
+            ...params.InputProps,
+            readOnly: true
+          }}
+        />
       )}
       onKeyDown={handleKeyPress}
     />

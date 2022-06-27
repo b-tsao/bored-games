@@ -30,6 +30,16 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
     setSelected([...selected, s]);
   };
 
+  const deleteSelect = (i) => {
+    setSelected([...selected.slice(0, i), ...selected.slice(i + 1)]);
+  };
+
+  const handleChange = (e, v) => {
+    if (v.length === 0) {
+      setSelected([]);
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Backspace' && selected.length > 0) {
       setSelected(selected.slice(0, selected.length - 1));
@@ -54,6 +64,7 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
       options={options}
       noOptionsText="无词语"
       groupBy={(option) => option.group}
+      onChange={handleChange}
       getOptionLabel={() => ''}
       disableCloseOnSelect
       disabled={disabled}
@@ -65,7 +76,7 @@ export default function SelectionInput({ options, onSubmit, disabled, label, pla
             label={option}
             size="small"
             {...getTagProps({ index })}
-            onDelete={undefined}
+            onDelete={() => deleteSelect(index)}
           />
         ))
       }

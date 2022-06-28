@@ -282,15 +282,17 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
           )}
         </Paper>
         {
-          chat.free
-            ? <TextInput onSubmit={onChat} disabled={chat.disabled} label="输入信息" />
-            : <SelectionInput
-                options={options}
-                onSubmit={onChat}
-                disabled={chat.disabled}
-                label="输入信息"
-                placeholder="点选词语"
-              />
+          chat.participants.includes(playerID)
+            ? chat.free
+                ? <TextInput onSubmit={onChat} disabled={chat.disabled} label="输入信息" />
+                : <SelectionInput
+                    options={options}
+                    onSubmit={onChat}
+                    disabled={chat.disabled}
+                    label="输入信息"
+                    placeholder="点选词语"
+                  />
+            : null
         }
       </Paper>
     </div>

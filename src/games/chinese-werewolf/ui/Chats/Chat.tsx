@@ -3,7 +3,7 @@ import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core/styles
 import { Box, IconButton, Paper, Toolbar, Typography } from "@material-ui/core";
 import { TextInput } from "./components/TextInput";
 import { MessageLeft, MessageRight } from "./components/Message";
-import { Delete, Edit, LeakAdd, LeakRemove } from "@material-ui/icons";
+import { Delete, Edit, Keyboard, SpeakerNotes, SpeakerNotesOff, Subtitles } from "@material-ui/icons";
 import SelectionInput from "./SelectionInput";
 import Cards from "../../game/cards";
 
@@ -18,15 +18,44 @@ const inputs = [
   },
   {
     group: '动词',
-    selections: ['🔪刀掉', '🔪自刀', '起跳', '冲锋', '自曝', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '骑', '恋']
+    selections: ['🔪刀掉', '🔪自刀', '空刀', '起跳', '冲锋', '潜水', '自曝', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '空守', '骑', '恋']
   },
   {
     group: '形容词',
-    selections: ['收到', '好', '否', '别', '有身份', '和', '或']
+    selections: ['收到', '好', '否', '别', '有身份', '和', '或', 'Yes', 'No', 'Good', 'Bad']
   },
   {
+    // https://www.unicode.org/emoji/charts/full-emoji-list.html
     group: '语气词',
-    selections: ['笑死', '摊手', '？']
+    selections: [
+      '？', '笑死', '摊手',
+      // face-smiling
+      String.fromCodePoint(0x1F604), String.fromCodePoint(0x1F605), String.fromCodePoint(0x1F602), String.fromCodePoint(0x1FAE0), String.fromCodePoint(0x1F607),
+      // face-affection
+      String.fromCodePoint(0x1F970), String.fromCodePoint(0x1F60D), String.fromCodePoint(0x1F618), String.fromCodePoint(0x1F972),
+      // face-tongue
+      String.fromCodePoint(0x1F61C), String.fromCodePoint(0x1F92A),
+      // face-hand
+      String.fromCodePoint(0x1F917), String.fromCodePoint(0x1F92D), String.fromCodePoint(0x1FAE3), String.fromCodePoint(0x1F914), String.fromCodePoint(0x1FAE1),
+      // face-unwell
+      String.fromCodePoint(0x1F92F),
+      // face-hat
+      String.fromCodePoint(0x1F973),
+      // face-glasses
+      String.fromCodePoint(0x1F60E),
+      // face-concerned
+      String.fromCodePoint(0x1F97A), String.fromCodePoint(0x1F622), String.fromCodePoint(0x1F62D), String.fromCodePoint(0x1F631),
+      // face-negative
+      String.fromCodePoint(0x1F624), String.fromCodePoint(0x1F621), String.fromCodePoint(0x1F92C),
+      // hand-fingers-partial
+      String.fromCodePoint(0x1F44C), String.fromCodePoint(0x270C), String.fromCodePoint(0x1F91E),
+      // hand-fingers-closed
+      String.fromCodePoint(0x1F44D), String.fromCodePoint(0x1F44E),
+      // hands
+      String.fromCodePoint(0x1F44F), String.fromCodePoint(0x1F450),
+      // Animals & Nature
+      String.fromCodePoint(0x1F43A)
+    ]
   }
 ];
 
@@ -88,7 +117,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onChat, editChat, deleteChat, lockChat }) {
+export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onChat, editChat, deleteChat, lockChat, freeChat }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -144,6 +173,10 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
     } else if (group === '名词') {
       // fill all roles in game
       const roles = G.roles.map((cid) => Cards[cid].label);
+      const merchantIdx = roles.indexOf('奇迹商人');
+      if (merchantIdx >= 0 && !roles.includes('守卫')) {
+        roles.splice(merchantIdx, 0, '守卫'); 
+      }
       options.push({ group, selections: [...roles, ...selections] });
     } else {
       options.push({ group, selections });
@@ -175,9 +208,16 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
               <div>
                 <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Lock chat" onClick={lockChat}>
                   {
-                    chat.disabled ?
-                      <LeakRemove /> :
-                      <LeakAdd />
+                    chat.disabled
+                      ? <SpeakerNotesOff />
+                      : <SpeakerNotes />
+                  }
+                </IconButton>
+                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={freeChat}>
+                  {
+                    chat.free
+                      ? <Keyboard />
+                      : <Subtitles />
                   }
                 </IconButton>
                 <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={editChat}>
@@ -242,15 +282,15 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
           )}
         </Paper>
         {
-          G.selectionTermsOnly
-            ? <SelectionInput
+          chat.free
+            ? <TextInput onSubmit={onChat} disabled={chat.disabled} label="输入信息" />
+            : <SelectionInput
                 options={options}
                 onSubmit={onChat}
                 disabled={chat.disabled}
                 label="输入信息"
                 placeholder="点选词语"
               />
-            : <TextInput onSubmit={onChat} disabled={chat.disabled} label="输入信息" />
         }
       </Paper>
     </div>

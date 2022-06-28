@@ -14,6 +14,7 @@ import {
     modifyChat,
     deleteChat,
     lockChat,
+    freeChat,
     chat,
     read
 } from './moves';
@@ -238,7 +239,7 @@ export const ChineseWerewolf = {
                 },
                 stages: {
                     god: {
-                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, modifyChat, deleteChat, lockChat, chat, read, next }
+                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, modifyChat, deleteChat, lockChat, freeChat, chat, read, next }
                     },
                     player: {
                         moves: { vote, chat, read }

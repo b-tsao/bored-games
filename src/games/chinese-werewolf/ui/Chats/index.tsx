@@ -191,6 +191,10 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
     moves.lockChat(cid);
   };
 
+  const handleFreeChat = (cid) => {
+    moves.freeChat(cid);
+  };
+
   const handleChat = (cid, message) => {
     if (message.length > 0) {
       moves.chat(cid, message);
@@ -258,6 +262,7 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
                       editChat={() => handleEditChat(cid)}
                       deleteChat={() => handleDeleteChat(cid)}
                       lockChat={() => handleLockChat(cid)}
+                      freeChat={() => handleFreeChat(cid)}
                     />
                 }
               </TabPanel>

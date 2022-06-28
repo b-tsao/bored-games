@@ -41,6 +41,7 @@ function TitleField({ error, title, suggestions, disableTitleChange, helperText,
                 className={classes.field}
                 id="chatroom-name"
                 freeSolo
+                openOnFocus
                 disableClearable
                 value={title}
                 options={suggestions}

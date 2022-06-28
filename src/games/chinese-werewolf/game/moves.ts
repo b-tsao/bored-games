@@ -261,6 +261,7 @@ export function modifyChat(G, ctx, title, players) {
     G.chats[title] = {
         participants: players,
         disabled: ctx.phase === 'setup' || G.state === 1,
+        free: !G.selectionTermsOnly,
         chat
     };
 
@@ -274,6 +275,10 @@ export function deleteChat(G, ctx, cid) {
 
 export function lockChat(G, ctx, cid) {
     G.chats[cid].disabled = !G.chats[cid].disabled;
+}
+
+export function freeChat(G, ctx, cid) {
+    G.chats[cid].free = !G.chats[cid].free;
 }
 
 export function chat(G, ctx, cid, message) {

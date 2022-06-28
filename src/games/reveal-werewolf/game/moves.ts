@@ -51,7 +51,7 @@ function eliminate(G, ctx, pid) {
     gameLog(G, ctx, `${pid}号玩家死亡。`);
     gameLog(G, ctx, `公布秘密: ${G.players[pid].secret}`);
     G.players[pid].alive = false;
-    if (pid === String(G.wolf)) {
+    if (pid === G.wolf) {
         wolf(G, ctx);
         ctx.events.setPhase('day');
     } else {
@@ -65,7 +65,7 @@ export function setSecret(G, ctx, secret) {
 
 export function wolf(G, ctx) {
     const alive = Object.keys(G.players).filter((pid) => G.players[pid].alive);
-    G.wolf = Number(alive[ctx.random.Die(alive.length) - 1]);
+    G.wolf = alive[ctx.random.Die(alive.length) - 1];
     systemLog(G, ctx, `狼人秘密: ${G.players[G.wolf].secret}`);
     if (alive.length === 1) {
         systemLog(G, ctx, '🎉🎉🎉！恭喜揭晓所有秘密！🎉🎉🎉');

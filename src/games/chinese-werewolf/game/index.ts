@@ -108,7 +108,7 @@ export const ChineseWerewolf = {
         const roles = Array.from(new Set(cards));
 
         return {
-            god: Number(ctx.currentPlayer),
+            god: ctx.currentPlayer,
             roles,
             players,
             discards: [...shuffledCards.slice(i), ...discarded],
@@ -146,7 +146,7 @@ export const ChineseWerewolf = {
                         vote: G.reveal ? vote : ''
                     }
                 }
-            } else if (playerID === String(G.god)) {
+            } else if (playerID === G.god) {
                 // what god sees
                 players[pid] = G.players[pid];
             } else if (pid === playerID) {
@@ -177,7 +177,7 @@ export const ChineseWerewolf = {
         }
 
         const discards =
-            (playerID === String(G.god) ||
+            (playerID === G.god ||
             (playerID && G.players[playerID].roles.indexOf(Cards.bandit.id) >= 0 && ctx.phase !== 'setup')) ?
                 G.discards :
                 [];

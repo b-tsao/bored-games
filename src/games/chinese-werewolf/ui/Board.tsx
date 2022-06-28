@@ -36,7 +36,7 @@ class Action {
     private m: string;
     private updateFn: (action: Action, changes) => void;
 
-    constructor(type?: string, data = {}, message = '', updateFn = (action: Action, changes) => {}) {
+    constructor(type = '', data = {}, message = '', updateFn = (action: Action, changes) => {}) {
         this.t = type;
         this.d = data;
         this.m = message;
@@ -403,7 +403,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
     };
   
     const handleChoose = (event, playerId) => {
-        if (playerID === String(G.god)) {
+        if (playerID === G.god) {
             switch (action.type) {
                 case 'transfer':
                 case 'kill':
@@ -435,7 +435,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
 
-    let playersTable = [];
+    let playersTable: any[] = [];
     for (const pid in G.players) {
         const player = G.players[pid];
         let playerRowClass = classes.normal;
@@ -444,7 +444,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         let imgClass = classes.img;
         let avatarClass = classes.avatar;
         let voteClass: any = undefined;
-        if (pid === String(G.god)) {
+        if (pid === G.god) {
           playerCellClass = classes.leader;
         } else if (!player.alive) {
           playerCellClass = classes.dead;
@@ -468,7 +468,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
 
         let voteComponent: any = null;
         if (ctx.phase === 'main') {
-            if (!playerID || playerID === String(G.god) || !G.players[playerID].alive) {
+            if (!playerID || playerID === G.god || !G.players[playerID].alive) {
                 voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
             } else {
                 if (G.election) {
@@ -523,7 +523,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                             );
                         }
                     }
-                } else if (G.state === 1 && pid !== String(G.god) && G.players[pid].alive) {
+                } else if (G.state === 1 && pid !== G.god && G.players[pid].alive) {
                     voteComponent = (
                         <Button
                             variant='contained'
@@ -812,7 +812,7 @@ export function ChineseWerewolfBoard(props) {
             <Container maxWidth="lg" className={classes.container}>
                 <Grid container spacing={1}>
                     {
-                        playerID === String(G.god) ?
+                        playerID === G.god ?
                             <Grid item xs={12} md={12} lg={12}>
                                 <ActionBar
                                     G={G}

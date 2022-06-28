@@ -152,7 +152,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
 
-    let playersTable = [];
+    let playersTable: any[] = [];
     for (const pid in G.players) {
         const player = G.players[pid];
         let playerRowClass = classes.normal;
@@ -161,7 +161,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         let imgClass = classes.img;
         let avatarClass = classes.avatar;
         let voteClass: any = undefined;
-        if (pid === String(G.wolf)) {
+        if (pid === G.wolf) {
           playerCellClass = classes.leader;
         } else if (!player.alive) {
           playerCellClass = classes.dead;
@@ -186,7 +186,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         投票
                     </Button>
                 );
-            } else if (ctx.phase === 'night' && playerID === String(G.wolf)) {
+            } else if (ctx.phase === 'night' && playerID === G.wolf) {
                 voteComponent = (
                     <Button
                         variant='contained'

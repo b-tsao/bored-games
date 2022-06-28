@@ -80,7 +80,7 @@ export const RevealWerewolf = {
         return {
             ...G,
             players,
-            wolf: playerID === String(G.wolf) ? G.wolf : undefined
+            wolf: playerID === G.wolf ? G.wolf : undefined
         }
     },
 

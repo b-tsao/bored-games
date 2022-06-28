@@ -118,10 +118,12 @@ export default class BGIOWrapper {
         });
 
         const [nextState, stateChanges]: any = await asyncChangeListener(this.state, async state => {
+            const leavePromises: any[] = [];
             for (const id in state.players) {
                 const player = state.players[id];
-                await this.leaveGame(state.matchID, { playerID: player.id, credentials: player.credentials });
+                leavePromises.push(this.leaveGame(state.matchID, { playerID: player.id, credentials: player.credentials }));
             }
+            await Promise.all(leavePromises);
             for (const key in state) {
                 delete state[key];
             }

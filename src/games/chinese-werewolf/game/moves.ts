@@ -27,11 +27,11 @@ function meowLog(G, ctx, message) {
     }
 }
 
-export function setRole(G, ctx, pid: number, pos: number, role: string) {
+export function setRole(G, ctx, pid, pos, role) {
     G.players[pid].roles[pos] = role;
 }
 
-export function setDiscard(G, ctx, pos: number, role: string) {
+export function setDiscard(G, ctx, pos, role) {
     G.discards[pos] = role;
 }
 
@@ -39,11 +39,11 @@ export function start(G, ctx) {
     ctx.events.endPhase();
     systemLog(G, ctx, '游戏开始！');
     systemLog(G, ctx, '请等待上帝的指示。');
-    systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
+    systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
 
     // unlock chats
     Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-    meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}～`);
+    meowLog(G, ctx, `喵晚 ${ctx.turn}～`);
 }
 
 export function next(G, ctx) {
@@ -59,7 +59,7 @@ export function next(G, ctx) {
             player.vote = '';
         }
 
-        systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
+        systemLog(G, ctx, `进入白天 ${ctx.turn - 1}`);
 
         if (!G.badge && ctx.turn > 2) {
             const minutes = (new Date()).getMinutes();
@@ -71,15 +71,15 @@ export function next(G, ctx) {
 
         // unlock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-        meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}～`);
+        meowLog(G, ctx, `喵晚 ${ctx.turn}～`);
 
-        systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
+        systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
     }
 }
 
-export function transfer(G, ctx, pid: number) {
+export function transfer(G, ctx, pid) {
     G.players[pid].vote = '';
-    G.god = Number(pid);
+    G.god = pid;
     ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
     
     for (const cid in G.chats) {
@@ -116,7 +116,7 @@ export function badge(G, ctx, pid) {
     }
 }
 
-export function lover(G, ctx, pid: number) {
+export function lover(G, ctx, pid) {
     G.players[pid].lover = !G.players[pid].lover;
 }
 
@@ -139,7 +139,7 @@ export function reveal(G, ctx) {
         for (const pid in G.players) {
             if (G.players[pid].vote === pid) {
                 G.election.push({ id: pid, drop: false });
-            } else if (pid !== String(G.god)) {
+            } else if (pid !== G.god) {
                 voters.push(pid);
             }
             G.players[pid].vote = '';
@@ -168,7 +168,7 @@ export function reveal(G, ctx) {
             const votes = {};
             const forfeits: string[] = [];
             for (const pid in G.players) {
-                if (pid !== String(G.god)) {
+                if (pid !== G.god) {
                     if (!G.election || G.election.filter((player) => pid === player.id).length === 0) {
                         // if no election or player is running for election
                         const vid = G.players[pid].vote;
@@ -212,7 +212,7 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    if (!player.alive || pid === String(G.god) || G.state !== 1) {
+    if (!player.alive || pid === G.god || G.state !== 1) {
         return INVALID_MOVE;
     }
     

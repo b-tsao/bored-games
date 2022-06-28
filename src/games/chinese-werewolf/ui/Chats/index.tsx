@@ -225,7 +225,7 @@ function Chats({ className, G, ctx, matchData, moves, playerID }) {
             ))}
           </AntTabs>
           {
-            playerID === String(G.god) ?
+            playerID === G.god ?
               <IconButton color="inherit" aria-label="Add chat" onClick={handleChatAdd}>
                 <AddCircleOutline />
               </IconButton> :

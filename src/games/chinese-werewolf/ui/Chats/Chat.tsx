@@ -165,7 +165,7 @@ export default function Chat({ G, matchData, moves, playerID, cid, chat, onChat,
       // fill all player numbers in game
       const nums: string[] = [];
       for (const pid in G.players) {
-        if (pid !== String(G.god)) {
+        if (pid !== G.god) {
           nums.push(`${pid}号`);
         }
       }
@@ -204,7 +204,7 @@ export default function Chat({ G, matchData, moves, playerID, cid, chat, onChat,
           <Box flexGrow={1} />
 
           {
-            playerID === String(G.god) ?
+            playerID === G.god ?
               <div>
                 <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Lock chat" onClick={lockChat}>
                   {

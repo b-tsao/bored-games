@@ -62,7 +62,7 @@ function ExtraSettings({ self, settings }) {
             </FormLabel> : null}
           <FormGroup>
             <Tooltip
-              title={'若是钩此选项聊天室则只能使用特定选项词语交流'}
+              title={'若钩此选项聊天室则只能使用特定选项词语交流'}
             >
               <FormControlLabel
                 control={<Checkbox checked={selectionTermsOnly} onChange={handleChange('selectionTermsOnly')} value="selectionTermsOnly" />}
@@ -90,12 +90,16 @@ function ExtraSettings({ self, settings }) {
               label="双身份"
             />
             {
-              self && self.host ?
-                <FormControlLabel
-                  control={<Checkbox checked={hiddenChanges} onChange={handleChange('hiddenChanges')} value="hiddenChanges" />}
-                  label="私改 [只有Host看得到的选项]"
-                /> :
-                null
+              self && self.host
+                ? <Tooltip
+                    title={'【只有Host看得到的选项】若钩此选项其他人看不到设定改变'}
+                  >
+                    <FormControlLabel
+                      control={<Checkbox checked={hiddenChanges} onChange={handleChange('hiddenChanges')} value="hiddenChanges" />}
+                      label="私改"
+                    />
+                  </Tooltip>
+                : null
             }
           </FormGroup>
         </FormControl>

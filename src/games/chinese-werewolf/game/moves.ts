@@ -60,6 +60,12 @@ export function next(G, ctx) {
         }
 
         systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
+
+        if (!G.badge && ctx.turn > 2) {
+            const minutes = (new Date()).getMinutes();
+            const players = Object.keys(G.players).length - 1;
+            gameLog(G, ctx, `${minutes} % ${players} = ${minutes % players}`);
+        }
     } else {
         ctx.events.endTurn();
 
@@ -147,6 +153,10 @@ export function reveal(G, ctx) {
                 G.election = null;
             } else {
                 gameLog(G, ctx, `请退水的玩家点选退水。`);
+                
+                const minutes = (new Date()).getMinutes();
+                const players = Object.keys(G.players).length - 1;
+                gameLog(G, ctx, `${minutes} % ${players} = ${minutes % players}`);
             }
         } else {
             gameLog(G, ctx, `没玩家上警，警徽流失！`);

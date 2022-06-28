@@ -85,7 +85,7 @@ function startBGServer() {
         games: [Mahjong, ChineseWerewolf, RevealWerewolf],
         origins: [
             // Allow your game site to connect.
-            'https://www.mygame.domain',
+            'https://tiberius.karra.dev',
             // Allow localhost to connect, except when NODE_ENV is 'production'.
             Origins.LOCALHOST_IN_DEVELOPMENT
           ],

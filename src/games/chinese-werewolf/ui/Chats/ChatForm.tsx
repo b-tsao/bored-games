@@ -74,6 +74,9 @@ const useCheckboxesGroupStyles = makeStyles((theme) => ({
     root: {
         display: 'flex'
     },
+    dead: {
+        color: 'rgba(0, 0, 0, 0.33)'
+    },
     formControl: {
         flexGrow: 1,
         alignItems: 'center'
@@ -102,6 +105,7 @@ function CheckboxesGroup({ playerID, players, selected, onSelect }) {
                         {town.map((pid, idx) => (
                             <FormControlLabel
                                 key={idx}
+                                className={!players[pid].alive ? classes.dead : undefined}
                                 control={<Checkbox checked={selected[pid] || false} onChange={handleChange} name={pid} />}
                                 label={`${pid} (${players[pid].roles.map((role) => Cards[role].label)})`}
                             />
@@ -114,6 +118,7 @@ function CheckboxesGroup({ playerID, players, selected, onSelect }) {
                         {wolves.map((pid, idx) => (
                             <FormControlLabel
                                 key={idx}
+                                className={!players[pid].alive ? classes.dead : undefined}
                                 control={<Checkbox checked={selected[pid] || false} onChange={handleChange} name={pid} />}
                                 label={`${pid} (${players[pid].roles.map((role) => Cards[role].label)})`}
                             />
@@ -126,6 +131,7 @@ function CheckboxesGroup({ playerID, players, selected, onSelect }) {
                         {neutral.map((pid, idx) => (
                             <FormControlLabel
                                 key={idx}
+                                className={!players[pid].alive ? classes.dead : undefined}
                                 control={<Checkbox checked={selected[pid] || false} onChange={handleChange} name={pid} />}
                                 label={`${pid} (${players[pid].roles.map((role) => Cards[role].label)})`}
                             />

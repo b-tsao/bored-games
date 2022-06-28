@@ -388,7 +388,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
   function PlayersTable({
       G,
       ctx,
-      gameMetadata,
+      matchData,
       moves,
       playerID,
       actionHandler,
@@ -399,12 +399,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
     const [action] = actionHandler;
 
     const getPlayerName = (pid) => {
-        if (gameMetadata && gameMetadata[pid].name) {
-            return `${pid} ${gameMetadata[pid].name}`;
-        }
-
-        // Return default name if no name defined.
-        return "Player " + pid;
+        return matchData && matchData[pid].name ? `${pid} ${matchData[pid].name}` : `${pid}号玩家`;
     };
   
     const handleChoose = (event, playerId) => {
@@ -799,7 +794,7 @@ const useStyles = makeStyles(theme => ({
  * @param {object} props - Check boardgame.io documentation - https://boardgame.io/documentation/#/api/Client
  */
 export function ChineseWerewolfBoard(props) {
-    const { G, ctx, gameMetadata, moves, playerID } = props;
+    const { G, ctx, matchData, moves, playerID } = props;
 
     const actionHandler = useState(new Action());
     const [roleDisplay, setRoleDisplay] = useState([]);
@@ -836,7 +831,7 @@ export function ChineseWerewolfBoard(props) {
                                     <PlayersTable
                                         G={G}
                                         ctx={ctx}
-                                        gameMetadata={gameMetadata}
+                                        matchData={matchData}
                                         moves={moves}
                                         playerID={playerID}
                                         actionHandler={actionHandler}
@@ -870,7 +865,7 @@ export function ChineseWerewolfBoard(props) {
                                     className={classes.panel}
                                     G={G}
                                     ctx={ctx}
-                                    gameMetadata={gameMetadata}
+                                    matchData={matchData}
                                     moves={moves}
                                     playerID={playerID}
                                 />

@@ -58,10 +58,7 @@ export default function BGIOClient({ room, self, game, board }) {
         numPlayers: room.ctx.settings.numPlayers
     }), [cookie]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // gameID is needed to have gameMetadata object passed, but also if gameID is provided can't do debug play.
-    // Maybe this is fixed in newer versions of BGIO, but fuck updates.
-    // const gameID = process.env.NODE_ENV === 'production' ? room.state.gameID : null;
-    const gameID = room.state.gameID;
+    const { matchID } = room.state;
     const classes = useStyles();
 
     if (self) {
@@ -71,7 +68,7 @@ export default function BGIOClient({ room, self, game, board }) {
             <div className={classes.frame}>
                 <Box className={classes.window} display="flex">
                     <Box flexGrow={1}>
-                        <GameClient gameID={gameID} playerID={id} credentials={credentials} />
+                        <GameClient matchID={matchID} playerID={id} credentials={credentials} />
                     </Box>
                     {/* <SidePanel
                         className={classes.panel}
@@ -86,7 +83,7 @@ export default function BGIOClient({ room, self, game, board }) {
             <div className={classes.frame}>
                 <Box className={classes.window} display="flex">
                     <Box flexGrow={1}>
-                        <GameClient gameID={gameID} />
+                        <GameClient matchID={matchID} />
                     </Box>
                 </Box>
             </div >

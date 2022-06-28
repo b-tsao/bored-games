@@ -117,7 +117,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onChat, editChat, deleteChat, lockChat, freeChat }) {
+export default function Chat({ G, matchData, moves, playerID, cid, chat, onChat, editChat, deleteChat, lockChat, freeChat }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -194,7 +194,7 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
               chat.participants.map((pid, idx) => (
                 <Paper key={idx} className={classes.name}>
                   <Typography variant="h6" color="inherit">
-                    {gameMetadata ? gameMetadata[pid].name : `${pid}号玩家`}
+                    {matchData && matchData[pid].name ? matchData[pid].name : `${pid}号玩家`}
                   </Typography>
                 </Paper>
               ))
@@ -268,14 +268,14 @@ export default function Chat({ G, gameMetadata, moves, playerID, cid, chat, onCh
               <MessageRight
                 key={idx}
                 message={message}
-                displayName={gameMetadata ? gameMetadata[userID].name : name}
+                displayName={matchData && matchData[userID].name ? matchData[userID].name : name}
                 avatarAlt={name}
               />
             ) : (
               <MessageLeft
                 key={idx}
                 message={message}
-                displayName={gameMetadata ? gameMetadata[userID].name : name}
+                displayName={matchData && matchData[userID].name ? matchData[userID].name : name}
                 avatarAlt={name}
               />
             )

@@ -13,7 +13,7 @@ export const games = [
       title: 'Mahjong',
       subtitle: 'Strategy',
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSx8XvsNSn730b4puD7w2F4FtV0kCtcylFhGI0ZeNuzgDa2WRBB&usqp=CAU',
-      disabled: false
+      disabled: true
     },
     {
       id: 'chinese-werewolf',
@@ -27,6 +27,6 @@ export const games = [
       title: localize(text.games.revealWerewolf, 'cn/simplified').title,
       subtitle: localize(text.games.revealWerewolf, 'cn/simplified').subtitle,
       image: 'https://www.acfun.cn/imageProxy?url=https://img2.ali213.net/picfile/News/2021/08/27/584_2021082710724509.jpg',
-      disabled: false
+      disabled: true
     }
 ];

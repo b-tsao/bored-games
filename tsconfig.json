@@ -22,7 +22,8 @@
     "noImplicitAny": false,
     "baseUrl": "src",
     "outDir": "build",
-    "removeComments": true
+    "removeComments": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "server",

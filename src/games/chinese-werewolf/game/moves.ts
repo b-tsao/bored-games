@@ -298,7 +298,7 @@ export function chat(G, ctx, cid, message) {
         return;
     }
 
-    const name = ctx.playerID;
+    const name = `${ctx.playerID}号玩家`;
     const userID = ctx.playerID;
 
     G.chats[cid].chat.push({ name, message, userID });

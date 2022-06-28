@@ -100,7 +100,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
+function Chats({ className, G, ctx, matchData, moves, playerID }) {
   const classes = useStyles();
 
   const [tab, setTab] = useState(0);
@@ -253,7 +253,7 @@ function Chats({ className, G, ctx, gameMetadata, moves, playerID }) {
                     <Log className={classes.tabPanel} chatState={G.chats['记录'].chat} /> :
                     <Chat
                       G={G}
-                      gameMetadata={gameMetadata}
+                      matchData={matchData}
                       moves={moves}
                       playerID={playerID}
                       cid={cid}

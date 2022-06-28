@@ -5,14 +5,18 @@ import {
     vote,
     reveal
 } from './moves';
-import Player from './player';
 
 export const RevealWerewolf = {
     name: 'reveal-werewolf',
 
     setup: (ctx, setupData) => {
         const players = ctx.playOrder.reduce((player, pid) => {
-            player[pid] = new Player();
+            player[pid] = {
+                secret: '',
+                alive: true,
+                vote: '',
+                know: []
+            };
             return player;
         }, {});
 
@@ -96,14 +100,14 @@ export const RevealWerewolf = {
                 order: {
                     first: (G, ctx) => G.wolf,
                     next: (G, ctx) => G.wolf
-                }
+                },
+                activePlayers: { all: Stage.NULL }
             },
             onBegin: (G, ctx) => {
                 for (const pid in G.players) {
                     const player = G.players[pid];
                     player.vote = '';
                 }
-                ctx.events.setActivePlayers({ all: Stage.NULL })
             },
             moves: { vote },
             next: 'night'

@@ -1,4 +1,4 @@
-import { INVALID_MOVE, Stage } from 'boardgame.io/core';
+import { INVALID_MOVE } from 'boardgame.io/core';
 
 function systemLog(G, ctx, message) {
     const name = '系统';
@@ -86,7 +86,7 @@ export function reveal(G, ctx, pid) {
     gameLog(G, ctx, `${pid}号玩家死亡。`);
     gameLog(G, ctx, `公布 XP: ${G.players[pid].secret}`);
     G.players[pid].alive = false;
-    if (pid === String(G.wolf)) {
+    if (pid === G.wolf) {
         gameLog(G, ctx, '游戏结束，好人胜利！');
         ctx.events.endGame();
     } else if (Object.keys(G.players).filter((pid) => G.players[pid].alive).length <= 2) {

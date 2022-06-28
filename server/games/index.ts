@@ -27,6 +27,6 @@ export const games = [
       title: localize(text.games.revealWerewolf, 'cn/simplified').title,
       subtitle: localize(text.games.revealWerewolf, 'cn/simplified').subtitle,
       image: 'https://www.acfun.cn/imageProxy?url=https://img2.ali213.net/picfile/News/2021/08/27/584_2021082710724509.jpg',
-      disabled: true
+      disabled: false
     }
 ];

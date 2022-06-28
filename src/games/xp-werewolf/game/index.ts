@@ -5,14 +5,17 @@ import {
     vote,
     reveal
 } from './moves';
-import Player from './player';
 
 export const XPWerewolf = {
     name: 'xp-werewolf',
 
     setup: (ctx, setupData) => {
         const players = ctx.playOrder.reduce((player, pid) => {
-            player[pid] = new Player();
+            player[pid] = {
+                secret: '',
+                alive: true,
+                vote: ''
+            };
             return player;
         }, {});
 
@@ -53,7 +56,7 @@ export const XPWerewolf = {
         return {
             ...G,
             players,
-            wolf: playerID === String(G.wolf) ? G.wolf : undefined
+            wolf: playerID === G.wolf ? G.wolf : undefined
         }
     },
 

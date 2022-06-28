@@ -81,7 +81,7 @@ export function vote(G, ctx, pid) {
         return INVALID_MOVE;
     }
     const player = G.players[ctx.playerID];
-    if (!player.alive) {
+    if (!player.alive || !G.players[pid].alive) {
         return INVALID_MOVE;
     }
     if (player.vote === pid) {

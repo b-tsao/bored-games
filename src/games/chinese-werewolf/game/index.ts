@@ -200,7 +200,7 @@ export const ChineseWerewolf = {
             chats: (() => {
                 const chats = {};
                 for (const cid in G.chats) {
-                    if (cid === '记录' || G.chats[cid].participants.indexOf(playerID) >= 0 || (G.deadSeeIdentity && !G.players[playerID].alive) || G.spectatorsSeeIdentity) {
+                    if (cid === '记录' || G.chats[cid].participants.indexOf(playerID) >= 0 || (playerID && G.deadSeeIdentity && !G.players[playerID].alive) || G.spectatorsSeeIdentity) {
                         chats[cid] = G.chats[cid];
                     }
                 }

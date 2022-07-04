@@ -264,14 +264,17 @@ export function vote(G, ctx, pid) {
 }
 
 export function modifyChat(G, ctx, title, players) {
-    // If this is an edit move old chat to new chat
-    const chat = Object.prototype.hasOwnProperty.call(G.chats, title) ?
-        G.chats[title].chat :
-        [{ name: '喵', message: '这是喵管理的聊天室，不过喵白天睡喵觉所以喵晚上才开喵～', userID: '00' }];
+    let chat = [{ name: '喵', message: '这是喵管理的聊天室，不过喵白天睡喵觉所以喵晚上才开喵～', userID: '00' }];
+    let free = !G.selectionTermsOnly;
+    if (Object.prototype.hasOwnProperty.call(G.chats, title)) {
+        // if this chat room exists, it's an edit
+        chat = G.chats[title].chat;
+        free = G.chats[title].free;
+    }
     G.chats[title] = {
         participants: players,
         disabled: ctx.phase === 'setup' || G.state === 1,
-        free: !G.selectionTermsOnly,
+        free,
         chat
     };
 

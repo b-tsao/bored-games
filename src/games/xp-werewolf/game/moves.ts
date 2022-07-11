@@ -18,7 +18,7 @@ function eliminate(G, ctx) {
     const votes = {};
     for (const pid in G.players) {
         const vid = G.players[pid].vote;
-        if (vid !== '') {
+        if (vid !== '' && vid !== '?') {
             if (votes[vid]) {
                 votes[vid].push(pid);
             } else {

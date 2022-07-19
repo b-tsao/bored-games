@@ -83,7 +83,7 @@ export const ChineseWerewolf = {
         const players = ctx.playOrder.reduce((player, pid) => {
             player[pid] = {
                 roles: [],
-                alive: true,
+                alive: false,
                 lover: false,
                 vote: '',
                 chats: {}
@@ -100,12 +100,29 @@ export const ChineseWerewolf = {
             while (i < shuffledCards.length && k < pids.length) {
                 const player = players[pids[k]];
                 player.roles.push(shuffledCards[i]);
+                player.alive = true;
                 i++;
                 k++;
             }
         }
 
         const roles = Array.from(new Set(cards));
+        const rolesCount = {};
+        for (const cid of cards) {
+            if (Object.prototype.hasOwnProperty.call(rolesCount, cid)) {
+                rolesCount[cid]++;
+            } else {
+                rolesCount[cid] = 1;
+            }
+        }
+        const rolesDisplay: string[] = [];
+        for (const cid in rolesCount) {
+            if (rolesCount[cid] === 1) {
+                rolesDisplay.push(Cards[cid].label);
+            } else {
+                rolesDisplay.push(`${Cards[cid].label}x${rolesCount[cid]}`);
+            }
+        }
 
         return {
             god: ctx.currentPlayer,
@@ -120,6 +137,7 @@ export const ChineseWerewolf = {
                     disabled: true,
                     chat: [
                         {name: '系统', message: '欢迎来到狼人杀！', userID: '00'},
+                        {name: '系统', message: `本局角色： ${rolesDisplay.join(',')}`, userID: '00'},
                         {name: '系统', message: '请等待上帝开始游戏。', userID: '00'}
                     ]
                 }

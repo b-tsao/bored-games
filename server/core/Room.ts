@@ -35,7 +35,7 @@ export default class Room {
         break;
       case 'chinese-werewolf':
         this.game = new BGIOWrapper(props, {
-          numPlayers: 9,
+          numPlayers: 13,
           setupData: {
             cards: [],
             extra: {
@@ -90,6 +90,11 @@ export default class Room {
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.beautywolf.id
               ],
+              '10 时波之乱': [
+                Cards.prophet.id, Cards.witch.id, Cards.light_scholar.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.night_mentor.id
+              ],
               '12 时波之乱': [
                 Cards.prophet.id, Cards.witch.id, Cards.guard.id, Cards.light_scholar.id,
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
@@ -126,11 +131,29 @@ export default class Room {
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.emperor.id
               ],
-              '16 (双身份) 预女猎守白 +乌鸦 +6民 +1隐狼 +1狼枪 +1普狼 +1盗贼': [
+              '8 双身份': [
                 Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.idiot.id, Cards.crow.id,
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.hiddenwolf.id, Cards.alphawolf.id, Cards.werewolf.id,
                 Cards.bandit.id
+              ],
+              '10 究极五选三': [
+                Cards.prophet.id, Cards.witch.id,Cards.reviver.id, Cards.stalker.id, Cards.ninetails.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.nightmare.id, Cards.alphawolf.id, Cards.bat.id,
+                Cards.werewolf.id, Cards.werewolf.id,
+                Cards.hybrid.id, Cards.avenger.id, Cards.fox.id
+              ],
+              '9 五选三': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.idiot.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id,
+              ],
+              '10 五选三': [
+                Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.idiot.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id,
+                Cards.hybrid.id
               ]
             },
             cards: {

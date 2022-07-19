@@ -51,7 +51,7 @@
     "prestart": "[ ! -d 'build' ] && echo 'Missing production build. Run `npm run build` or did you mean to run `npm run start:app` and `npm run start:server` for development mode?' && exit 1 || exit 0",
     "start": "node -r esm build/server",
     "//3": "BUILD",
-    "build:app": "react-scripts build",
+    "build:app": "react-scripts --openssl-legacy-provider build",
     "build:server": "tsc --project ./ --sourceMap false --noEmit false",
     "build": "./build.sh",
     "//4": "MISC",

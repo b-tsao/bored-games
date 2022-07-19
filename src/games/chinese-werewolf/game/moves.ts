@@ -78,7 +78,19 @@ export function next(G, ctx) {
 }
 
 export function transfer(G, ctx, pid) {
+    const gid = G.god;
+    // remove old god from all chats
+    for (const cid in G.chats) {
+        if (cid !== '记录') {
+            const idx = G.chats[cid].participants.indexOf(gid);
+            if (idx >= 0) {
+                G.chats[cid].participants.splice(idx, 1);
+            }
+        }
+    }
+
     G.players[pid].vote = '';
+    G.players[pid].alive = false;
     G.god = pid;
     ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
     
@@ -87,6 +99,8 @@ export function transfer(G, ctx, pid) {
             G.chats[cid].participants.push(pid);
         }
     }
+
+    systemLog(G, ctx, `${gid}号玩家移交上帝${pid}号玩家。`);
 }
 
 export function kill(G, ctx, pid) {

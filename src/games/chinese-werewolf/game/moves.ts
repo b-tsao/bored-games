@@ -118,6 +118,9 @@ export function badge(G, ctx, pid) {
     if (G.badge === pid) {
         G.badge = null;
         gameLog(G, ctx, `${pid}号玩家撕掉警徽。`);
+        const minutes = (new Date()).getMinutes();
+        const players = Object.keys(G.players).length - 1;
+        gameLog(G, ctx, `${minutes} % ${players} = ${minutes % players}`);
     } else if (!G.players[pid].alive) {
         return INVALID_MOVE;
     } else {
@@ -149,11 +152,12 @@ export function election(G, ctx) {
 
 export function reveal(G, ctx) {
     if (G.election && G.election.length === 0) {
+        // reveal those running for election
         const voters: string[] = [];
         for (const pid in G.players) {
             if (G.players[pid].vote === pid) {
                 G.election.push({ id: pid, drop: false });
-            } else if (pid !== G.god) {
+            } else if (G.players[pid].alive) {
                 voters.push(pid);
             }
             G.players[pid].vote = '';
@@ -182,19 +186,17 @@ export function reveal(G, ctx) {
             const votes = {};
             const forfeits: string[] = [];
             for (const pid in G.players) {
-                if (pid !== G.god) {
-                    if (!G.election || G.election.filter((player) => pid === player.id).length === 0) {
-                        // if no election or player is running for election
-                        const vid = G.players[pid].vote;
-                        if (vid !== '' && vid !== pid) {
-                            if (votes[vid]) {
-                                votes[vid].push(pid);
-                            } else {
-                                votes[vid] = [pid];
-                            }
-                        } else if (G.players[pid].alive) {
-                            forfeits.push(pid);
+                if (G.players[pid].alive && (!G.election || G.election.filter((player) => pid === player.id).length === 0)) {
+                    // if no election or player is not running for election
+                    const vid = G.players[pid].vote;
+                    if (vid !== '' && vid !== pid) {
+                        if (votes[vid]) {
+                            votes[vid].push(pid);
+                        } else {
+                            votes[vid] = [pid];
                         }
+                    } else {
+                        forfeits.push(pid);
                     }
                 }
                 G.players[pid].vote = '';
@@ -226,7 +228,7 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    if (!player.alive || pid === G.god || G.state !== 1) {
+    if (!player.alive || !G.players[pid].alive || G.state !== 1) {
         return INVALID_MOVE;
     }
     

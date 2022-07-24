@@ -1,4 +1,4 @@
-FROM docker.io/node:18.4.0
+FROM docker.io/node:17.9.1
 
 USER node
 WORKDIR /home/node

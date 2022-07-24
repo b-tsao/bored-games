@@ -98,8 +98,8 @@ export const RevealWerewolf = {
         day: {
             turn: {
                 order: {
-                    first: (G, ctx) => G.wolf,
-                    next: (G, ctx) => G.wolf
+                    first: (G, ctx) => Number(G.wolf),
+                    next: (G, ctx) => Number(G.wolf)
                 },
                 activePlayers: { all: Stage.NULL }
             },
@@ -115,8 +115,8 @@ export const RevealWerewolf = {
         night: {
             turn: {
                 order: {
-                    first: (G, ctx) => G.wolf,
-                    next: (G, ctx) => G.wolf
+                    first: (G, ctx) => Number(G.wolf),
+                    next: (G, ctx) => Number(G.wolf)
                 },
             },
             onBegin: (G, ctx) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route } from "react-router-dom";
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -78,7 +78,11 @@ export default function Main() {
   const classes = useStyles();
 
   const isSmallScreen = useMediaQuery((theme: any) => theme.breakpoints.down('xs'));
-  const [drawerOpen, setDrawerOpen] = React.useState(!isSmallScreen);
+  const [drawerOpen, setDrawerOpen] = React.useState(true);
+
+  useEffect(() => {
+    setDrawerOpen(!isSmallScreen);
+  }, [isSmallScreen]);
 
   const toggleDrawer = (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {

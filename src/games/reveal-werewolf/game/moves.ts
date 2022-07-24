@@ -50,6 +50,11 @@ function count(G, ctx) {
 function eliminate(G, ctx, pid) {
     gameLog(G, ctx, `${pid}号玩家死亡。`);
     gameLog(G, ctx, `公布秘密: ${G.players[pid].secret}`);
+    for (const ppid in G.players) {
+        if (ppid !== pid) {
+            G.players[ppid].know.push(pid);
+        }
+    }
     G.players[pid].alive = false;
     if (pid === G.wolf) {
         wolf(G, ctx);
@@ -101,7 +106,7 @@ export function reveal(G, ctx, pid) {
     }
     G.players[ctx.playerID].know.push(pid);
     gameLog(G, ctx, `揭秘: ${G.players[pid].secret}`);
-    if (G.players[ctx.playerID].know.length === Object.keys(G.players).filter((pid) => G.players[pid].alive).length - 1) {
+    if (G.players[ctx.playerID].know.length === Object.keys(G.players).length - 1) {
         systemLog(G, ctx, '狼揭秘了所有玩家的秘密！');
         ctx.events.endGame();
     } else {

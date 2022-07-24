@@ -13,7 +13,7 @@ export const games = [
       title: 'Mahjong',
       subtitle: 'Strategy',
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSx8XvsNSn730b4puD7w2F4FtV0kCtcylFhGI0ZeNuzgDa2WRBB&usqp=CAU',
-      disabled: false
+      disabled: true
     },
     {
       id: 'chinese-werewolf',

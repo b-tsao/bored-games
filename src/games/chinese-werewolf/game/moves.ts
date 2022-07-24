@@ -27,11 +27,19 @@ function meowLog(G, ctx, message) {
     }
 }
 
-export function setRole(G, ctx, pid: number, pos: number, role: string) {
+function clearVotesFor(G, ctx, pid) {
+    for (const ppid in G.players) {
+        if (G.players[ppid].vote === pid) {
+            G.players[ppid].vote = '';
+        }
+    }
+}
+
+export function setRole(G, ctx, pid, pos, role) {
     G.players[pid].roles[pos] = role;
 }
 
-export function setDiscard(G, ctx, pos: number, role: string) {
+export function setDiscard(G, ctx, pos, role) {
     G.discards[pos] = role;
 }
 
@@ -39,11 +47,11 @@ export function start(G, ctx) {
     ctx.events.endPhase();
     systemLog(G, ctx, '游戏开始！');
     systemLog(G, ctx, '请等待上帝的指示。');
-    systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
+    systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
 
     // unlock chats
     Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-    meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}～`);
+    meowLog(G, ctx, `喵晚 ${ctx.turn}～`);
 }
 
 export function next(G, ctx) {
@@ -59,7 +67,7 @@ export function next(G, ctx) {
             player.vote = '';
         }
 
-        systemLog(G, ctx, `进入白天 ${Number(ctx.turn - 1)}`);
+        systemLog(G, ctx, `进入白天 ${ctx.turn - 1}`);
 
         if (!G.badge && ctx.turn > 2) {
             const minutes = (new Date()).getMinutes();
@@ -71,15 +79,29 @@ export function next(G, ctx) {
 
         // unlock chats
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
-        meowLog(G, ctx, `喵晚 ${Number(ctx.turn)}～`);
+        meowLog(G, ctx, `喵晚 ${ctx.turn}～`);
 
-        systemLog(G, ctx, `进入夜晚 ${Number(ctx.turn)}`);
+        systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
     }
 }
 
-export function transfer(G, ctx, pid: number) {
+export function transfer(G, ctx, pid) {
+    const gid = G.god;
+    // remove old god from all chats
+    for (const cid in G.chats) {
+        if (cid !== '记录') {
+            const idx = G.chats[cid].participants.indexOf(gid);
+            if (idx >= 0) {
+                G.chats[cid].participants.splice(idx, 1);
+            }
+        }
+    }
+
     G.players[pid].vote = '';
-    G.god = Number(pid);
+    G.players[pid].alive = false;
+    G.god = pid;
+    // Clear out all votes for the new god
+    clearVotesFor(G, ctx, pid);
     ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
     
     for (const cid in G.chats) {
@@ -87,6 +109,8 @@ export function transfer(G, ctx, pid: number) {
             G.chats[cid].participants.push(pid);
         }
     }
+
+    systemLog(G, ctx, `${gid}号玩家移交上帝${pid}号玩家。`);
 }
 
 export function kill(G, ctx, pid) {
@@ -96,6 +120,8 @@ export function kill(G, ctx, pid) {
     if (player.alive) {
         gameLog(G, ctx, `${pid}号玩家复活。`);
     } else {
+        // Clear out all votes for the killed player
+        clearVotesFor(G, ctx, pid);
         gameLog(G, ctx, `${pid}号玩家死亡。`);
     }
 }
@@ -104,6 +130,9 @@ export function badge(G, ctx, pid) {
     if (G.badge === pid) {
         G.badge = null;
         gameLog(G, ctx, `${pid}号玩家撕掉警徽。`);
+        const minutes = (new Date()).getMinutes();
+        const players = Object.keys(G.players).length - 1;
+        gameLog(G, ctx, `${minutes} % ${players} = ${minutes % players}`);
     } else if (!G.players[pid].alive) {
         return INVALID_MOVE;
     } else {
@@ -116,7 +145,7 @@ export function badge(G, ctx, pid) {
     }
 }
 
-export function lover(G, ctx, pid: number) {
+export function lover(G, ctx, pid) {
     G.players[pid].lover = !G.players[pid].lover;
 }
 
@@ -135,11 +164,12 @@ export function election(G, ctx) {
 
 export function reveal(G, ctx) {
     if (G.election && G.election.length === 0) {
+        // reveal those running for election
         const voters: string[] = [];
         for (const pid in G.players) {
             if (G.players[pid].vote === pid) {
                 G.election.push({ id: pid, drop: false });
-            } else if (pid !== String(G.god)) {
+            } else if (G.players[pid].alive) {
                 voters.push(pid);
             }
             G.players[pid].vote = '';
@@ -149,6 +179,10 @@ export function reveal(G, ctx) {
             gameLog(G, ctx, `警下玩家: ${voters.join(',')}`);
             if (G.election.length === 1) {
                 gameLog(G, ctx, `只有${G.election[0].id}号玩家上警！`);
+                gameLog(G, ctx, '上警结束。');
+                G.election = null;
+            } else if (voters.length === 0) {
+                gameLog(G, ctx, `所有玩家上警，警徽流失！`);
                 gameLog(G, ctx, '上警结束。');
                 G.election = null;
             } else {
@@ -168,19 +202,17 @@ export function reveal(G, ctx) {
             const votes = {};
             const forfeits: string[] = [];
             for (const pid in G.players) {
-                if (pid !== String(G.god)) {
-                    if (!G.election || G.election.filter((player) => pid === player.id).length === 0) {
-                        // if no election or player is running for election
-                        const vid = G.players[pid].vote;
-                        if (vid !== '' && vid !== pid) {
-                            if (votes[vid]) {
-                                votes[vid].push(pid);
-                            } else {
-                                votes[vid] = [pid];
-                            }
-                        } else if (G.players[pid].alive) {
-                            forfeits.push(pid);
+                if (G.players[pid].alive && (!G.election || G.election.filter((player) => pid === player.id).length === 0)) {
+                    // if no election or player is not running for election
+                    const vid = G.players[pid].vote;
+                    if (vid !== '' && vid !== pid) {
+                        if (votes[vid]) {
+                            votes[vid].push(pid);
+                        } else {
+                            votes[vid] = [pid];
                         }
+                    } else {
+                        forfeits.push(pid);
                     }
                 }
                 G.players[pid].vote = '';
@@ -212,7 +244,7 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    if (!player.alive || pid === String(G.god) || G.state !== 1) {
+    if (!player.alive || !G.players[pid].alive || G.state !== 1) {
         return INVALID_MOVE;
     }
     
@@ -264,14 +296,19 @@ export function vote(G, ctx, pid) {
 }
 
 export function modifyChat(G, ctx, title, players) {
-    // If this is an edit move old chat to new chat
-    const chat = Object.prototype.hasOwnProperty.call(G.chats, title) ?
-        G.chats[title].chat :
-        [{ name: '喵', message: '这是喵管理的聊天室，不过喵白天睡喵觉所以喵晚上才开喵～', userID: '00' }];
+    let disabled = ctx.phase === 'setup' || G.state === 1;
+    let free = !G.selectionTermsOnly;
+    let chat = [{ name: '喵', message: '这是喵管理的聊天室，不过喵白天睡喵觉所以喵晚上才开喵～', userID: '00' }];
+    if (Object.prototype.hasOwnProperty.call(G.chats, title)) {
+        // if this chat room exists, it's an edit and we should use existing values
+        disabled = G.chats[title].disabled;
+        chat = G.chats[title].chat;
+        free = G.chats[title].free;
+    }
     G.chats[title] = {
         participants: players,
-        disabled: ctx.phase === 'setup' || G.state === 1,
-        free: !G.selectionTermsOnly,
+        disabled,
+        free,
         chat
     };
 
@@ -298,7 +335,7 @@ export function chat(G, ctx, cid, message) {
         return;
     }
 
-    const name = ctx.playerID;
+    const name = `${ctx.playerID}号玩家`;
     const userID = ctx.playerID;
 
     G.chats[cid].chat.push({ name, message, userID });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route } from "react-router-dom";
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,6 +11,7 @@ import HelloWorld from './welcome/HelloWorld';
 import Games from './games/Games';
 import GameRoom from './game/GameRoom';
 import Maintenance from './Maintenance';
+import { useMediaQuery } from '@material-ui/core';
 
 const mobileDrawerWidth = 150;
 const drawerWidth = 225;
@@ -76,7 +77,12 @@ const useStyles = makeStyles(theme => ({
 export default function Main() {
   const classes = useStyles();
 
-  const [drawerOpen, setDrawerOpen] = React.useState(true);
+  const isSmallScreen = useMediaQuery((theme: any) => theme.breakpoints.down('xs'));
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  useEffect(() => {
+    setDrawerOpen(!isSmallScreen);
+  }, [isSmallScreen]);
 
   const toggleDrawer = (event) => {
     if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {

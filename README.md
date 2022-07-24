@@ -1,8 +1,13 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Environment Dependencies
-Node: v12.16.1<br />
-npm: 6.13.4
+Ubuntu 20.04
+Node: v18.4.0<br />
+npm: 8.12.1
+
+Ubuntu 18.04
+Node: v17.9.1 (Since Node v18.4.0 requires GLIBC_2.28)<br />
+npm: 8.11.0
 
 ## Available Scripts
 

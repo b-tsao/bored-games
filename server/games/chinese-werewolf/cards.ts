@@ -204,6 +204,12 @@ const Cards: { [key: string]: Card } = {
         side: Side.Town,
         divine: true
     },
+    ninetails: {
+        id: 'ninetails',
+        label: '九尾狐',
+        side: Side.Town,
+        divine: true
+    },
     werewolf: {
         id: 'werewolf',
         label: '狼人',

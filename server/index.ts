@@ -13,7 +13,7 @@ import log4js from 'log4js';
 log4js.configure('log4js.config.json');
 
 // boardgame.io server
-import { Server } from 'boardgame.io/server';
+import { Origins, Server } from 'boardgame.io/server';
 import { Mahjong } from '../src/games/mahjong/game';
 import { ChineseWerewolf } from '../src/games/chinese-werewolf/game';
 import { RevealWerewolf } from '../src/games/reveal-werewolf/game';
@@ -82,7 +82,13 @@ function startServer(): http.Server {
 function startBGServer() {
     const logger = log4js.getLogger('BGIO');
     const server = Server({
-        games: [Mahjong, ChineseWerewolf, RevealWerewolf]
+        games: [Mahjong, ChineseWerewolf, RevealWerewolf],
+        origins: [
+            // Allow your game site to connect.
+            'https://tiberius.karra.dev',
+            // Allow localhost to connect, except when NODE_ENV is 'production'.
+            Origins.LOCALHOST_IN_DEVELOPMENT
+          ],
     });
     server.run(parseInt(process.env.REACT_APP_BGIO_PORT || '8000', 10), () => {
         logger.info(`Server is listening on ${process.env.REACT_APP_BGIO_PORT || 8000}`);

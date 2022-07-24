@@ -82,7 +82,7 @@ function getPlayer(players, clientId) {
 export default function GameRoom() {
   const history = useHistory();
   const { url } = useRouteMatch();
-  const { id } = useParams(); // retrieve project id from path
+  const { id } = useParams<{[key: string]: string}>(); // retrieve project id from path
 
   const [client, setClient] = useContext(ClientContext);
   const setMessage = useContext(MessageContext);
@@ -98,7 +98,7 @@ export default function GameRoom() {
         client.connect();
       }
     } else {
-      const newClient: any = socketIOClient('/room');
+      const newClient: any = socketIOClient('/room', { reconnectionAttempts: 5 });
       newClient.roomKey = id;
       setClient(newClient);
     }

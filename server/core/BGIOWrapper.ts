@@ -1,5 +1,5 @@
 import log4js from 'log4js';
-import fetch from 'node-fetch';
+import { LobbyClient } from 'boardgame.io/client';
 import deepExtend from 'deep-extend';
 import { changeListener, asyncChangeListener } from './lib/ImmerPlugin';
 import { People, AnyFunction } from './types';
@@ -18,6 +18,7 @@ export default class BGIOWrapper {
     settings: any;
     state: any;
     context: object;
+    client: LobbyClient;
 
     constructor(props: any, settings: any) {
         this.id = props.id;
@@ -28,6 +29,7 @@ export default class BGIOWrapper {
         };
         this.state = {};
         this.context = { inProgress: false };
+        this.client = new LobbyClient({ server: `http://localhost:${process.env.REACT_APP_BGIO_PORT}` });
     }
 
     get ctx() {
@@ -44,73 +46,27 @@ export default class BGIOWrapper {
         return changeListener(this.state, state => undefined);
     }
 
+    async getGame(matchID: string) {
+        return await this.client.getMatch(this.id, matchID);
+    }
+
     async createGame(body) {
-        return fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body)
-        })
-            .then(res => res.json()) // expecting a json response
-            .then(json => json.gameID);
-
-        // return new Promise((resolve) => {
-        //     const payload = JSON.stringify(body);
-        //     const options = {
-        //         hostname: 'localhost',
-        //         port: process.env.REACT_APP_BGIO_PORT,
-        //         path: `/games/${this.id}/create`,
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         }
-        //     };
-            
-        //     let data = '';
-        //     https.request(options, (res) => {
-        //         res.on('data', (chunk) => { data += chunk });
-        //         res.on('end', () => {
-        //            resolve(data);
-        //         });
-        //     }) 
-        // });
+        const { matchID } = await this.client.createMatch(this.id, body);
+        return matchID;
     }
 
-    async joinGame(gameID: string, body: object) {
-        return fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/${gameID}/join`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body)
-        })
-            .then(res => res.json()) // expecting a json response
-            .then(json => json.playerCredentials);
+    async joinGame(matchID: string, body: any) {
+        const { playerCredentials } = await this.client.joinMatch(this.id, matchID, body);
+        return playerCredentials;
     }
 
-    async leaveGame(gameID: string, body: object) {
-        await fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/${gameID}/leave`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body)
-        });
-    }
-
-    async getGame(gameID: string) {
-        const res = await fetch(`http://localhost:${process.env.REACT_APP_BGIO_PORT}/games/${this.id}/${gameID}`);
-        if (res.status === 200) {
-            return await res.json();
-        } else {
-            throw new Error(res.statusText);
-        }
+    async leaveGame(matchID: string, body: any) {
+        await this.client.leaveMatch(this.id, matchID, body);
     }
 
     async start(ctx: { key: string, players: People }, callback: AnyFunction) {
         const numPlayers = Object.keys(ctx.players).length;
-        const gameID = await this.createGame({ ...this.settings, numPlayers });
+        const matchID = await this.createGame({ ...this.settings, numPlayers });
         this.context = { inProgress: true };
 
         const [nextCtx, ctxChanges]: any = changeListener(ctx, draft => {
@@ -119,7 +75,7 @@ export default class BGIOWrapper {
 
         // Use the state to store player information for bgio
         const [nextState, stateChanges] = await asyncChangeListener(this.state, async state => {
-            state.gameID = gameID;
+            state.matchID = matchID;
             state.players = {};
             // Do a round robin to assign game ID to all players starting from host.
             let playerID = -1;
@@ -135,7 +91,7 @@ export default class BGIOWrapper {
                         }
                     }
                     if (playerID >= 0) {
-                        const playerCredentials = await this.joinGame(gameID, { playerID, playerName: player.name });
+                        const playerCredentials = await this.joinGame(matchID, { playerID: String(playerID), playerName: player.name });
                         state.players[id] = {
                             id: playerID.toString(),
                             name: player.name,
@@ -149,8 +105,8 @@ export default class BGIOWrapper {
         const prevState = this.state;
         this.state = nextState;
 
-        logger.info(`Room (${ctx.key}) created a game (${gameID})`);
-        logger.debug(await this.getGame(gameID));
+        logger.info(`Room (${ctx.key}) created a game (${matchID})`);
+        logger.debug(await this.getGame(matchID));
 
         return callback(null, ctxChanges, stateChanges, prevState);
     }
@@ -162,10 +118,12 @@ export default class BGIOWrapper {
         });
 
         const [nextState, stateChanges]: any = await asyncChangeListener(this.state, async state => {
+            const leavePromises: any[] = [];
             for (const id in state.players) {
                 const player = state.players[id];
-                await this.leaveGame(state.gameID, { playerID: player.id, credentials: player.credentials });
+                leavePromises.push(this.leaveGame(state.matchID, { playerID: player.id, credentials: player.credentials }));
             }
+            await Promise.all(leavePromises);
             for (const key in state) {
                 delete state[key];
             }
@@ -173,7 +131,7 @@ export default class BGIOWrapper {
         const prevState = this.state;
         this.state = nextState;
 
-        logger.info(`Room (${ctx.key}) ending a game (${prevState.gameID})`);
+        logger.info(`Room (${ctx.key}) ending a game (${prevState.matchID})`);
 
         return callback(null, ctxChanges, stateChanges, prevState);
     }

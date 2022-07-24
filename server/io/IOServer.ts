@@ -1,15 +1,15 @@
 import http from 'http';
-import io from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import log4js from 'log4js';
 import IORoomServer from './IORoomServer';
 
 const logger = log4js.getLogger('IOServer');
 
 export default class IOServer {
-  ioServer: io.Server;
+  ioServer: Server;
 
   constructor(server: http.Server) {
-    this.ioServer = io(server);
+    this.ioServer = new Server(server, { allowEIO3: true });
     logger.info('Socket IO is listening on the server');
 
     // Setting up a socket with the namespace 'connection' for new sockets
@@ -31,7 +31,7 @@ export default class IOServer {
     new IORoomServer(this.ioServer);
   }
 
-  onClientConnect(client: io.Socket) {
+  onClientConnect(client: Socket) {
     client.emit('server', 'Hello, World!');
 
     // Here we listen on a new namespace called 'incoming data'

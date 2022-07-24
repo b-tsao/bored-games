@@ -27,6 +27,14 @@ function meowLog(G, ctx, message) {
     }
 }
 
+function clearVotesFor(G, ctx, pid) {
+    for (const ppid in G.players) {
+        if (G.players[ppid].vote === pid) {
+            G.players[ppid].vote = '';
+        }
+    }
+}
+
 export function setRole(G, ctx, pid, pos, role) {
     G.players[pid].roles[pos] = role;
 }
@@ -92,6 +100,8 @@ export function transfer(G, ctx, pid) {
     G.players[pid].vote = '';
     G.players[pid].alive = false;
     G.god = pid;
+    // Clear out all votes for the new god
+    clearVotesFor(G, ctx, pid);
     ctx.events.setActivePlayers({ all: 'player', value: { [pid]: 'god' } });
     
     for (const cid in G.chats) {
@@ -110,6 +120,8 @@ export function kill(G, ctx, pid) {
     if (player.alive) {
         gameLog(G, ctx, `${pid}号玩家复活。`);
     } else {
+        // Clear out all votes for the killed player
+        clearVotesFor(G, ctx, pid);
         gameLog(G, ctx, `${pid}号玩家死亡。`);
     }
 }
@@ -167,6 +179,10 @@ export function reveal(G, ctx) {
             gameLog(G, ctx, `警下玩家: ${voters.join(',')}`);
             if (G.election.length === 1) {
                 gameLog(G, ctx, `只有${G.election[0].id}号玩家上警！`);
+                gameLog(G, ctx, '上警结束。');
+                G.election = null;
+            } else if (voters.length === 0) {
+                gameLog(G, ctx, `所有玩家上警，警徽流失！`);
                 gameLog(G, ctx, '上警结束。');
                 G.election = null;
             } else {

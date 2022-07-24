@@ -78,7 +78,7 @@ export default function Main() {
   const classes = useStyles();
 
   const isSmallScreen = useMediaQuery((theme: any) => theme.breakpoints.down('xs'));
-  const [drawerOpen, setDrawerOpen] = React.useState(true);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   useEffect(() => {
     setDrawerOpen(!isSmallScreen);

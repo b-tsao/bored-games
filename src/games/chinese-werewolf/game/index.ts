@@ -218,8 +218,8 @@ export const ChineseWerewolf = {
 
     turn: {
         order: {
-            first: (G, ctx) => G.god,
-            next: (G, ctx) => G.god
+            first: (G, ctx) => Number(G.god),
+            next: (G, ctx) => Number(G.god)
         }
     },
 
@@ -232,8 +232,8 @@ export const ChineseWerewolf = {
         main: {
             turn: {
                 order: {
-                    first: (G, ctx) => G.god,
-                    next: (G, ctx) => G.god,
+                    first: (G, ctx) => Number(G.god),
+                    next: (G, ctx) => Number(G.god),
                 },
                 onBegin: (G, ctx) => {
                     for (const pid in G.players) {

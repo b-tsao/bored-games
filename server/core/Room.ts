@@ -137,13 +137,6 @@ export default class Room {
                 Cards.hiddenwolf.id, Cards.alphawolf.id, Cards.werewolf.id,
                 Cards.bandit.id
               ],
-              '10 究极五选三': [
-                Cards.prophet.id, Cards.witch.id,Cards.reviver.id, Cards.stalker.id, Cards.ninetails.id,
-                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
-                Cards.nightmare.id, Cards.alphawolf.id, Cards.bat.id,
-                Cards.werewolf.id, Cards.werewolf.id,
-                Cards.hybrid.id, Cards.avenger.id, Cards.fox.id
-              ],
               '9 五选三': [
                 Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id, Cards.idiot.id,
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
@@ -154,6 +147,13 @@ export default class Room {
                 Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
                 Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id,
                 Cards.hybrid.id
+              ],
+              '10 究极五选三': [
+                Cards.prophet.id, Cards.witch.id,Cards.reviver.id, Cards.stalker.id, Cards.ninetails.id,
+                Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                Cards.nightmare.id, Cards.alphawolf.id, Cards.bat.id,
+                Cards.werewolf.id, Cards.werewolf.id,
+                Cards.hybrid.id, Cards.avenger.id, Cards.fox.id
               ]
             },
             cards: {

@@ -18,7 +18,7 @@ const inputs = [
   },
   {
     group: '动词',
-    selections: ['🔪刀掉', '🔪自刀', '空刀', '起跳', '冲锋', '潜水', '自曝', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '空守', '骑', '恋']
+    selections: ['🔪刀掉', '🔪自刀', '空刀', '起跳', '👊冲锋', '潜水', '自曝', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '空守', '骑', '恋']
   },
   {
     group: '形容词',
@@ -28,15 +28,15 @@ const inputs = [
     // https://www.unicode.org/emoji/charts/full-emoji-list.html
     group: '语气词',
     selections: [
-      '？', '笑死', '摊手',
+      '？', '笑死', '摊手', '裂开',
       // face-smiling
       String.fromCodePoint(0x1F604), String.fromCodePoint(0x1F605), String.fromCodePoint(0x1F602), String.fromCodePoint(0x1FAE0), String.fromCodePoint(0x1F607),
       // face-affection
-      String.fromCodePoint(0x1F970), String.fromCodePoint(0x1F60D), String.fromCodePoint(0x1F618), String.fromCodePoint(0x1F972),
+      String.fromCodePoint(0x1F970), String.fromCodePoint(0x1F60D), String.fromCodePoint(0x1F618),
       // face-tongue
-      String.fromCodePoint(0x1F61C), String.fromCodePoint(0x1F92A),
+      String.fromCodePoint(0x1F92A),
       // face-hand
-      String.fromCodePoint(0x1F917), String.fromCodePoint(0x1F92D), String.fromCodePoint(0x1FAE3), String.fromCodePoint(0x1F914), String.fromCodePoint(0x1FAE1),
+      String.fromCodePoint(0x1FAE3), String.fromCodePoint(0x1F914), String.fromCodePoint(0x1FAE1),
       // face-unwell
       String.fromCodePoint(0x1F92F),
       // face-hat
@@ -44,15 +44,13 @@ const inputs = [
       // face-glasses
       String.fromCodePoint(0x1F60E),
       // face-concerned
-      String.fromCodePoint(0x1F97A), String.fromCodePoint(0x1F622), String.fromCodePoint(0x1F62D), String.fromCodePoint(0x1F631),
+      String.fromCodePoint(0x1F97A), String.fromCodePoint(0x1F62D), String.fromCodePoint(0x1F631),
       // face-negative
       String.fromCodePoint(0x1F624), String.fromCodePoint(0x1F621), String.fromCodePoint(0x1F92C),
       // hand-fingers-partial
-      String.fromCodePoint(0x1F44C), String.fromCodePoint(0x270C), String.fromCodePoint(0x1F91E),
+      String.fromCodePoint(0x1F44C),
       // hand-fingers-closed
       String.fromCodePoint(0x1F44D), String.fromCodePoint(0x1F44E),
-      // hands
-      String.fromCodePoint(0x1F44F), String.fromCodePoint(0x1F450),
       // Animals & Nature
       String.fromCodePoint(0x1F43A)
     ]

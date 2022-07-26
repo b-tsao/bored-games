@@ -18,11 +18,11 @@ const inputs = [
   },
   {
     group: '动词',
-    selections: ['🔪刀掉', '🔪自刀', '空刀', '起跳', '👊冲锋', '潜水', '自曝', '煽动', '倒钩', '垫飞', '扛推', '互踩', '上警', '警下', '冲票', '金水', '查杀', '银水', '吃毒', '开枪', '守护', '空守', '骑', '恋']
+    selections: ['🔪刀掉', '🔪自刀', '🤺起跳', '👊冲锋', '🥷潜水', '💥自曝', '煽动', '😇倒钩', '🤡垫飞', '🖐扛推', '互踩', '👆上警', '👇警下', '冲票', '金水', '查杀', '银水', '吃毒', '🔫开枪', '守护', '骑', '😘恋']
   },
   {
     group: '形容词',
-    selections: ['收到', '好', '否', '别', '有身份', '和', '或', 'Yes', 'No', 'Good', 'Bad']
+    selections: ['🫡收到', '好', '否', '别', '有身份', '和', '或', 'Yes', 'No', 'Good', 'Bad', '空']
   },
   {
     // https://www.unicode.org/emoji/charts/full-emoji-list.html
@@ -36,7 +36,7 @@ const inputs = [
       // face-tongue
       String.fromCodePoint(0x1F92A),
       // face-hand
-      String.fromCodePoint(0x1FAE3), String.fromCodePoint(0x1F914), String.fromCodePoint(0x1FAE1),
+      String.fromCodePoint(0x1FAE3), String.fromCodePoint(0x1F914),
       // face-unwell
       String.fromCodePoint(0x1F92F),
       // face-hat

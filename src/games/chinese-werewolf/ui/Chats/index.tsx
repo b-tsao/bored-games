@@ -201,6 +201,10 @@ function Chats({ className, G, ctx, matchData, moves, playerID }) {
     }
   };
 
+  const handleRecord = (record) => {
+    moves.record(record);
+  };
+
   return (
     <Box className={className}>
       <Paper className={classes.panel} elevation={0}>
@@ -249,21 +253,29 @@ function Chats({ className, G, ctx, matchData, moves, playerID }) {
             Object.keys(G.chats).map((cid, idx) => (
               <TabPanel key={idx} className={classes.tabPanel} value={tab} index={idx}>
                 {
-                  cid === '记录' ?
-                    <Log className={classes.tabPanel} chatState={G.chats['记录'].chat} /> :
-                    <Chat
-                      G={G}
-                      matchData={matchData}
-                      moves={moves}
-                      playerID={playerID}
-                      cid={cid}
-                      chat={G.chats[cid]}
-                      onChat={(message) => handleChat(cid, message)}
-                      editChat={() => handleEditChat(cid)}
-                      deleteChat={() => handleDeleteChat(cid)}
-                      lockChat={() => handleLockChat(cid)}
-                      freeChat={() => handleFreeChat(cid)}
-                    />
+                  cid === '记录'
+                    ? (
+                      <Log
+                        className={classes.tabPanel}
+                        chatState={G.chats['记录'].chat}
+                        record={handleRecord}
+                      />
+                    )
+                    : (
+                      <Chat
+                        G={G}
+                        matchData={matchData}
+                        moves={moves}
+                        playerID={playerID}
+                        cid={cid}
+                        chat={G.chats[cid]}
+                        onChat={(message) => handleChat(cid, message)}
+                        editChat={() => handleEditChat(cid)}
+                        deleteChat={() => handleDeleteChat(cid)}
+                        lockChat={() => handleLockChat(cid)}
+                        freeChat={() => handleFreeChat(cid)}
+                      />
+                    )
                 }
               </TabPanel>
             ))

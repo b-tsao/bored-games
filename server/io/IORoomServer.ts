@@ -338,5 +338,66 @@ export default class IORoomServer {
         }
       });
     });
+
+    client.on('bgioTimer', () => {
+      const key = client.roomKey;
+      logger.trace(`User (${client.userId}) requesting bgio timer in room (${key})`);
+      const room = RoomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`User (${client.userId}) failed to request bgio timer in room (${key}): Room does not exist`);
+        client.emit('message', { status: 'error', text: 'Room does not exist' });
+        return client.disconnect();
+      }
+
+      if (room.hasTimer()) {
+        room.setTimer(null);
+        logger.info(`User (${client.userId}) cleared bgio timer in room (${key})`);
+        this.ioRoomServer.to(key).emit('bgioTimer', null);
+      } else {
+        let counter = 0;
+        room.setTimer(() => {
+          this.ioRoomServer.to(key).emit('bgioTimer', counter);
+          counter++;
+        });
+        logger.info(`User (${client.userId}) started bgio timer in room (${key})`);
+      }
+    });
+
+    // client.on('bgioChangePlayer', (id) => {
+    //   const key = client.roomKey;
+    //   logger.trace(`User (${client.userId}) requesting bgio change player on user player id (${id}) in room (${key})`);
+    //   const room = RoomManager.getRoom(key);
+    //   if (room == null) {
+    //     logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Room does not exist`);
+    //     client.emit('message', { status: 'error', text: 'Room does not exist' });
+    //     return client.disconnect();
+    //   }
+
+    //   const state = room.game.state;
+    //   if (!state.players) {
+    //     logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player does not exist`);
+    //     client.emit('message', { status: 'error', text: 'Player does not exist' });
+    //     return;
+    //   }
+
+    //   let cid: any = null;
+    //   for (const pid in state.players) {
+    //     const player = state.players[pid];
+    //     if (player.id === id) {
+    //       cid = pid;
+    //     }
+    //   }
+    //   if (!cid) {
+    //     logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player does not exist`);
+    //     client.emit('message', { status: 'error', text: 'Player does not exist' });
+    //     return;
+    //   }
+
+    //   // TODO
+    //   // should also check if this client is already a player in context, if so return error
+    //   // replace cid in room context with this client.userId (take care to boot previous player client into spectator if they're connected and remove this client from spectator)
+    //   // should also check if this client is already a player in state, if so return error
+    //   // replace cid in room state with this client.userId
+    // });
   }
 }

@@ -1,7 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { alpha } from '@material-ui/core/styles';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box, Paper, Avatar } from '@material-ui/core';
+import { Box, Paper, Avatar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import { HourglassEmpty, HourglassFull } from '@material-ui/icons';
+
+import { ClientContext } from '../../../../Contexts';
 
 const useStyles = makeStyles((theme) => ({
   chatWindow: {
@@ -9,6 +12,13 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     flex: 1,
     background: alpha(theme.palette.background.default, .7)
+  },
+  headerGutters: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
+  shrinkRipple: {
+    padding: theme.spacing(1),
   },
   chat: {
     // Allow messages to scroll properly.
@@ -57,10 +67,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type Log = {
-  chatState: Array<Object>
+  chatState: Array<Object>;
 }
 
-function Log({ className, chatState }) {
+function Log({ className, chatState, record }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -91,9 +101,67 @@ function Log({ className, chatState }) {
     }
   }, [chatState, scrollPos]);
 
+  // Timer
+  const [client] = useContext(ClientContext);
+  const [timer, setTimer] = useState<any>(null);
+
+  useEffect(() => {
+    if (client) {
+      const setGameTimer = (time) => {
+        setTimer(time);
+      };
+
+      client.on('bgioTimer', setGameTimer);
+
+      return () => {
+        client.off('bgioTimer', setGameTimer);
+      };
+    }
+  }, [client]);
+
+  const timerString = (timer) => {
+    const date = new Date(0);
+    date.setSeconds(timer); // specify value for SECONDS here
+    return `计时：${date.toISOString().substr(11, 8)}`;
+  }
+
+  const startTimer = () => {
+    client.emit('bgioTimer');
+  };
+
+  const stopTimer = () => {
+    record(timerString(timer));
+    client.emit('bgioTimer');
+  };
+
   return (
     <Box className={className} display="flex" flexDirection="column" flex={2}>
       <Paper className={classes.chatWindow} classes={{ rounded: classes.rounding }} elevation={24}>
+        {
+          <Toolbar classes={{ gutters: classes.headerGutters }} variant="dense">
+            <Typography>
+              {timer !== null && timerString(timer)}
+            </Typography>
+
+            <Box flexGrow={1} />
+
+            <div>
+              {
+                timer === null
+                  ? (
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-on" onClick={startTimer}>
+                      <HourglassEmpty />
+                    </IconButton>
+                  )
+                  : (
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-off" onClick={stopTimer}>
+                      <HourglassFull />
+                    </IconButton>
+                  )
+              }
+            </div>
+          </Toolbar>
+        }
         <Box {...{ ref: scroll } as any} className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>
           <Box display="flex" flexDirection="column" flex={1} padding={1}>
             <Box flexGrow={1} />

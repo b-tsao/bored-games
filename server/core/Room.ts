@@ -41,7 +41,7 @@ export default class Room {
             extra: {
               selectionTermsOnly: true,
               spectatorsSeeIdentity: false,
-              deadSeeIdentity: false,
+              deadSeeIdentity: true,
               randomThreeDivine: false,
               doubleIdentity: false,
               hiddenChanges: false,

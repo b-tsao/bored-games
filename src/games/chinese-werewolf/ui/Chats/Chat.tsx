@@ -22,7 +22,7 @@ const inputs = [
   },
   {
     group: '形容词',
-    selections: ['🫡收到', '好', '否', '别', '有身份', '和', '或', 'Yes', 'No', 'Good', 'Bad', '空']
+    selections: ['空', '🫡收到', '好', '否', '别', '有身份', '和', '或', 'Yes', 'No', 'Good', 'Bad']
   },
   {
     // https://www.unicode.org/emoji/charts/full-emoji-list.html

@@ -258,7 +258,7 @@ function Chats({ className, G, ctx, matchData, moves, playerID }) {
                       <Log
                         className={classes.tabPanel}
                         chatState={G.chats['记录'].chat}
-                        record={handleRecord}
+                        record={!!playerID && handleRecord}
                       />
                     )
                     : (

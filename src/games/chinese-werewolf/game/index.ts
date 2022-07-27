@@ -250,7 +250,7 @@ export const ChineseWerewolf = {
                         moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, modifyChat, deleteChat, lockChat, freeChat, chat, read, record, next }
                     },
                     player: {
-                        moves: { vote, chat, read }
+                        moves: { vote, chat, read, record }
                     }
                 }
             }

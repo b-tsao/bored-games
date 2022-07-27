@@ -145,21 +145,24 @@ function Log({ className, chatState, record }) {
 
             <Box flexGrow={1} />
 
-            <div>
-              {
-                timer === null
-                  ? (
-                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-on" onClick={startTimer}>
-                      <HourglassEmpty />
-                    </IconButton>
-                  )
-                  : (
-                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-off" onClick={stopTimer}>
-                      <HourglassFull />
-                    </IconButton>
-                  )
-              }
-            </div>
+            {
+              !!record &&
+                <div>
+                  {
+                    timer === null
+                      ? (
+                        <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-on" onClick={startTimer}>
+                          <HourglassEmpty />
+                        </IconButton>
+                      )
+                      : (
+                        <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-off" onClick={stopTimer}>
+                          <HourglassFull />
+                        </IconButton>
+                      )
+                  }
+                </div>
+            }
           </Toolbar>
         }
         <Box {...{ ref: scroll } as any} className={classes.chat} display="flex" flexDirection="column" flexGrow={1}>

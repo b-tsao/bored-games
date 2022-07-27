@@ -3,6 +3,7 @@ import log4js from 'log4js';
 import cookie from 'cookie';
 import { compressChanges } from '../core/lib/ImmerPlugin';
 import RoomManager from '../core/RoomManager';
+import BGIOWrapper from '../core/BGIOWrapper';
 
 const logger = log4js.getLogger('IORoomServer');
 
@@ -341,25 +342,27 @@ export default class IORoomServer {
 
     client.on('bgioTimer', () => {
       const key = client.roomKey;
-      logger.trace(`User (${client.userId}) requesting bgio timer in room (${key})`);
+      logger.trace(`User (${client.userId}) requesting bgio game timer in room (${key})`);
       const room = RoomManager.getRoom(key);
       if (room == null) {
-        logger.error(`User (${client.userId}) failed to request bgio timer in room (${key}): Room does not exist`);
+        logger.error(`User (${client.userId}) failed to request bgio game timer in room (${key}): Room does not exist`);
         client.emit('message', { status: 'error', text: 'Room does not exist' });
         return client.disconnect();
       }
 
-      if (room.hasTimer()) {
-        room.setTimer(null);
-        logger.info(`User (${client.userId}) cleared bgio timer in room (${key})`);
+      const game = room.game as BGIOWrapper;
+
+      if (game.hasTimer()) {
+        game.setTimer(null);
+        logger.info(`User (${client.userId}) cleared bgio game timer in room (${key})`);
         this.ioRoomServer.to(key).emit('bgioTimer', null);
       } else {
         let counter = 0;
-        room.setTimer(() => {
+        game.setTimer(() => {
           this.ioRoomServer.to(key).emit('bgioTimer', counter);
           counter++;
         });
-        logger.info(`User (${client.userId}) started bgio timer in room (${key})`);
+        logger.info(`User (${client.userId}) started bgio game timer in room (${key})`);
       }
     });
 

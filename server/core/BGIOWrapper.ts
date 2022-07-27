@@ -20,6 +20,8 @@ export default class BGIOWrapper {
     context: object;
     client: LobbyClient;
 
+    timer: NodeJS.Timer[];
+
     constructor(props: any, settings: any) {
         this.id = props.id;
         this.title = props.title;
@@ -30,6 +32,8 @@ export default class BGIOWrapper {
         this.state = {};
         this.context = { inProgress: false };
         this.client = new LobbyClient({ server: `http://localhost:${process.env.REACT_APP_BGIO_PORT}` });
+
+        this.timer = [];
     }
 
     get ctx() {
@@ -112,6 +116,8 @@ export default class BGIOWrapper {
     }
 
     async end(ctx, callback: AnyFunction) {
+        this.clearTimer();
+
         this.context = { inProgress: false };
         const [nextCtx, ctxChanges]: any = changeListener(ctx, draft => {
             deepExtend(draft, this.context);
@@ -148,5 +154,28 @@ export default class BGIOWrapper {
         });
         this.settings = nextCtx.settings;
         callback(null, changes);
+    }
+
+    hasTimer() {
+        return this.timer.length > 0;
+    }
+
+    setTimer(fn) {
+        // this implementation is to prevent simultaneous timer sets that may result in memory leak from losing a NodeJS.Timer interval
+        this.clearTimer();
+        if (fn !== null) {
+            this.timer.push(setInterval(fn, 1000));
+        }
+    }
+
+    clearTimer() {
+        for (const timer of this.timer) {
+            clearInterval(timer);
+        }
+        this.timer = [];
+    }
+
+    dispose() {
+        this.clearTimer();
     }
 }

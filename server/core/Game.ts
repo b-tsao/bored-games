@@ -129,4 +129,8 @@ export default class Game {
       endGame: () => undefined
     };
   }
+
+  dispose() {
+    // TODO (clean up any lingering resources like NodeJS.Timer)
+  }
 }

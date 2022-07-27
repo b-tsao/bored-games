@@ -93,6 +93,7 @@ class RoomManager {
     const room = this.roomTree.remove(key);
     if (room) {
       logger.info(`Room (${key}) deleted`);
+      room.dispose();
       return room;
     } else {
       return null;

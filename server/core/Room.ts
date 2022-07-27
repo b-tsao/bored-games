@@ -15,7 +15,6 @@ export default class Room {
   spectators: People;
   players: People;
   chat: { userID: string, modified: boolean, message: string }[];
-  timer: NodeJS.Timer[];
   game: Game | BGIOWrapper;
 
   constructor(props: any) {
@@ -25,7 +24,6 @@ export default class Room {
     this.spectators = {};
     this.players = {};
     this.chat = [];
-    this.timer = [];
 
     switch (props.id) {
       case 'the-resistance-avalon':
@@ -597,18 +595,7 @@ export default class Room {
     }, callback);
   }
 
-  hasTimer() {
-    return this.timer.length > 0;
-  }
-
-  setTimer(fn) {
-    // this implementation is to prevent simultaneous timer sets that may result in memory leak from losing a NodeJS.Timer interval
-    for (const timer of this.timer) {
-      clearInterval(timer);
-    }
-    this.timer = [];
-    if (fn !== null) {
-      this.timer.push(setInterval(fn, 1000));
-    }
+  dispose() {
+    this.game.dispose();
   }
 }

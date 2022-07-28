@@ -432,7 +432,11 @@ export default class IORoomServer {
             state.players[client.userId] = state.players[cid];
             delete state.players[cid];
           }).then(([nextState, stateChanges]) => {
+            // broadcast changes
             this.ioRoomServer.to(key).emit('changes', ctxChanges, stateChanges);
+            // send setCookie for reload on client
+            const cookieOptions = { path: '/', sameSite: true };
+            client.emit('setCookie', cookie.serialize('userId', client.userId, cookieOptions));
           });
         }
       });

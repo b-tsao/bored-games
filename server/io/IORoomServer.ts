@@ -366,41 +366,65 @@ export default class IORoomServer {
       }
     });
 
-    // client.on('bgioChangePlayer', (id) => {
-    //   const key = client.roomKey;
-    //   logger.trace(`User (${client.userId}) requesting bgio change player on user player id (${id}) in room (${key})`);
-    //   const room = RoomManager.getRoom(key);
-    //   if (room == null) {
-    //     logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Room does not exist`);
-    //     client.emit('message', { status: 'error', text: 'Room does not exist' });
-    //     return client.disconnect();
-    //   }
+    client.on('bgioChangePlayer', (id) => {
+      const key = client.roomKey;
+      logger.trace(`User (${client.userId}) requesting bgio change player on user player id (${id}) in room (${key})`);
+      const room = RoomManager.getRoom(key);
+      if (room == null) {
+        logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Room does not exist`);
+        client.emit('message', { status: 'error', text: 'Room does not exist' });
+        return client.disconnect();
+      }
 
-    //   const state = room.game.state;
-    //   if (!state.players) {
-    //     logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player does not exist`);
-    //     client.emit('message', { status: 'error', text: 'Player does not exist' });
-    //     return;
-    //   }
+      if (Object.prototype.hasOwnProperty.call(room.players, client.userId)) {
+        logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Already a player`);
+        client.emit('message', { status: 'error', text: 'Already a player' });
+        return;
+      }
 
-    //   let cid: any = null;
-    //   for (const pid in state.players) {
-    //     const player = state.players[pid];
-    //     if (player.id === id) {
-    //       cid = pid;
-    //     }
-    //   }
-    //   if (!cid) {
-    //     logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player does not exist`);
-    //     client.emit('message', { status: 'error', text: 'Player does not exist' });
-    //     return;
-    //   }
+      const state = room.game.state;
+      if (!state.players) {
+        logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player does not exist`);
+        client.emit('message', { status: 'error', text: 'Player does not exist' });
+        return;
+      }
 
-    //   // TODO
-    //   // should also check if this client is already a player in context, if so return error
-    //   // replace cid in room context with this client.userId (take care to boot previous player client into spectator if they're connected and remove this client from spectator)
-    //   // should also check if this client is already a player in state, if so return error
-    //   // replace cid in room state with this client.userId
-    // });
+      let cid: any = null;
+      for (const pid in state.players) {
+        const player = state.players[pid];
+        if (player.id === id) {
+          cid = pid;
+        }
+      }
+      if (!cid || !Object.prototype.hasOwnProperty.call(room.players, cid)) {
+        logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player does not exist`);
+        client.emit('message', { status: 'error', text: 'Player does not exist' });
+        return;
+      }
+
+      const player = room.players[cid];
+
+      if (player.client.connected) {
+        logger.error(`User (${client.userId}) failed to do bgio change player on user player id (${id}) in room (${key}): Player is connected`);
+        client.emit('message', { status: 'error', text: 'Player is connected' });
+        return;
+      }
+
+      // room player swap
+      room.players[client.userId] = {
+        ...player,
+        client: {
+          id: client.id,
+          status: 'connected'
+        }
+      };
+      delete room.players[cid];
+
+      // game player swap
+      state.players[client.userId] = state.players[cid];
+      delete state.players[cid];
+
+      client.leave(`${key}#spectators`);
+    });
   }
 }

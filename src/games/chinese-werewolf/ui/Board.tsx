@@ -394,6 +394,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
       actionHandler,
       setRoleDisplay
     }) {
+    const [client] = useContext(ClientContext);
+
     const classes = usePlayersTableStyle();
 
     const [action] = actionHandler;
@@ -435,6 +437,10 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
 
+    const handleReconnect = (pid) => {
+        client.emit('bgioChangePlayer', pid);
+    };
+
     let playersTable: any[] = [];
     for (const pid in G.players) {
         const player = G.players[pid];
@@ -468,7 +474,11 @@ const usePlayersTableStyle = makeStyles(theme => ({
 
         let voteComponent: any = null;
         if (ctx.phase === 'main') {
-            if (!playerID || !G.players[playerID].alive) {
+            if (!playerID && !matchData[pid].isConnected) {
+                voteComponent = (
+                    <IconButton color="inherit" aria-label="reconnect" onClick={() => { handleReconnect(pid) }}>🔗</IconButton>
+                );
+            } else if (!playerID || !G.players[playerID].alive) {
                 voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
             } else {
                 if (G.election) {

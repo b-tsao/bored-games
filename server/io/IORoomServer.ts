@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import log4js from 'log4js';
 import cookie from 'cookie';
-import { compressChanges } from '../core/lib/ImmerPlugin';
+import { asyncChangeListener, compressChanges } from '../core/lib/ImmerPlugin';
 import RoomManager from '../core/RoomManager';
 import BGIOWrapper from '../core/BGIOWrapper';
 
@@ -410,21 +410,32 @@ export default class IORoomServer {
         return;
       }
 
-      // room player swap
-      room.players[client.userId] = {
-        ...player,
-        client: {
-          id: client.id,
-          status: 'connected'
+      room.contextChangeListener(ctx => {
+        // room player swap
+        delete ctx.spectators[client.userId];
+        ctx.players[client.userId] = {
+          ...player,
+          client: {
+            id: client.id,
+            status: 'connected'
+          }
+        };
+        delete room.players[cid];
+      }, (err, ctxChanges) => {
+        if (err) {
+          client.emit('message', { status: 'error', text: err });
+        } else {
+          client.leave(`${key}#spectators`);
+
+          asyncChangeListener(state, async state => {
+            // game player swap
+            state.players[client.userId] = state.players[cid];
+            delete state.players[cid];
+          }).then(([nextState, stateChanges]) => {
+            this.ioRoomServer.to(key).emit('changes', ctxChanges, stateChanges);
+          });
         }
-      };
-      delete room.players[cid];
-
-      // game player swap
-      state.players[client.userId] = state.players[cid];
-      delete state.players[cid];
-
-      client.leave(`${key}#spectators`);
+      });
     });
   }
 }

@@ -420,7 +420,7 @@ export default class IORoomServer {
             status: 'connected'
           }
         };
-        delete room.players[cid];
+        delete ctx.players[cid];
       }, (err, ctxChanges) => {
         if (err) {
           client.emit('message', { status: 'error', text: err });

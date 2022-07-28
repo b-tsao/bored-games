@@ -432,6 +432,8 @@ export default class IORoomServer {
             state.players[client.userId] = state.players[cid];
             delete state.players[cid];
           }).then(([nextState, stateChanges]) => {
+            // save state back to room game
+            room.game.state = nextState;
             // broadcast changes
             this.ioRoomServer.to(key).emit('changes', ctxChanges, stateChanges);
             // send setCookie for reload on client

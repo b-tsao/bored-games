@@ -439,6 +439,7 @@ export default class IORoomServer {
             // send setCookie for reload on client
             const cookieOptions = { path: '/', sameSite: true };
             client.emit('setCookie', cookie.serialize('userId', client.userId, cookieOptions));
+            logger.info(`User (${client.userId}) bgio changed player on user player id (${id}) in room (${key})`);
           });
         }
       });

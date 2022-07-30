@@ -125,12 +125,10 @@ function Log({ className, chatState, record }) {
     return `计时：${date.toISOString().substr(11, 8)}`;
   }
 
-  const startTimer = () => {
-    client.emit('bgioTimer');
-  };
-
-  const stopTimer = () => {
-    record(timerString(timer));
+  const handleTimer = () => {
+    if (timer !== null) {
+      record(timerString(timer));
+    }
     client.emit('bgioTimer');
   };
 
@@ -149,17 +147,13 @@ function Log({ className, chatState, record }) {
               !!record &&
                 <div>
                   {
-                    timer === null
-                      ? (
-                        <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-on" onClick={startTimer}>
-                          <HourglassEmpty />
-                        </IconButton>
-                      )
-                      : (
-                        <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer-off" onClick={stopTimer}>
-                          <HourglassFull />
-                        </IconButton>
-                      )
+                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer" onClick={handleTimer}>
+                      {
+                        timer === null
+                          ? <HourglassEmpty />
+                          : <HourglassFull />                                              
+                      }
+                    </IconButton>
                   }
                 </div>
             }

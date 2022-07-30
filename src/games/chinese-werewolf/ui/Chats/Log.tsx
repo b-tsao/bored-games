@@ -70,7 +70,7 @@ type Log = {
   chatState: Array<Object>;
 }
 
-function Log({ className, chatState, record }) {
+function Log({ className, chatState, isPlayer }) {
   const classes = useStyles();
 
   const scroll = useRef<any>(null);
@@ -126,9 +126,6 @@ function Log({ className, chatState, record }) {
   }
 
   const handleTimer = () => {
-    if (timer !== null) {
-      record(timerString(timer));
-    }
     client.emit('bgioTimer');
   };
 
@@ -144,7 +141,7 @@ function Log({ className, chatState, record }) {
             <Box flexGrow={1} />
 
             {
-              !!record &&
+              isPlayer &&
                 <div>
                   {
                     <Tooltip arrow title='计时'>

@@ -345,7 +345,3 @@ export function chat(G, ctx, cid, message) {
 export function read(G, ctx, cid) {
     G.players[ctx.playerID].chats[cid] = 0;
 }
-
-export function record(G, ctx, record) {
-    gameLog(G, ctx, record);
-}

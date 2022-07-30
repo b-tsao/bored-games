@@ -129,7 +129,12 @@ export default class BGIOWrapper {
                 const player = state.players[id];
                 leavePromises.push(this.leaveGame(state.matchID, { playerID: player.id, credentials: player.credentials }));
             }
-            await Promise.all(leavePromises);
+            try {
+                await Promise.all(leavePromises);
+            } catch (e) {
+                logger.error(`Room (${ctx.key}) error while ending a game (${state.matchID})`);
+                logger.error(e);
+            }
             for (const key in state) {
                 delete state[key];
             }

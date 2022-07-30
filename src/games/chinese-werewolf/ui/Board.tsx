@@ -816,6 +816,8 @@ const useStyles = makeStyles(theme => ({
 export function ChineseWerewolfBoard(props) {
     const { G, ctx, matchData, moves, playerID } = props;
 
+    console.log('match', matchData);
+
     const actionHandler = useState(new Action());
     const [roleDisplay, setRoleDisplay] = useState([]);
 

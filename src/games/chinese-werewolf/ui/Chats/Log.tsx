@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { alpha } from '@material-ui/core/styles';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box, Paper, Avatar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import { Box, Paper, Avatar, Toolbar, IconButton, Typography, Tooltip } from '@material-ui/core';
 import { HourglassEmpty, HourglassFull } from '@material-ui/icons';
 
 import { ClientContext } from '../../../../Contexts';
@@ -147,13 +147,15 @@ function Log({ className, chatState, record }) {
               !!record &&
                 <div>
                   {
-                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer" onClick={handleTimer}>
-                      {
-                        timer === null
-                          ? <HourglassEmpty />
-                          : <HourglassFull />                                              
-                      }
-                    </IconButton>
+                    <Tooltip arrow title='计时'>
+                      <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="timer" onClick={handleTimer}>
+                        {
+                          timer === null
+                            ? <HourglassEmpty />
+                            : <HourglassFull />                                              
+                        }
+                      </IconButton>  
+                    </Tooltip>
                   }
                 </div>
             }

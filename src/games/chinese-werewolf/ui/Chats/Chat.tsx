@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { Box, IconButton, Paper, Toolbar, Typography } from "@material-ui/core";
+import { Box, IconButton, Paper, Toolbar, Tooltip, Typography } from "@material-ui/core";
 import { TextInput } from "./components/TextInput";
 import { MessageLeft, MessageRight } from "./components/Message";
 import { Delete, Edit, Keyboard, SpeakerNotes, SpeakerNotesOff, Subtitles } from "@material-ui/icons";
@@ -204,26 +204,34 @@ export default function Chat({ G, matchData, moves, playerID, cid, chat, onChat,
           {
             playerID === G.god ?
               <div>
-                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Lock chat" onClick={lockChat}>
-                  {
-                    chat.disabled
-                      ? <SpeakerNotesOff />
-                      : <SpeakerNotes />
-                  }
-                </IconButton>
-                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={freeChat}>
-                  {
-                    chat.free
-                      ? <Keyboard />
-                      : <Subtitles />
-                  }
-                </IconButton>
-                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={editChat}>
-                  <Edit />
-                </IconButton>
-                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Delete chat" onClick={deleteChat}>
-                  <Delete />
-                </IconButton>
+                <Tooltip arrow title='开关'>
+                  <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Lock chat" onClick={lockChat}>
+                    {
+                      chat.disabled
+                        ? <SpeakerNotesOff />
+                        : <SpeakerNotes />
+                    }
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow title='模式'>
+                  <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Selection chat" onClick={freeChat}>
+                    {
+                      chat.free
+                        ? <Keyboard />
+                        : <Subtitles />
+                    }
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow title='编辑'>
+                  <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Edit chat" onClick={editChat}>
+                    <Edit />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow title='删除'>
+                  <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Delete chat" onClick={deleteChat}>
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
               </div> :
               null
           }

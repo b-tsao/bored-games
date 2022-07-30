@@ -416,9 +416,11 @@ const usePlayersTableStyle = makeStyles(theme => ({
                     }
                     break;
             }
-        } else {
-            moves.vote(playerId);
         }
+    };
+
+    const handleVote = (pid) => {
+        moves.vote(pid);
     };
 
     const handleRoleClick = (pid, idx) => {
@@ -476,7 +478,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
         if (ctx.phase === 'main') {
             if (!playerID && !matchData[pid].isConnected) {
                 voteComponent = (
-                    <IconButton color="inherit" aria-label="reconnect" onClick={() => { handleReconnect(pid) }}>🔗</IconButton>
+                    <Tooltip arrow title='接管离线玩家'>
+                        <IconButton color="inherit" aria-label="reconnect" onClick={() => { handleReconnect(pid) }}>🔗</IconButton>
+                    </Tooltip>
                 );
             } else if (!playerID || !G.players[playerID].alive) {
                 voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
@@ -488,6 +492,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 <Button
                                     variant='contained'
                                     color={player.vote === pid ? 'primary' : undefined}
+                                    onClick={() => { handleVote(pid) }}
                                 >
                                     上警
                                 </Button>
@@ -499,6 +504,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 voteComponent = (
                                     <Button
                                         variant='contained'
+                                        onClick={() => { handleVote(pid) }}
                                     >
                                         退水
                                     </Button>
@@ -508,6 +514,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     <Button
                                         variant='contained'
                                         color='secondary'
+                                        onClick={() => { handleVote(pid) }}
                                     >
                                         退水
                                     </Button>
@@ -517,6 +524,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     <Button
                                         variant='contained'
                                         color={voteColor}
+                                        onClick={() => { handleVote(pid) }}
                                     >
                                         弃票
                                     </Button>
@@ -527,6 +535,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 <Button
                                     variant='contained'
                                     color={voteColor}
+                                    onClick={() => { handleVote(pid) }}
                                 >
                                     投票
                                 </Button>
@@ -538,6 +547,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         <Button
                             variant='contained'
                             color={voteColor}
+                            onClick={() => { handleVote(pid) }}
                         >
                             {pid === playerID ? '弃票' : '投票'}
                         </Button>
@@ -562,7 +572,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 {player.roles.map((role, idx) =>
                     <Tooltip
                         key={idx}
-                        arrow={true}
+                        arrow
                         placement="top"
                         title={Cards[role].label}
                     >
@@ -584,7 +594,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 )}
                 <Zoom in={G.badge === pid}>
                     <Tooltip
-                        arrow={true}
+                        arrow
                         placement="top"
                         title={Cards.sheriff.label}
                     >
@@ -600,7 +610,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 </Zoom>
                 <Zoom in={G.election && isRunningForElection(G, pid)}>
                     <Tooltip
-                        arrow={true}
+                        arrow
                         placement="top"
                         title='警上'
                     >
@@ -733,7 +743,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 return (
                     <Grid item key={idx}>
                         <Tooltip
-                            arrow={true}
+                            arrow
                             placement="top"
                             title={Cards[role].label}
                         >

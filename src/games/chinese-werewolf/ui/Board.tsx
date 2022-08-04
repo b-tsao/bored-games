@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import clsx from 'clsx';
-import { useState } from "react";
 
 import { alpha } from '@material-ui/core/styles';
 import { makeStyles } from "@material-ui/core/styles";
@@ -12,6 +11,8 @@ import {
     Container,
     Grid,
     IconButton,
+    Menu,
+    MenuItem,
     Paper,
     Table,
     TableBody,
@@ -396,9 +397,28 @@ const usePlayersTableStyle = makeStyles(theme => ({
     }) {
     const [client] = useContext(ClientContext);
 
+    const [clickState, setClickState] = useState<{
+        mouseX: null | number;
+        mouseY: null | number;
+    }>({ mouseX: null, mouseY: null });
+
     const classes = usePlayersTableStyle();
 
     const [action] = actionHandler;
+
+    const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>, pid) => {
+        if (canReconnect(pid)) {
+            event.preventDefault();
+            setClickState({
+                mouseX: event.clientX - 2,
+                mouseY: event.clientY - 4,
+            });
+        }
+    };
+
+    const handleContextMenuClose = () => {
+        setClickState({ mouseX: null, mouseY: null });
+    };
 
     const getPlayerName = (pid) => {
         return matchData && matchData[pid].name ? `${pid} ${matchData[pid].name}` : `${pid}号玩家`;
@@ -439,7 +459,10 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
 
+    const canReconnect = (pid) => !playerID && !matchData[pid].isConnected;
+
     const handleReconnect = (pid) => {
+        handleContextMenuClose();
         client.emit('bgioChangePlayer', pid);
     };
 
@@ -476,13 +499,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
 
         let voteComponent: any = null;
         if (ctx.phase === 'main') {
-            if (!playerID && !matchData[pid].isConnected) {
-                voteComponent = (
-                    <Tooltip arrow title='接管离线玩家'>
-                        <IconButton color="inherit" aria-label="reconnect" onClick={() => { handleReconnect(pid) }}>🔗</IconButton>
-                    </Tooltip>
-                );
-            } else if (!playerID || !G.players[playerID].alive) {
+            if (!playerID || !G.players[playerID].alive) {
                 voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
             } else {
                 if (G.election) {
@@ -558,6 +575,8 @@ const usePlayersTableStyle = makeStyles(theme => ({
 
         playersTable.push(
           <TableRow
+            onContextMenu={(e) => {handleContextMenu(e, pid)}}
+            style={{ cursor: canReconnect(pid) ? 'context-menu' : 'inherit' }}
             key={pid}
             onClick={e => handleChoose(e, pid)}
             className={playerRowClass}>
@@ -629,6 +648,19 @@ const usePlayersTableStyle = makeStyles(theme => ({
             <TableCell className={voteClass} component="th" scope="row">
               {voteComponent}
             </TableCell>
+            <Menu
+                keepMounted
+                open={clickState.mouseY !== null}
+                onClose={handleContextMenuClose}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                    clickState.mouseY !== null && clickState.mouseX !== null
+                        ? { top: clickState.mouseY, left: clickState.mouseX }
+                        : undefined
+                }
+            >
+                <MenuItem onClick={() => { handleReconnect(pid) }}>🔗 接管离线玩家</MenuItem>
+            </Menu>
           </TableRow>
         );
     }

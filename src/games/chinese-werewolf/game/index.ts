@@ -164,6 +164,20 @@ export const ChineseWerewolf = {
                         vote: G.reveal ? vote : ''
                     }
                 }
+            } else if (!Object.prototype.hasOwnProperty.call(G.players, playerID)) {
+                console.log('ERROR:', playerID);
+                // hack until I can debug and figure what's going on
+                if (G.spectatorsSeeIdentity) {
+                    players[pid] = G.players[pid];
+                } else {
+                    const { vote, ...others } = G.players[pid];
+                    players[pid] = {
+                        ...others,
+                        roles: [],
+                        lover: false,
+                        vote: G.reveal ? vote : ''
+                    }
+                }
             } else if (playerID === G.god) {
                 // what god sees
                 players[pid] = G.players[pid];
@@ -178,10 +192,10 @@ export const ChineseWerewolf = {
                     players[pid] = G.players[pid];
                 }
             } else {
+                // what player sees of other players
                 if (!G.players[playerID].alive && G.deadSeeIdentity) {
                     players[pid] = G.players[pid];
                 } else {
-                    // what player sees of other players
                     const { lover, vote, ...others } = G.players[pid];
                     players[pid] = {
                         ...others,

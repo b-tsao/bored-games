@@ -149,24 +149,15 @@ export const ChineseWerewolf = {
     },
 
     playerView: (G, ctx, playerID) => {
+        if (playerID && !Object.prototype.hasOwnProperty.call(G.players, playerID)) {
+            console.log('DEBUG ERROR', playerID, typeof playerID);
+            playerID = undefined;
+        }
+
         const players = {};
         for (const pid in G.players) {
             if (!playerID) {
                 // spectator
-                if (G.spectatorsSeeIdentity) {
-                    players[pid] = G.players[pid];
-                } else {
-                    const { vote, ...others } = G.players[pid];
-                    players[pid] = {
-                        ...others,
-                        roles: [],
-                        lover: false,
-                        vote: G.reveal ? vote : ''
-                    }
-                }
-            } else if (!Object.prototype.hasOwnProperty.call(G.players, playerID)) {
-                console.log('ERROR:', playerID);
-                // hack until I can debug and figure what's going on
                 if (G.spectatorsSeeIdentity) {
                     players[pid] = G.players[pid];
                 } else {

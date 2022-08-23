@@ -47,7 +47,7 @@ export function start(G, ctx) {
     ctx.events.endPhase();
     systemLog(G, ctx, '游戏开始！');
     systemLog(G, ctx, '请等待上帝的指示。');
-    systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
+    // systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
 
     // unlock chats
     Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
@@ -67,7 +67,7 @@ export function next(G, ctx) {
             player.vote = '';
         }
 
-        systemLog(G, ctx, `进入白天 ${ctx.turn - 1}`);
+        // systemLog(G, ctx, `进入白天 ${ctx.turn - 1}`);
 
         if (!G.badge && ctx.turn > 2) {
             const minutes = (new Date()).getMinutes();
@@ -81,7 +81,7 @@ export function next(G, ctx) {
         Object.keys(G.chats).forEach((cid) => G.chats[cid].disabled = false);
         meowLog(G, ctx, `喵晚 ${ctx.turn}～`);
 
-        systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
+        // systemLog(G, ctx, `进入夜晚 ${ctx.turn}`);
     }
 }
 
@@ -162,6 +162,21 @@ export function election(G, ctx) {
     }
 }
 
+export function pk(G, ctx, pkers) {
+    for (const pid in G.players) {
+        G.players[pid].vote = '';
+    }
+    if (G.pk) {
+        systemLog(G, ctx, '上帝終止PK！');
+        G.pk = null;
+    } else if (pkers.length > 1) {
+        G.pk = pkers;
+        gameLog(G, ctx, `PK: ${pkers.join(',')}号玩家`);
+    } else {
+        return INVALID_MOVE;
+    }
+}
+
 export function reveal(G, ctx) {
     if (G.election && G.election.length === 0) {
         // reveal those running for election
@@ -202,8 +217,12 @@ export function reveal(G, ctx) {
             const votes = {};
             const forfeits: string[] = [];
             for (const pid in G.players) {
-                if (G.players[pid].alive && (!G.election || G.election.filter((player) => pid === player.id).length === 0)) {
-                    // if no election or player is not running for election
+                if (
+                    G.players[pid].alive
+                    && (!G.election || G.election.filter((player) => pid === player.id).length === 0)
+                    && (!G.pk || G.pk.filter((player) => pid === player).length === 0)
+                ) {
+                    // if no election or player is not running for election or player is not part of pk
                     const vid = G.players[pid].vote;
                     if (vid !== '' && vid !== pid) {
                         if (votes[vid]) {
@@ -237,6 +256,10 @@ export function reveal(G, ctx) {
             if (G.election) {
                 gameLog(G, ctx, '上警结束。');
                 G.election = null;
+            }
+            if (G.pk) {
+                gameLog(G, ctx, 'PK结束。');
+                G.pk = null;
             }
         }
     }
@@ -287,6 +310,21 @@ export function vote(G, ctx, pid) {
                 return INVALID_MOVE;
             }
         }
+    } else if (G.pk) {
+        let votePker = false;
+        for (const pker of G.pk) {
+            if (ctx.playerID === pker) {
+                // pker trying to vote
+                return INVALID_MOVE;
+            } else {
+                if (pker === pid) {
+                    votePker = true;
+                }
+            }
+        }
+        if (!votePker && pid !== ctx.playerID) {
+            return INVALID_MOVE;
+        }
     }
     if (player.vote === pid) {
         player.vote = '';
@@ -298,7 +336,7 @@ export function vote(G, ctx, pid) {
 export function modifyChat(G, ctx, title, players) {
     let disabled = ctx.phase === 'setup' || G.state === 1;
     let free = !G.selectionTermsOnly;
-    let chat = [{ name: '喵', message: '这是喵管理的聊天室，不过喵白天睡喵觉所以喵晚上才开喵～', userID: '00' }];
+    let chat = [{ name: '喵', message: '这是喵管理的喵天室，不过喵白天睡喵觉所以喵晚上才开喵～', userID: '00' }];
     if (Object.prototype.hasOwnProperty.call(G.chats, title)) {
         // if this chat room exists, it's an edit and we should use existing values
         disabled = G.chats[title].disabled;

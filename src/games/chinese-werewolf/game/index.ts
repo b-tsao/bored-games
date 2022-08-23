@@ -11,6 +11,7 @@ import {
     vote,
     reveal,
     election,
+    pk,
     modifyChat,
     deleteChat,
     lockChat,
@@ -131,6 +132,7 @@ export const ChineseWerewolf = {
             discards: [...shuffledCards.slice(i), ...discarded],
             state: 0,
             election: null,
+            pk: null,
             badge: null,
             chats: {
                 '记录': {
@@ -251,7 +253,7 @@ export const ChineseWerewolf = {
                 },
                 stages: {
                     god: {
-                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, reveal, modifyChat, deleteChat, lockChat, freeChat, chat, read, next }
+                        moves: { setRole, setDiscard, transfer, kill, badge, lover, election, pk, reveal, modifyChat, deleteChat, lockChat, freeChat, chat, read, next }
                     },
                     player: {
                         moves: { vote, chat, read }

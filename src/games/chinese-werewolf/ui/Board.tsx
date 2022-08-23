@@ -67,12 +67,16 @@ class Action {
     }
 }
 
-function isRunningForElection(G, pid) {
+function isActiveElector(G, pid) {
     return G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0;
 }
 
-function wasRunningForElection(G, pid) {
+function isElector(G, pid) {
     return G.election && G.election.filter((player) => pid === player.id).length > 0;
+}
+
+function isPKer(G, pid) {
+    return G.pk && G.pk.filter((player) => pid === player).length > 0;
 }
 
 const useActionBarStyles = makeStyles((theme) => ({
@@ -111,7 +115,7 @@ const useActionBarStyles = makeStyles((theme) => ({
                         r1: changes
                     };
                     const r = changes.player ? G.players[changes.player.id].roles[changes.player.pos] : changes.discard?.role;
-                    const message = `请选择要互换的角色 (${Cards[r].label} <-> ?)`;
+                    const message = `请点选要互换的角色 (${Cards[r].label} <-> ?)`;
                     setAction(action.clone(data, message));
                 } else {
                     const data = {
@@ -227,6 +231,40 @@ const useActionBarStyles = makeStyles((theme) => ({
         }
     }
 
+    const handleChoosePK = () => {
+        if (action.type !== 'pk') {
+            setAction(new Action(
+                'pk',
+                new Set(),
+                '请点选PK的玩家 ()',
+                (action, pid) => {
+                    const { data } = action;
+                    const players = data;
+                    if (players.has(pid)) {
+                        players.delete(pid)
+                    } else {
+                        players.add(pid);
+                    }
+                    const message = `请点选PK的玩家 (${Array.from(players).join(',')})`;
+                    setAction(action.clone(players, message));
+                }
+            ));
+        } else {
+            setAction(new Action());
+        }
+    };
+
+    const handlePK = () => {
+        if (G.pk) {
+            moves.pk();
+        } else {
+            if (action.type === 'pk' && action.data.size > 1) {
+                moves.pk(Array.from(action.data));
+            }
+        }
+        setAction(new Action());   
+    };
+
     const handleElection = () => {
         moves.election();
     };
@@ -286,17 +324,40 @@ const useActionBarStyles = makeStyles((theme) => ({
                 <Grid item>
                     {
                         G.state === 1 ?
-                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleElection}>
-                                {G.election === null ? '开始上警' : '終止上警'}
+                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Election" onClick={handleElection}>
+                                {G.election === null ? '上警' : '取消'}
                             </IconButton> :
                             null
                     }
                     {
-                        G.state === 1 ?
-                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
-                                {G.election && G.election.length === 0 ? '开警' : '统票'}
-                            </IconButton> :
-                            null
+                        G.state === 1
+                            ? G.pk
+                                ? (
+                                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="CancelPK" onClick={handlePK}>
+                                        {'取消'}
+                                    </IconButton>
+                                )
+                                : (
+                                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="ChoosePK" onClick={handleChoosePK}>
+                                        {action.type !== 'pk' ? 'PK' : '取消'}
+                                    </IconButton>
+                                )
+                            : null
+                    }
+                    {
+                        G.state === 1
+                            ? action.type === 'pk'
+                                ? (
+                                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="BeginPK" onClick={handlePK}>
+                                        {'开PK'}
+                                    </IconButton>
+                                )
+                                : (
+                                    <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Reveal" onClick={handleReveal}>
+                                        {G.election && G.election.length === 0 ? '开警' : '统票'}
+                                    </IconButton>
+                                )
+                            : null
                     }
                     {
                         ctx.phase === 'main' ?
@@ -410,6 +471,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                 case 'kill':
                 case 'badge':
                 case 'love':
+                case 'pk':
                     if (playerID !== playerId) {
                         action.update(playerId);
                     }
@@ -475,7 +537,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
 
         let voteComponent: any = null;
         if (ctx.phase === 'main') {
-            if (!playerID && !matchData[pid].isConnected) {
+            if (!playerID && matchData && !matchData[pid].isConnected) {
                 voteComponent = (
                     <Tooltip arrow title='接管离线玩家'>
                         <IconButton color="inherit" aria-label="reconnect" onClick={() => { handleReconnect(pid) }}>🔗</IconButton>
@@ -499,20 +561,11 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         }
                     } else {
                         if (playerID === pid) {
-                            if (isRunningForElection(G, pid)) {
+                            if (isElector(G, pid)) {
                                 voteComponent = (
                                     <Button
                                         variant='contained'
-                                        onClick={() => { handleVote(pid) }}
-                                    >
-                                        退水
-                                    </Button>
-                                );
-                            } else if (wasRunningForElection(G, pid)) {
-                                voteComponent = (
-                                    <Button
-                                        variant='contained'
-                                        color='secondary'
+                                        color={isActiveElector(G, pid) ? undefined : 'secondary'}
                                         onClick={() => { handleVote(pid) }}
                                     >
                                         退水
@@ -529,7 +582,31 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     </Button>
                                 );
                             }
-                        } else if (isRunningForElection(G, pid) && !wasRunningForElection(G, playerID)) {
+                        } else if (!isElector(G, playerID) && isActiveElector(G, pid)) {
+                            voteComponent = (
+                                <Button
+                                    variant='contained'
+                                    color={voteColor}
+                                    onClick={() => { handleVote(pid) }}
+                                >
+                                    投票
+                                </Button>
+                            );
+                        }
+                    }
+                } else if (G.pk) {
+                    if (!isPKer(G, playerID)) {
+                        if (playerID === pid) {
+                            voteComponent = (
+                                <Button
+                                    variant='contained'
+                                    color={voteColor}
+                                    onClick={() => { handleVote(pid) }}
+                                >
+                                    弃票
+                                </Button>
+                            );
+                        } else if (isPKer(G, pid)) {
                             voteComponent = (
                                 <Button
                                     variant='contained'
@@ -607,7 +684,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         </Card>
                     </Tooltip>
                 </Zoom>
-                <Zoom in={G.election && isRunningForElection(G, pid)}>
+                <Zoom in={isActiveElector(G, pid)}>
                     <Tooltip
                         arrow
                         placement="top"
@@ -620,6 +697,17 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     src={Cards.sheriff.img}
                                     alt='警上' /> :
                                 <Avatar className={avatarClass} variant='rounded'>警上</Avatar>}
+                        </Card>
+                    </Tooltip>
+                </Zoom>
+                <Zoom in={isPKer(G, pid)}>
+                    <Tooltip
+                        arrow
+                        placement="top"
+                        title='PK'
+                    >
+                        <Card className={classes.avatar}>
+                            <Avatar className={avatarClass} variant='rounded'>PK</Avatar>
                         </Card>
                     </Tooltip>
                 </Zoom>

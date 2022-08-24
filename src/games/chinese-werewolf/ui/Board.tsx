@@ -323,14 +323,16 @@ const useActionBarStyles = makeStyles((theme) => ({
                 <Box flexGrow={1} />
                 <Grid item>
                     {
-                        G.state === 1 ?
-                            <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Election" onClick={handleElection}>
-                                {G.election === null ? '上警' : '取消'}
-                            </IconButton> :
-                            null
+                        G.state === 1 && action.type !== 'pk' && !G.pk
+                            ? (
+                                <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="Election" onClick={handleElection}>
+                                    {G.election === null ? '上警' : '取消'}
+                                </IconButton>
+                            )
+                            : null
                     }
                     {
-                        G.state === 1
+                        G.state === 1 && !G.election
                             ? G.pk
                                 ? (
                                     <IconButton classes={{ root: classes.shrinkRipple }} color="inherit" aria-label="CancelPK" onClick={handlePK}>

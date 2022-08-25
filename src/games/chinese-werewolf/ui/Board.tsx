@@ -170,8 +170,9 @@ const useActionBarStyles = makeStyles((theme) => ({
                 '请点选上帝转移的对象',
                 (action, changes) => {
                     const pid = changes;
-                    moves.transfer(pid);
-                    client.emit('bgioHostAction', 'transferHost', pid);
+                    client.emit('bgioHostAction', 'transferHost', pid, null, () => {
+                        moves.transfer(pid);
+                    });
                     setAction(new Action());
                 }
             ));

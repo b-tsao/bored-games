@@ -300,7 +300,7 @@ export default class IORoomServer {
   }
 
   attachBgioListener(client) {
-    client.on('bgioHostAction', (action, id, data) => {
+    client.on('bgioHostAction', (action, id, data, cb = () => {}) => {
       const key = client.roomKey;
       logger.trace(`User (${client.userId}) requesting bgio host action (${action}) against user (${id}) in room (${key})`);
       const room = RoomManager.getRoom(key);
@@ -336,6 +336,7 @@ export default class IORoomServer {
           client.emit('message', { status: 'error', text: err });
         } else {
           this.ioRoomServer.to(key).emit('changes', ctxChanges);
+          cb();
         }
       });
     });

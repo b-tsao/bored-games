@@ -403,10 +403,12 @@ export default class Room {
         const player = ctx.players[id];
         player.client.id = client;
         player.client.status = 'connected';
+        this.logger.debug(`Player (${id}) connected with client (${client})`);
       } else if (ctx.spectators.hasOwnProperty(id)) {
         const spectator = ctx.spectators[id];
         spectator.client.id = client;
         spectator.client.status = 'connected';
+        this.logger.debug(`Spectator (${id}) connected with client (${client})`);
       } else {
         const spectator = {
           client: {
@@ -415,6 +417,7 @@ export default class Room {
           }
         };
         ctx.spectators[id] = spectator;
+        this.logger.debug(`New spectator (${id}) connected with client (${client})`);
       }
       this.logger.info(`Connected user (${id}) with client (${client})`);
     }, callback);

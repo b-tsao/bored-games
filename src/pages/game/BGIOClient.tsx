@@ -32,14 +32,13 @@ const useStyles = makeStyles({
 
 export default function BGIOClient({ room, self, game, board }) {
     const [client] = useContext(ClientContext);
-    const [reconnect, setReconnect] = useState<number>(0);
 
     useEffect(() => {
         if (client) {
             // When socket io reconnects, server emits setCookie to client, we will use a hack to reconnect BGIO as well when we listen for this event
             // for devices that go to sleep and wakes up
             const reconnectBgioHandler = () => {
-                setReconnect(reconnect + 1);
+                window.location.reload();
             };
 
             client.on('setCookie', reconnectBgioHandler);
@@ -56,7 +55,7 @@ export default function BGIOClient({ room, self, game, board }) {
         board,
         multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}`, socketOpts: { reconnection: false } }),
         numPlayers: room.ctx.settings.numPlayers
-    }), [reconnect]); // eslint-disable-line react-hooks/exhaustive-deps
+    }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const { matchID } = room.state;
     const classes = useStyles();

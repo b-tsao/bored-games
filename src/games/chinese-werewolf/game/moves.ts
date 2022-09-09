@@ -237,11 +237,17 @@ export function reveal(G, ctx) {
                 G.players[pid].vote = '';
             }
     
-            gameLog(G, ctx, `投票结果:`);
-            for (const vid in votes) {
-                gameLog(G, ctx, `${vid}: ${votes[vid].join(',')}`);
+            if (G.election) {
+                gameLog(G, ctx, `警上投票结果:`);
+            } else if (G.pk) {
+                gameLog(G, ctx, `PK投票结果:`);
+            } else {
+                gameLog(G, ctx, `投票结果:`);
             }
-            gameLog(G, ctx, `弃票: ${forfeits.join(',')}`);
+            for (const vid in votes) {
+                gameLog(G, ctx, `${vid}: ${votes[vid].join(',')} (${votes[vid].length}票)`);
+            }
+            gameLog(G, ctx, `弃票: ${forfeits.join(',')} (${forfeits.length}票)`);
 
             const max = Object.keys(votes).reduce((max, vid) => Math.max(max, votes[vid].length), 0);
             const idx = Object.keys(votes).filter((vid) => votes[vid].length === max);

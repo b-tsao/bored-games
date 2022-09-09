@@ -28,6 +28,7 @@ import { Favorite } from "@material-ui/icons";
 import { ClientContext } from '../../../Contexts';
 import Chats from "./Chats";
 import Cards from "../game/cards";
+import Reconnect from "./components/Reconnect";
 
 class Action {
     private t: string;
@@ -503,10 +504,6 @@ const usePlayersTableStyle = makeStyles(theme => ({
         }
     };
 
-    const handleReconnect = (pid) => {
-        client.emit('bgioChangePlayer', pid);
-    };
-
     let playersTable: any[] = [];
     for (const pid in G.players) {
         const player = G.players[pid];
@@ -541,11 +538,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
         let voteComponent: any = null;
         if (ctx.phase === 'main') {
             if (!playerID && matchData && !matchData[pid].isConnected) {
-                voteComponent = (
-                    <Tooltip arrow title='接管离线玩家'>
-                        <IconButton color="inherit" aria-label="reconnect" onClick={() => { handleReconnect(pid) }}>🔗</IconButton>
-                    </Tooltip>
-                );
+                voteComponent = <Reconnect pid={pid} />;
             } else if (!playerID || !G.players[playerID].alive) {
                 voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
             } else {

@@ -54,7 +54,7 @@ export default function BGIOClient({ room, self, game, board }) {
     const GameClient = useMemo(() => Client({
         game,
         board,
-        multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}`, socketOpts: { reconnectionAttempts: 5 } }),
+        multiplayer: SocketIO({ server: `${window.location.protocol}//${window.location.hostname}:${process.env.REACT_APP_BGIO_PROXY_PORT}`, socketOpts: { reconnection: false } }),
         numPlayers: room.ctx.settings.numPlayers
     }), [cookie]); // eslint-disable-line react-hooks/exhaustive-deps
 

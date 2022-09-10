@@ -68,6 +68,8 @@ class Action {
     }
 }
 
+const FORFEIT_VOTE = '-';
+
 function isActiveElector(G, pid) {
     return G.election && G.election.filter((player) => pid === player.id && !player.drop).length > 0;
 }
@@ -446,6 +448,9 @@ const usePlayersTableStyle = makeStyles(theme => ({
     roles: {
         display: 'flex',
         alignItems: 'center'
+    },
+    forfeit: {
+        marginLeft: '10px'
     }
   }));
   
@@ -457,9 +462,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
       playerID,
       actionHandler,
       setRoleDisplay
-    }) {
-    const [client] = useContext(ClientContext);
-
+  }) {
     const classes = usePlayersTableStyle();
 
     const [action] = actionHandler;
@@ -524,14 +527,10 @@ const usePlayersTableStyle = makeStyles(theme => ({
 
         let voteColor: any = undefined;
         if (playerID) {
-            if (pid === playerID) {
-                if (player.vote === pid) {
-                    voteColor = 'secondary';
-                }
-            } else {
-                if (G.players[playerID].vote === pid) {
-                    voteColor = 'primary';
-                }
+            if (G.players[playerID].vote === pid) {
+                voteColor = 'primary';
+            } else if (pid === playerID && player.vote === FORFEIT_VOTE) {
+                voteColor = 'secondary';
             }
         }
 
@@ -540,7 +539,17 @@ const usePlayersTableStyle = makeStyles(theme => ({
             if (!playerID && matchData && !matchData[pid].isConnected) {
                 voteComponent = <Reconnect pid={pid} />;
             } else if (!playerID || !G.players[playerID].alive) {
-                voteComponent = <Typography>{player.vote === pid && G.state === 1 ? G.election && G.election.length === 0 ? '上' : '弃' : player.vote}</Typography>;
+                voteComponent = (
+                    <Typography>
+                        {
+                            G.election && G.election.length === 0 && player.vote === pid
+                            ? '上'
+                            : player.vote === FORFEIT_VOTE
+                            ? '弃'
+                            : player.vote
+                        }
+                    </Typography>
+                );
             } else {
                 if (G.election) {
                     if (G.election.length === 0) {
@@ -548,7 +557,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                             voteComponent = (
                                 <Button
                                     variant='contained'
-                                    color={player.vote === pid ? 'primary' : undefined}
+                                    color={voteColor}
                                     onClick={() => { handleVote(pid) }}
                                 >
                                     上警
@@ -572,7 +581,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                     <Button
                                         variant='contained'
                                         color={voteColor}
-                                        onClick={() => { handleVote(pid) }}
+                                        onClick={() => { handleVote(FORFEIT_VOTE) }}
                                     >
                                         弃票
                                     </Button>
@@ -597,7 +606,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 <Button
                                     variant='contained'
                                     color={voteColor}
-                                    onClick={() => { handleVote(pid) }}
+                                    onClick={() => { handleVote(FORFEIT_VOTE) }}
                                 >
                                     弃票
                                 </Button>
@@ -615,15 +624,37 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         }
                     }
                 } else if (G.state === 1 && G.players[pid].alive) {
-                    voteComponent = (
-                        <Button
-                            variant='contained'
-                            color={voteColor}
-                            onClick={() => { handleVote(pid) }}
-                        >
-                            {pid === playerID ? '弃票' : '投票'}
-                        </Button>
-                    );
+                    if (pid === playerID) {
+                        voteComponent = (
+                            <React.Fragment>
+                                <Button
+                                    variant='contained'
+                                    color={player.vote === pid ? 'primary' : undefined}
+                                    onClick={() => { handleVote(pid) }}
+                                >
+                                    投票
+                                </Button>
+                                <Button
+                                    className={classes.forfeit}
+                                    variant='contained'
+                                    color={player.vote === FORFEIT_VOTE ? 'secondary' : undefined}
+                                    onClick={() => { handleVote(FORFEIT_VOTE) }}
+                                >
+                                    弃票
+                                </Button>
+                            </React.Fragment>
+                        );
+                    } else {
+                        voteComponent = (
+                            <Button
+                                variant='contained'
+                                color={voteColor}
+                                onClick={() => { handleVote(pid) }}
+                            >
+                                投票
+                            </Button>
+                        );
+                    }
                 }
             }
         }
@@ -680,7 +711,7 @@ const usePlayersTableStyle = makeStyles(theme => ({
                         </Card>
                     </Tooltip>
                 </Zoom>
-                <Zoom in={isActiveElector(G, pid)}>
+                {/* <Zoom in={isActiveElector(G, pid)}>
                     <Tooltip
                         arrow
                         placement="top"
@@ -695,17 +726,13 @@ const usePlayersTableStyle = makeStyles(theme => ({
                                 <Avatar className={avatarClass} variant='rounded'>警上</Avatar>}
                         </Card>
                     </Tooltip>
-                </Zoom>
-                <Zoom in={isPKer(G, pid)}>
-                    <Tooltip
-                        arrow
-                        placement="top"
-                        title='PK'
-                    >
-                        <Card className={classes.avatar}>
-                            <Avatar className={avatarClass} variant='rounded'>PK</Avatar>
-                        </Card>
-                    </Tooltip>
+                </Zoom> */}
+                <Zoom in={isActiveElector(G, pid) || isPKer(G, pid)}>
+                    <Card className={classes.avatar}>
+                        <Avatar className={avatarClass} variant='rounded'>
+                            {isActiveElector(G, pid) && '警上' || isPKer(G, pid) && 'PK' || ''}
+                        </Avatar>
+                    </Card>
                 </Zoom>
               </div>
             </TableCell>

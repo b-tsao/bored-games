@@ -27,7 +27,11 @@ export const ChineseWerewolf = {
         if (setupData === undefined) {
             // mock for testing
             setupData = {
-                cards: [Cards.citizen.id, Cards.alphawolf.id, Cards.bandit.id],
+                cards: [
+                    Cards.prophet.id, Cards.witch.id, Cards.hunter.id, Cards.guard.id,
+                    Cards.citizen.id, Cards.citizen.id, Cards.citizen.id, Cards.citizen.id,
+                    Cards.werewolf.id, Cards.werewolf.id, Cards.werewolf.id, Cards.alphawolf.id
+                ],
                 extra: {
                   selectionTermsOnly: true,
                   spectatorsSeeIdentity: false,

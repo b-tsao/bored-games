@@ -1,5 +1,7 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
 
+const FORFEIT_VOTE = '-';
+
 function systemLog(G, ctx, message) {
     const name = '系统';
     const userID = '00';
@@ -224,7 +226,7 @@ export function reveal(G, ctx) {
                 ) {
                     // if no election or player is not running for election or player is not part of pk
                     const vid = G.players[pid].vote;
-                    if (vid !== '' && vid !== pid) {
+                    if (vid !== '' && vid !== FORFEIT_VOTE) {
                         if (votes[vid]) {
                             votes[vid].push(pid);
                         } else {
@@ -247,7 +249,9 @@ export function reveal(G, ctx) {
             for (const vid in votes) {
                 gameLog(G, ctx, `${vid}: ${votes[vid].join(',')} (${votes[vid].length}票)`);
             }
-            gameLog(G, ctx, `弃票: ${forfeits.join(',')} (${forfeits.length}票)`);
+            if (forfeits.length > 0) {
+                gameLog(G, ctx, `弃票: ${forfeits.join(',')} (${forfeits.length}票)`);
+            }
 
             const max = Object.keys(votes).reduce((max, vid) => Math.max(max, votes[vid].length), 0);
             const idx = Object.keys(votes).filter((vid) => votes[vid].length === max);
@@ -273,7 +277,11 @@ export function reveal(G, ctx) {
 
 export function vote(G, ctx, pid) {
     const player = G.players[ctx.playerID];
-    if (!player.alive || !G.players[pid].alive || G.state !== 1) {
+    if (
+        !player.alive
+        || (pid !== FORFEIT_VOTE && !G.players[pid].alive)
+        || G.state !== 1
+    ) {
         return INVALID_MOVE;
     }
     
@@ -292,11 +300,7 @@ export function vote(G, ctx, pid) {
                         if (!player.drop) {
                             player.drop = true;
                             gameLog(G, ctx, `${ctx.playerID}号玩家退水。`);
-                            for (const pid in G.players) {
-                                if (G.players[pid].vote === player.id) {
-                                    G.players[pid].vote = '';
-                                }
-                            }
+                            clearVotesFor(G, ctx, player.id);
                         } else {
                             player.drop = false;
                             gameLog(G, ctx, `${ctx.playerID}号玩家不退水。`);
@@ -312,7 +316,7 @@ export function vote(G, ctx, pid) {
                     }
                 }
             }
-            if (!voteRunning && pid !== ctx.playerID) {
+            if (!voteRunning && pid !== FORFEIT_VOTE) {
                 return INVALID_MOVE;
             }
         }
@@ -328,7 +332,7 @@ export function vote(G, ctx, pid) {
                 }
             }
         }
-        if (!votePker && pid !== ctx.playerID) {
+        if (!votePker && pid !== FORFEIT_VOTE) {
             return INVALID_MOVE;
         }
     }
